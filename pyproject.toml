@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "hanji"
+version = "0.1.0"
+description = ""
+authors = ["stalker9855 <andrey.l.evseev@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = {extras = ["standard"], version = "^0.115.6"}
+fastapi-users = {extras = ["sqlalchemy"], version = "^14.0.1"}
+psycopg2 = "^2.9.10"
+asyncpg = "^0.30.0"
+alembic = "^1.14.0"
+pydantic-settings = "^2.7.1"
+sqlalchemy = "^2.0.37"
+redis = "^5.2.1"
+minio = "^7.2.15"
+aio-pika = "^9.5.4"
+elasticsearch = "^8.17.0"
+celery = "^5.4.0"
+flower = "^2.0.1"
+couchdb = "^1.2"
+httpx = "^0.28.1"
+pytest = "^8.3.4"
+anyio = "^4.8.0"
+pytest-asyncio = "^0.25.2"
+ruff = "^0.9.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
