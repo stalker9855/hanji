@@ -5,12 +5,17 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.dev.hanji.ui.theme.HanjiTheme
+import com.dev.hanji.components.TopAppBarHanji
 
 class HanjiActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,15 +30,25 @@ class HanjiActivity : ComponentActivity() {
 }
 
 @Composable
-private fun HanjiApp() {
+private fun HanjiApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
-    NavigationDrawer(scope = scope, navController = navController) {
-        Scaffold(modifier = Modifier) { innerPadding ->
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    NavigationDrawer(scope = scope, navController = navController, modifier = modifier, drawerState = drawerState) {
+        Scaffold(modifier = Modifier,
+            topBar = {
+                TopAppBarHanji(drawerState, scope)
+            }) { innerPadding ->
             HanjiNavHost(
                 navController = navController,
                 modifier = Modifier.padding(innerPadding)
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun HanjiAppPreview() {
+   HanjiApp()
 }

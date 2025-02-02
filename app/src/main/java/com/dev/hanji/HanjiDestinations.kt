@@ -1,4 +1,4 @@
-package com.dev.hanji.components
+package com.dev.hanji
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 
 interface HanjiDestination {
@@ -42,4 +43,17 @@ object Settings : HanjiDestination {
     override val title: String = "Settings"
 }
 
+object UserStats : HanjiDestination {
+    override val route: String = "user_stats"
+    override val icon: ImageVector = Icons.Filled.Star
+    override val title: String = "Statistics"
+}
+
+object UserAchievements : HanjiDestination {
+    override val route: String = "user_achievements"
+    override val icon: ImageVector = Icons.Filled.Star
+    override val title: String = "Achievements"
+}
+
 val hanjiScreens = listOf(Home, Packs, User, About, Settings)
+val userScreens = listOf(UserStats, UserAchievements)

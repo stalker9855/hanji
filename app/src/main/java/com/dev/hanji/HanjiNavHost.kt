@@ -1,16 +1,17 @@
 package com.dev.hanji
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.dev.hanji.components.About
-import com.dev.hanji.components.Home
-import com.dev.hanji.components.Packs
-import com.dev.hanji.components.Settings
-import com.dev.hanji.components.User
+import androidx.navigation.compose.navigation
 import com.dev.hanji.screens.AboutScreen
 import com.dev.hanji.screens.HomeScreen
 import com.dev.hanji.screens.PacksScreen
@@ -22,17 +23,17 @@ import com.dev.hanji.screens.UserScreen
 fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = Home.route,
+        startDestination = User.route,
         modifier = modifier
     )  {
         composable(route = Home.route) {
-            HomeScreen()
+            HomeScreen(modifier = modifier)
         }
         composable(route = Packs.route) {
             PacksScreen()
         }
         composable(route = User.route) {
-            UserScreen()
+            UserScreen(modifier = modifier)
         }
         composable(route = Settings.route) {
             SettingsScreen()
@@ -40,6 +41,17 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
         composable(route = About.route) {
             AboutScreen()
         }
+        // navigation(
+        //     startDestination = UserStats.route,
+        //     route = User.route
+        // ) {
+        //     composable(route = UserStats.route) {
+        //         UserStatsScreen()
+        //     }
+        //     composable(route = UserAchievements.route) {
+        //         UserAchievementsScreen()
+        //     }
+        // }
     }
 }
 
@@ -51,4 +63,14 @@ fun NavHostController.navigateSingleTopTo(route: String) = this.navigate(route) 
     }
     launchSingleTop = true
     restoreState = true
+}
+
+@Composable
+inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(navController: NavController): T {
+    val navGraphRoute = destination.parent?.route ?: return viewModel()
+    val parentEntry = remember(this) {
+        navController.getBackStackEntry(navGraphRoute)
+    }
+    return viewModel(parentEntry)
+
 }
