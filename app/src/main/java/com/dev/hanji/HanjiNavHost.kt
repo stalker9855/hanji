@@ -11,12 +11,11 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import com.dev.hanji.screens.AboutScreen
 import com.dev.hanji.screens.HomeScreen
 import com.dev.hanji.screens.PacksScreen
 import com.dev.hanji.screens.SettingsScreen
-import com.dev.hanji.screens.UserScreen
+import com.dev.hanji.screens.user.UserScreen
 
 
 @Composable

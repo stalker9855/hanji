@@ -1,4 +1,4 @@
-package com.dev.hanji
+package com.dev.hanji.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.dev.hanji.R
+import com.dev.hanji.hanjiScreens
+import com.dev.hanji.navigateSingleTopTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
