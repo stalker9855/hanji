@@ -17,3 +17,9 @@ val Green2 = Color(0xFFe9edc9)
 val Yellow1 = Color(0xFFfefae0)
 val Yellow2 = Color(0xFFfaedcd)
 val Brown1 = Color(0xFFD4A373)
+
+
+val GreatAttemptColor = Color(0xFFBFEA7C)
+val GoodAttemptColor = Color(0xFF416D19)
+val NormalAttemptColor = Color(0xFFFFF67E)
+val ErrorAttemptColor = Color(0xFFE52020)

@@ -33,7 +33,6 @@ fun UserTabRow(userScreens: List<HanjiDestination>,
                ) {
    Surface(
        Modifier
-           .border(2.dp, Color.Gray)
            .wrapContentHeight()
            .fillMaxWidth()
    ) {
