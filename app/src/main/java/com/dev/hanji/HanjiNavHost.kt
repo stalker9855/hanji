@@ -26,13 +26,13 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
         modifier = modifier
     )  {
         composable(route = Home.route) {
-            HomeScreen(modifier = modifier)
+            HomeScreen()
         }
         composable(route = Packs.route) {
             PacksScreen()
         }
         composable(route = User.route) {
-            UserScreen(modifier = modifier)
+            UserScreen()
         }
         composable(route = Settings.route) {
             SettingsScreen()

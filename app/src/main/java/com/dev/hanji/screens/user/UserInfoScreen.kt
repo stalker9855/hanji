@@ -45,7 +45,7 @@ import com.dev.hanji.user.UserViewModel
 
 
 @Composable
-fun UserStatsScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
+fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
     val user by viewModel.user.collectAsState()
     val totalAttempts by viewModel.totalAttempts.collectAsState()
     Column {
@@ -56,18 +56,29 @@ fun UserStatsScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
         )
         {
             Row(Modifier
-                .padding(bottom = 8.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
-                Image(painter = painterResource(R.drawable.avatar),
+                Image(painter = painterResource(R.drawable.avatar4),
                     contentDescription = "avatar", modifier = Modifier
+                        .padding(16.dp)
                         .size(128.dp)
-                        .clip(CircleShape))
-                Column {
-                    Text("Username: ${user?.username}")
-                    Text("1 lv.")
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                    ,
+                        )
+                Column(modifier = Modifier.padding(16.dp).align(Alignment.CenterVertically)) {
+                    Text(text= "${user?.username}",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp
+                    )
+                    HorizontalDivider(modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                    )
+                    Text("Level - Beginner")
                 }
             }
                 Column {

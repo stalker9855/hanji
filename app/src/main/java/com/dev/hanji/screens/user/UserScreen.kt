@@ -1,6 +1,7 @@
 package com.dev.hanji.screens.user
 
 import android.util.Log
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -9,7 +10,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dev.hanji.HanjiDestination
 import com.dev.hanji.UserAchievements
@@ -38,22 +38,16 @@ fun UserScreen(modifier: Modifier = Modifier) {
             )
         }
 
-    ) { _ ->
+    ) { innerPadding ->
         when(currentScreen) {
             UserStats ->  {
                 Log.d("Current Screen", currentScreen.title)
-                UserStatsScreen(modifier = modifier, viewModel = viewModel)
+                UserInfoScreen(modifier = modifier.padding(innerPadding), viewModel = viewModel)
             }
             UserAchievements -> {
                 Log.d("Current Screen", currentScreen.title)
-                UserAchievementsScreen(modifier = modifier, viewModel = viewModel)
+                UserAchievementsScreen(modifier = modifier.padding(innerPadding), viewModel = viewModel)
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun UserScreenPreview() {
-    UserScreen()
 }

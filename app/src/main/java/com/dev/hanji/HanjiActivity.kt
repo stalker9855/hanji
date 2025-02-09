@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dev.hanji.components.NavigationDrawer
+import com.dev.hanji.components.PrimaryTextTabs
 import com.dev.hanji.ui.theme.HanjiTheme
 import com.dev.hanji.components.TopAppBarHanji
 
@@ -47,10 +48,4 @@ private fun HanjiApp(modifier: Modifier = Modifier) {
             )
         }
     }
-}
-
-@Preview
-@Composable
-private fun HanjiAppPreview() {
-   HanjiApp()
 }

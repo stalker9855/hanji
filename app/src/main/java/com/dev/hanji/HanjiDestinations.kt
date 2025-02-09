@@ -44,9 +44,9 @@ object Settings : HanjiDestination {
 }
 
 object UserStats : HanjiDestination {
-    override val route: String = "user_stats"
-    override val icon: ImageVector = Icons.Filled.Star
-    override val title: String = "Statistics"
+    override val route: String = "user_info"
+    override val icon: ImageVector = Icons.Filled.AccountCircle
+    override val title: String = "Info"
 }
 
 object UserAchievements : HanjiDestination {
