@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -19,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -42,6 +39,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dev.hanji.R
+import com.dev.hanji.user.UserAttempt
 import com.dev.hanji.user.UserEntity
 import com.dev.hanji.user.UserViewModel
 
@@ -50,14 +48,18 @@ import com.dev.hanji.user.UserViewModel
 fun UserStatsScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
     val user by viewModel.user.collectAsState()
     val totalAttempts by viewModel.totalAttempts.collectAsState()
-    Box {
+    Column {
         Column(modifier = modifier
+            .padding(16.dp)
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
         )
         {
             Row(Modifier
+                .padding(bottom = 8.dp)
+                .clip(RoundedCornerShape(16.dp))
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                 Image(painter = painterResource(R.drawable.avatar),
                     contentDescription = "avatar", modifier = Modifier
@@ -68,36 +70,55 @@ fun UserStatsScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                     Text("1 lv.")
                 }
             }
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    CircleStats(user = user, totalAttempts = totalAttempts)
-                    user!!.attempts.forEach {(attempts, color) ->
-                        UserStat(attempts, color)
+                Column {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                    ) {
+                        Text(
+                            text ="Attempts · 試み",
+                            modifier = Modifier.align(Alignment.CenterHorizontally).padding(vertical = 12.dp),
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        HorizontalDivider(modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            user!!.attempts.forEach {attempt ->
+                                UserStat(attempt)
+                            }
+
+                        }
+
                     }
+                    CircleStats(user = user, totalAttempts = totalAttempts)
+
                 }
 
         }
     }
 }
 
-/*
- MAKE AN INTERACE FOR ATTEMPT (INT, COLOR, TITLE)
- */
 
 @Composable
-private fun UserStat(attempts: Int?, color: Color, modifier: Modifier = Modifier) {
+private fun UserStat(attempt: UserAttempt, modifier: Modifier = Modifier) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
+        modifier = modifier.padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(32.dp)
-                .background(color)
                 .clip(RoundedCornerShape(8.dp))
+                .size(28.dp)
+                .background(attempt.color)
         )
-        Text("Attempts: $attempts")
+        Text("${attempt.type.value}: ${attempt.count}", modifier = modifier.padding(start = 8.dp))
     }
 }
 
@@ -128,15 +149,13 @@ fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modi
             onDraw = {
                 val padding = 16.dp.toPx()
                 val size = size.minDimension - padding * 2
-                var sweepAngle = 0f
+                var sweepAngle: Float
                 var startAngle = 0f
 
-                user?.attempts?.forEach { (value, color) ->
-                    if (value != null) {
-                        sweepAngle = (value.toFloat() / totalAttempts) * 360
-                    }
+                user?.attempts?.forEach { attempt ->
+                    sweepAngle = (attempt.count.toFloat() / totalAttempts) * 360
                     drawArc(
-                        color = color,
+                        color = attempt.color,
                         startAngle = startAngle,
                         sweepAngle = sweepAngle,
                         useCenter = false,

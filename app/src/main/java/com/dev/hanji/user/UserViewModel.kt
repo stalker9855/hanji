@@ -17,7 +17,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
 
     val totalAttempts: StateFlow<Int> = _user.map { user ->
         user?.let {
-            it.greatAttempts + it.goodAttempts + it.normalAttempts + it.errorAttempts
+            it.greatAttempts + it.goodAttempts + it.normalAttempts + it.failedAttempts
         } ?: 0
     }.stateIn(viewModelScope, SharingStarted.Lazily, 0)
 
@@ -42,7 +42,7 @@ class UserViewModel(private val userDao: UserDao) : ViewModel() {
             greatAttempts = 200,
             goodAttempts = 400,
             normalAttempts = 180,
-            errorAttempts = 128
+            failedAttempts = 12
         )
     }
 }

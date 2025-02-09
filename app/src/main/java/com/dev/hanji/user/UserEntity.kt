@@ -9,6 +9,25 @@ import com.dev.hanji.ui.theme.GoodAttemptColor
 import com.dev.hanji.ui.theme.GreatAttemptColor
 import com.dev.hanji.ui.theme.NormalAttemptColor
 
+enum class TypeAttempt(val value: String) {
+     BAD("Bad"),
+     NORMAL("Normal"),
+     GOOD("Good"),
+     GREAT("Great")
+}
+
+interface UserAttempt {
+    val type: TypeAttempt
+    val count: Int
+    val color: Color
+}
+
+data class ConcreteUserAttempt (
+    override val type: TypeAttempt,
+    override val count: Int,
+    override val color: Color
+) : UserAttempt
+
 @Entity(tableName = "current_user")
 data class UserEntity (
 
@@ -25,18 +44,18 @@ data class UserEntity (
     @ColumnInfo(name = "good_attempts")
     val goodAttempts: Int,
 
-    @ColumnInfo(name = "bad_attempts")
+    @ColumnInfo(name = "normal_attempts")
     val normalAttempts: Int,
 
-    @ColumnInfo(name = "error_attempts")
-    val errorAttempts: Int,
+    @ColumnInfo(name = "failed_attempts")
+    val failedAttempts: Int,
 
-) {
-    val attempts: List<Pair<Int?, Color>>
+    ) {
+    val attempts: List<UserAttempt>
         get() = listOf(
-            Pair(greatAttempts, GreatAttemptColor),
-            Pair(goodAttempts, GoodAttemptColor),
-            Pair(normalAttempts, NormalAttemptColor),
-            Pair(errorAttempts, ErrorAttemptColor),
+            ConcreteUserAttempt(TypeAttempt.GREAT, greatAttempts, GreatAttemptColor),
+            ConcreteUserAttempt(TypeAttempt.GOOD, goodAttempts, GoodAttemptColor),
+            ConcreteUserAttempt(TypeAttempt.NORMAL, normalAttempts, NormalAttemptColor),
+            ConcreteUserAttempt(TypeAttempt.BAD, failedAttempts, ErrorAttemptColor),
         )
 }
