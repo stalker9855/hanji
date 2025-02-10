@@ -28,7 +28,8 @@ fun UserScreen(modifier: Modifier = Modifier) {
     val userDao: UserDao = AppDatabase.getInstance(context = LocalContext.current).userDao
     val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userDao = userDao))
 
-    var currentScreen: HanjiDestination by remember { mutableStateOf(UserStats) }
+    // !!! REPLACE UserAchievements TO UserStats
+    var currentScreen: HanjiDestination by remember { mutableStateOf(UserAchievements) }
     Scaffold(
         topBar = {
             UserTabRow(

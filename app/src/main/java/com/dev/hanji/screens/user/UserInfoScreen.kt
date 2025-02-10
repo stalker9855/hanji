@@ -1,5 +1,8 @@
 package com.dev.hanji.screens.user
 
+import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -136,6 +140,11 @@ private fun UserStat(attempt: UserAttempt, modifier: Modifier = Modifier) {
 
 @Composable
 fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modifier) {
+    // val currentState  = remember {
+    //     MutableTransitionState(AnimatedCircleProgress.START)
+    //         .apply { targetState = AnimatedCircleProgress.END }
+    // }
+    // val transitionState = rememberTransition(currentState)
     val textStats = stringResource(R.string.stats)
     val textMeasure = rememberTextMeasurer()
     val textStyle = TextStyle(
@@ -193,3 +202,4 @@ fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modi
         )
     }
 }
+private enum class AnimatedCircleProgress { START, END }

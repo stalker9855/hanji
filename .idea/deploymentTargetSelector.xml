@@ -4,6 +4,14 @@
     <selectionStates>
       <SelectionState runConfigName="hanji">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2025-02-10T10:56:23.377682716Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="Default" identifier="serial=192.168.0.100:33781;connection=aaaaaa45" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="UserScreenPreview">
         <option name="selectionMode" value="DROPDOWN" />

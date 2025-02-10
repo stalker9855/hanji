@@ -1,14 +1,11 @@
 package com.dev.hanji.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.selection.selectable
@@ -57,6 +54,21 @@ fun UserTabRow(userScreens: List<HanjiDestination>,
 
 @Composable
 private fun UserTab(text: String, icon: ImageVector, onSelected: () -> Unit, selected: Boolean) {
+
+    // val backgroundColor by animateColorAsState(
+    //     targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+    //     animationSpec = tween(durationMillis = 200)
+    // )
+
+    // val textColor by animateColorAsState(
+    //     targetValue = if (selected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline,
+    //     animationSpec = tween(durationMillis = 200)
+    // )
+
+    // val fontWeight by animateFloatAsState(
+    //     targetValue = if (selected) 800f else 400f,
+    //     animationSpec = tween(durationMillis = 200)
+    // )
     Row(modifier =  Modifier
         .wrapContentHeight()
         .padding(horizontal = 8.dp, vertical = 4.dp)
