@@ -19,7 +19,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,8 +35,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dev.hanji.R
 import com.dev.hanji.user.UserAttempt
 import com.dev.hanji.user.UserEntity
@@ -46,8 +47,8 @@ import com.dev.hanji.user.UserViewModel
 
 @Composable
 fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
-    val user by viewModel.user.collectAsState()
-    val totalAttempts by viewModel.totalAttempts.collectAsState()
+    val user by viewModel.user.collectAsStateWithLifecycle()
+    val totalAttempts by viewModel.totalAttempts.collectAsStateWithLifecycle()
     Column {
         Column(modifier = modifier
             .padding(16.dp)
@@ -56,7 +57,7 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
         )
         {
             Row(Modifier
-                .clip(RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
@@ -69,7 +70,7 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                     ,
                         )
                 Column(modifier = Modifier.padding(16.dp).align(Alignment.CenterVertically)) {
-                    Text(text= "${user?.username}",
+                    Text(text= "${user.username}",
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
@@ -86,7 +87,7 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
                             .background(MaterialTheme.colorScheme.surfaceContainer)
                     ) {
                         Text(
@@ -101,7 +102,7 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                         Column(modifier = Modifier.padding(12.dp)) {
-                            user!!.attempts.forEach {attempt ->
+                            user.attempts.forEach {attempt ->
                                 UserStat(attempt)
                             }
 
@@ -136,11 +137,6 @@ private fun UserStat(attempt: UserAttempt, modifier: Modifier = Modifier) {
 
 @Composable
 fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modifier) {
-    // val currentState  = remember {
-    //     MutableTransitionState(AnimatedCircleProgress.START)
-    //         .apply { targetState = AnimatedCircleProgress.END }
-    // }
-    // val transitionState = rememberTransition(currentState)
     val textStats = stringResource(R.string.stats)
     val textMeasure = rememberTextMeasurer()
     val textStyle = TextStyle(
@@ -156,7 +152,7 @@ fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modi
         modifier = modifier
             .fillMaxWidth()
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .padding(16.dp)
     ) {
@@ -198,4 +194,5 @@ fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modi
         )
     }
 }
-// private enum class AnimatedCircleProgress { START, END }
+
+private val CORNER_SHAPE_SIZE: Dp = 15.dp

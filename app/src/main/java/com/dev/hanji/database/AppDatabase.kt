@@ -4,12 +4,15 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.dev.hanji.achievements.AchievementDao
+import com.dev.hanji.achievements.AchievementEntity
 import com.dev.hanji.user.UserDao
 import com.dev.hanji.user.UserEntity
 
-@Database(entities = [UserEntity::class], version = 1, exportSchema = false)
+@Database(entities = [UserEntity::class, AchievementEntity::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao
+    abstract val achievementDao: AchievementDao
 
     companion object {
         @Volatile

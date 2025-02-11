@@ -14,6 +14,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dev.hanji.HanjiDestination
 import com.dev.hanji.UserAchievements
 import com.dev.hanji.UserStats
+import com.dev.hanji.achievements.AchievementDao
+import com.dev.hanji.achievements.AchievementViewModel
+import com.dev.hanji.achievements.AchievementViewModelFactory
 import com.dev.hanji.components.UserTabRow
 import com.dev.hanji.database.AppDatabase
 import com.dev.hanji.user.UserDao
@@ -26,10 +29,13 @@ import com.dev.hanji.userScreens
 fun UserScreen(modifier: Modifier = Modifier) {
 
     val userDao: UserDao = AppDatabase.getInstance(context = LocalContext.current).userDao
-    val viewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userDao = userDao))
+    val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userDao = userDao))
+
+    val achievementDao: AchievementDao = AppDatabase.getInstance(context = LocalContext.current).achievementDao
+    val achievementViewModel: AchievementViewModel = viewModel(factory = AchievementViewModelFactory(achievementDao))
 
     // !!! REPLACE UserAchievements TO UserStats
-    var currentScreen: HanjiDestination by remember { mutableStateOf(UserAchievements) }
+    var currentScreen: HanjiDestination by remember { mutableStateOf(UserStats) }
     Scaffold(
         topBar = {
             UserTabRow(
@@ -43,11 +49,11 @@ fun UserScreen(modifier: Modifier = Modifier) {
         when(currentScreen) {
             UserStats ->  {
                 Log.d("Current Screen", currentScreen.title)
-                UserInfoScreen(modifier = modifier.padding(innerPadding), viewModel = viewModel)
+                UserInfoScreen(modifier = modifier.padding(innerPadding), viewModel = userViewModel)
             }
             UserAchievements -> {
                 Log.d("Current Screen", currentScreen.title)
-                UserAchievementsScreen(modifier = modifier.padding(innerPadding), viewModel = viewModel)
+                UserAchievementsScreen(modifier = modifier.padding(innerPadding), viewModel = achievementViewModel)
             }
         }
     }
