@@ -1,8 +1,10 @@
 package com.dev.hanji
 
+import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -22,7 +24,7 @@ import com.dev.hanji.screens.user.UserScreen
 fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = User.route,
+        startDestination = Packs.route,
         modifier = modifier
     )  {
         composable(route = Home.route) {
@@ -40,17 +42,6 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
         composable(route = About.route) {
             AboutScreen()
         }
-        // navigation(
-        //     startDestination = UserStats.route,
-        //     route = User.route
-        // ) {
-        //     composable(route = UserStats.route) {
-        //         UserStatsScreen()
-        //     }
-        //     composable(route = UserAchievements.route) {
-        //         UserAchievementsScreen()
-        //     }
-        // }
     }
 }
 

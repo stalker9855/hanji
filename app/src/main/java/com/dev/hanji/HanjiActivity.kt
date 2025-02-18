@@ -33,15 +33,16 @@ private fun HanjiApp(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    NavigationDrawer(scope = scope, navController = navController, modifier = modifier, drawerState = drawerState) {
-        Scaffold(modifier = Modifier,
-            topBar = {
-                TopAppBarHanji(drawerState, scope)
-            }) { innerPadding ->
-            HanjiNavHost(
-                navController = navController,
-                modifier = Modifier.padding(innerPadding)
-            )
+        NavigationDrawer(scope = scope, navController = navController, modifier = modifier, drawerState = drawerState) {
+            Scaffold(modifier = Modifier,
+                topBar = {
+                    TopAppBarHanji(drawerState, scope)
+                }) { innerPadding ->
+                HanjiNavHost(
+                    navController = navController,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
-    }
+
 }

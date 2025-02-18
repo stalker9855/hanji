@@ -70,7 +70,7 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                     ,
                         )
                 Column(modifier = Modifier.padding(16.dp).align(Alignment.CenterVertically)) {
-                    Text(text= "${user.username}",
+                    Text(text= user.username,
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp
                     )
