@@ -1,20 +1,12 @@
 package com.dev.hanji
 
-import android.content.Context
-import android.graphics.drawable.VectorDrawable
 import android.util.Log
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import org.w3c.dom.Element
-import org.w3c.dom.Node
-import org.w3c.dom.NodeList
-import javax.xml.parsers.DocumentBuilderFactory
 
 data class DrawingState(
     val selectedColor: Color = Color.Black,
@@ -50,12 +42,15 @@ class DrawingViewModel : ViewModel() {
         }
     }
 
+
     private fun onPathEnd() {
         val currentPath = state.value.currentPath ?: return
         val scaledPath = currentPath.path.map { offset ->
             Offset(offset.x.div(3), offset.y.div(3))
         }
         val updatedPath = currentPath.copy(path = scaledPath)
+
+        Log.d("updatedPath", "$updatedPath")
 
         _state.update { it.copy(
             currentPath = null,
@@ -93,6 +88,7 @@ class DrawingViewModel : ViewModel() {
             )
         }
     }
+
 
 
 

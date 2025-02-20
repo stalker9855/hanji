@@ -1,7 +1,7 @@
 package com.dev.hanji.screens
 
 import android.content.Context
-import android.graphics.drawable.VectorDrawable
+import android.graphics.PathMeasure
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -30,24 +30,23 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.PathParser
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat
 import com.dev.hanji.DrawingAction
 import com.dev.hanji.DrawingViewModel
 import com.dev.hanji.PathData
 import com.dev.hanji.R
 import org.xmlpull.v1.XmlPullParser
 import kotlin.math.abs
+import kotlin.math.min
+import kotlin.math.sqrt
 
 
 @Composable
 fun PacksScreen(modifier: Modifier = Modifier) {
     val viewModel = viewModel<DrawingViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val pathList = extractPathData(LocalContext.current, R.drawable._5bbf)
-    Log.d("KANJI", "$pathList")
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -58,7 +57,6 @@ fun PacksScreen(modifier: Modifier = Modifier) {
             modifier =
                 Modifier.fillMaxWidth()
         )
-        // Log.d("Paths", "${state.paths}")
 
         Button(
             onClick = {viewModel.onAction(DrawingAction.OnClearCanvasClick) }
@@ -76,6 +74,12 @@ fun DrawingCanvas(paths: List<PathData>,
                   modifier: Modifier = Modifier) {
     val vector = ImageVector.vectorResource(R.drawable.achievement1)
     val painter = rememberVectorPainter(image = vector)
+
+    // DELETE AFTER ALL
+    val viewModel = viewModel<DrawingViewModel>()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val originalPath: List<List<Offset>> = extractPathData(LocalContext.current, R.drawable.achievement1)
+    // DELETE
     Canvas(
        modifier = modifier
            .size(CANVAS_SIZE * CANVAS_SCALE)
@@ -84,9 +88,11 @@ fun DrawingCanvas(paths: List<PathData>,
                detectDragGestures(
                    onDragStart = {
                        onAction(DrawingAction.OnNewPathStart)
+
                    },
                    onDragEnd = {
                        onAction(DrawingAction.OnPathEnd)
+                       Log.d("check dTW", "${state.currentPath?.let { compareWithDTW(originalPath = originalPath[0], currentPath = it.path) }}")
                    },
                    onDrag = { change, _  ->
                        onAction(DrawingAction.OnDraw(change.position))
@@ -159,27 +165,7 @@ private fun DrawScope.drawPath(
 private val CANVAS_SIZE: Dp = 109.dp
 private const val CANVAS_SCALE: Int = 3
 
-// fun extractPathData(context: Context, resId: Int): List<String> {
-//     val parser = context.resources.getXml(resId)
-//     val pathDataList = mutableListOf<String>()
-//
-//     try {
-//         while (parser.eventType != XmlPullParser.END_DOCUMENT) {
-//             if (parser.eventType == XmlPullParser.START_TAG && parser.name == "path") {
-//                 val pathData = context.getString(parser.getAttributeResourceValue(null, "pathData", 1))
-//                 pathDataList.add(pathData)
-//             }
-//             parser.next()
-//         }
-//     } catch (e: Exception) {
-//         e.printStackTrace()
-//     }
-//     return pathDataList
-//
-// }
-
-
-fun extractPathData(context: Context, resId: Int): List<String> {
+fun extractPathData(context: Context, resId: Int): List<List<Offset>> {
     val parser = context.resources.getXml(resId)
     val pathDataList = mutableListOf<String>()
 
@@ -188,7 +174,7 @@ fun extractPathData(context: Context, resId: Int): List<String> {
             if (parser.eventType == XmlPullParser.START_TAG && parser.name == "path") {
                 for (i in 1 until parser.attributeCount) {
                     if (parser.getAttributeName(i) == "pathData") {
-                        val pathData = parser.getAttributeValue(i)
+                        val pathData: String = parser.getAttributeValue(i)
                         pathDataList.add(pathData)
                         break
                     }
@@ -199,7 +185,68 @@ fun extractPathData(context: Context, resId: Int): List<String> {
     } catch (e: Exception) {
         e.printStackTrace()
     }
-    return pathDataList
 
+    return parsePathData(pathDataList = pathDataList)
 }
+
+fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20): List<List<Offset>> {
+    val paths = mutableListOf<List<Offset>>()
+
+    for (pathData in pathDataList) {
+        val points = mutableListOf<Offset>()
+        val path = PathParser.createPathFromPathData(pathData)
+        val pathMeasure = PathMeasure(path, false)
+        val pos = FloatArray(2)
+
+        val pathLength = pathMeasure.length
+
+        for (i in 0..numPoints) {
+            val distance = i * pathLength / numPoints
+            if (pathMeasure.getPosTan(distance, pos, null)) {
+                points.add(Offset(pos[0], pos[1]))
+            }
+        }
+        paths.add(points)
+    }
+
+    return paths
+}
+
+
+private fun compareWithDTW(originalPath: List<Offset>, currentPath: List<Offset>): Float {
+
+    val matrix = Array(originalPath.count() + 1) {
+        i ->
+            Array(currentPath.count() + 1) {
+                j ->
+                when {
+                    i == 0 && j == 0 -> 0f
+                    i == 0 || j == 0 -> Float.MAX_VALUE - 100
+                    else -> 0f
+                }
+            }
+    }
+
+    originalPath.forEachIndexed { i, point ->
+        currentPath.forEachIndexed {
+            j, otherPoint ->
+                val cost = cost(p1 = point, p2 = otherPoint)
+
+                val bestPreviousCost = min(
+                    matrix[i + 1][j],
+                    matrix[i][j + 1],
+                    matrix[i][j]
+                )
+
+                matrix[i + 1][j + 1] = bestPreviousCost + cost
+        }
+
+    }
+
+    return matrix[originalPath.count()][currentPath.count()]
+}
+
+fun cost(p1: Offset, p2: Offset): Float = sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y))
+
+fun min(a: Float, b: Float, c: Float): Float = min(a, min(b,c))
 
