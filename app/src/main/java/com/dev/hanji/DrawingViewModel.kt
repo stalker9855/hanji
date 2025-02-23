@@ -12,7 +12,6 @@ data class DrawingState(
     val selectedColor: Color = Color.Black,
     val currentPath: PathData? = null,
     val paths: List<PathData> = emptyList(),
-    val scaledPaths: List<PathData> = emptyList()
 )
 
 data class PathData(
@@ -45,17 +44,10 @@ class DrawingViewModel : ViewModel() {
 
     private fun onPathEnd() {
         val currentPath = state.value.currentPath ?: return
-        val scaledPath = currentPath.path.map { offset ->
-            Offset(offset.x.div(3), offset.y.div(3))
-        }
-        val updatedPath = currentPath.copy(path = scaledPath)
-
-        Log.d("updatedPath", "$updatedPath")
 
         _state.update { it.copy(
             currentPath = null,
             paths = it.paths + currentPath,
-            scaledPaths = it.scaledPaths + updatedPath
         )}
     }
 

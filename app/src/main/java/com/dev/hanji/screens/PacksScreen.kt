@@ -2,7 +2,6 @@ package com.dev.hanji.screens
 
 import android.content.Context
 import android.graphics.PathMeasure
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -14,12 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -29,39 +25,30 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.core.graphics.PathParser
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dev.hanji.DrawingAction
 import com.dev.hanji.DrawingViewModel
-import com.dev.hanji.PathData
 import com.dev.hanji.R
 import org.xmlpull.v1.XmlPullParser
 import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.min
-import kotlin.math.sqrt
 
 
 @Composable
 fun PacksScreen(modifier: Modifier = Modifier) {
     val viewModel = viewModel<DrawingViewModel>()
-    val state by viewModel.state.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         DrawingCanvas(
-            paths = state.paths,
-            currentPath = state.currentPath,
             onAction = viewModel::onAction,
+            viewModel = viewModel,
         )
 
         Button(
@@ -75,19 +62,16 @@ fun PacksScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun DrawingCanvas(
-    paths: List<PathData>,
-    currentPath: PathData?,
+    viewModel: DrawingViewModel,
     onAction: (DrawingAction) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val vector = ImageVector.vectorResource(R.drawable.achievement1)
-    val painter = rememberVectorPainter(image = vector)
-
-    val viewModel = viewModel<DrawingViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val currentPath = state.currentPath
     val originalPath: List<List<Offset>> =
-        extractPathData(LocalContext.current, R.drawable._5bbf)
+        extractPathData(LocalContext.current, R.drawable._4e8b)
 
+    var indexOriginalPath = 0
     val matchedPath = remember  { mutableStateListOf<List<Offset>>() }
 
     Canvas(
@@ -103,18 +87,17 @@ fun DrawingCanvas(
                     },
                     onDragEnd = {
                         onAction(DrawingAction.OnPathEnd)
-                        val currentPath = state.currentPath?.path ?: return@detectDragGestures
-                        for (i in originalPath.indices) {
-                            Log.d("CURRENT PATH", "$i")
+                        if(indexOriginalPath != originalPath.size){
+                            val currentPath = state.currentPath?.path ?: return@detectDragGestures
                             val isCorrect =
                                 compareWithDTW(
-                                    originalPath = originalPath[i],
+                                    originalPath = originalPath[indexOriginalPath],
                                     currentPath = currentPath
                                 )
 
-                            if(isCorrect && originalPath[i] !in matchedPath) {
-                                matchedPath.add(originalPath[i])
-                                break
+                            if(isCorrect && originalPath[indexOriginalPath] !in matchedPath) {
+                                matchedPath.add(originalPath[indexOriginalPath])
+                                indexOriginalPath++
                             }
                         }
                     },
@@ -155,7 +138,6 @@ fun DrawingCanvas(
         }
 
         matchedPath.forEach { pathOffsets ->
-            Log.d("PATH OFFSETS", "$pathOffsets")
             val path = Path().apply {
                 if (pathOffsets.isNotEmpty()) {
                     moveTo(pathOffsets.first().x, pathOffsets.first().y)
