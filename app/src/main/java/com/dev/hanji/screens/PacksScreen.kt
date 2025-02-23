@@ -7,14 +7,21 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -39,6 +46,7 @@ import com.dev.hanji.PathData
 import com.dev.hanji.R
 import org.xmlpull.v1.XmlPullParser
 import kotlin.math.abs
+import kotlin.math.hypot
 import kotlin.math.min
 import kotlin.math.sqrt
 
@@ -54,8 +62,6 @@ fun PacksScreen(modifier: Modifier = Modifier) {
             paths = state.paths,
             currentPath = state.currentPath,
             onAction = viewModel::onAction,
-            modifier =
-                Modifier.fillMaxWidth()
         )
 
         Button(
@@ -68,88 +74,135 @@ fun PacksScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DrawingCanvas(paths: List<PathData>,
-                  currentPath: PathData?,
-                  onAction: (DrawingAction) -> Unit,
-                  modifier: Modifier = Modifier) {
+fun DrawingCanvas(
+    paths: List<PathData>,
+    currentPath: PathData?,
+    onAction: (DrawingAction) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val vector = ImageVector.vectorResource(R.drawable.achievement1)
     val painter = rememberVectorPainter(image = vector)
 
-    // DELETE AFTER ALL
     val viewModel = viewModel<DrawingViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val originalPath: List<List<Offset>> = extractPathData(LocalContext.current, R.drawable.achievement1)
-    // DELETE
+    val originalPath: List<List<Offset>> =
+        extractPathData(LocalContext.current, R.drawable._5bbf)
+
+    val matchedPath = remember  { mutableStateListOf<List<Offset>>() }
+
     Canvas(
-       modifier = modifier
-           .size(CANVAS_SIZE * CANVAS_SCALE)
-           .background(Color.White)
-           .pointerInput(true) {
-               detectDragGestures(
-                   onDragStart = {
-                       onAction(DrawingAction.OnNewPathStart)
+        modifier = modifier
+            .size(109.dp * 3)
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.White)
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = {
+                        onAction(DrawingAction.OnNewPathStart)
+                    },
+                    onDragEnd = {
+                        onAction(DrawingAction.OnPathEnd)
+                        val currentPath = state.currentPath?.path ?: return@detectDragGestures
+                        for (i in originalPath.indices) {
+                            Log.d("CURRENT PATH", "$i")
+                            val isCorrect =
+                                compareWithDTW(
+                                    originalPath = originalPath[i],
+                                    currentPath = currentPath
+                                )
 
-                   },
-                   onDragEnd = {
-                       onAction(DrawingAction.OnPathEnd)
-                       Log.d("check dTW", "${state.currentPath?.let { compareWithDTW(originalPath = originalPath[0], currentPath = it.path) }}")
-                   },
-                   onDrag = { change, _  ->
-                       onAction(DrawingAction.OnDraw(change.position))
-                   },
-                   onDragCancel = {
-                       onAction(DrawingAction.OnPathEnd)
-                   }
-               )
-           }
+                            if(isCorrect && originalPath[i] !in matchedPath) {
+                                matchedPath.add(originalPath[i])
+                                break
+                            }
+                        }
+                    },
+                    onDrag = { change, _ ->
+                        onAction(DrawingAction.OnDraw(change.position))
+                    },
+                    onDragCancel = {
+                        onAction(DrawingAction.OnPathEnd)
+                    }
+                )
+            }
+    ) {
 
-    ){
-        with(painter) {
-            draw(painter.intrinsicSize)
-        }
-        paths.fastForEach {
-            pathData ->
-            drawPath(
-                path = pathData.path,
-                color = pathData.color,
-            )
-        }
+
         currentPath?.let {
             drawPath(
-                path =  it.path,
+                path = it.path,
                 color = it.color
             )
         }
+
+        originalPath.forEach { pathOffsets ->
+            val path = Path().apply {
+                if (pathOffsets.isNotEmpty()) {
+                    moveTo(pathOffsets.first().x, pathOffsets.first().y)
+                    pathOffsets.drop(1).forEach { offset ->
+                        lineTo(offset.x, offset.y)
+                    }
+                }
+            }
+            drawPath(
+                path = path,
+                color = Color.Black,
+                style = Stroke(width = 15f),
+                alpha = 0.2f
+
+            )
+        }
+
+        matchedPath.forEach { pathOffsets ->
+            Log.d("PATH OFFSETS", "$pathOffsets")
+            val path = Path().apply {
+                if (pathOffsets.isNotEmpty()) {
+                    moveTo(pathOffsets.first().x, pathOffsets.first().y)
+                    pathOffsets.drop(1).forEach { offset ->
+                        lineTo(offset.x, offset.y)
+                    }
+                }
+            }
+            drawPath(
+                path = path,
+                color = Color.Black,
+                style = Stroke(width = 15f)
+            )
+        }
+
+
     }
 }
+
 
 private fun DrawScope.drawPath(
     path: List<Offset>,
     color: Color,
     thickness: Float = 10f
 ) {
-   val smoothedPath = Path().apply {
-       if(path.isNotEmpty()) {
-           moveTo(path.first().x, path.first().y)
+    val smoothedPath = Path().apply {
+        if(path.isNotEmpty()) {
+            moveTo(path.first().x, path.first().y)
 
-           val smoothness = 5
-           for (i in 1..path.lastIndex) {
-               val from = path[i - 1]
-               val to = path[i]
-               val dx = abs(from.x - to.x)
-               val dy = abs(from.y - to.y)
-               if(dx >= smoothness || dy >= smoothness) {
-                   quadraticTo(
-                       x1 = (from.x + to.x) / 2f,
-                       y1 = (from.y + to.y) / 2f,
-                       x2 = to.x,
-                       y2 = to.y
+            val smoothness = 5
+            for (i in 1..path.lastIndex) {
+                val from = path[i - 1]
+                val to = path[i]
+                val dx = abs(from.x - to.x)
+                val dy = abs(from.y - to.y)
+                if(dx >= smoothness || dy >= smoothness) {
+                    quadraticTo(
+                        x1 = (from.x + to.x) / 2f,
+                        y1 = (from.y + to.y) / 2f,
+                        x2 = to.x,
+                        y2 = to.y
 
-                   )
-               }
-           }
-       }
-   }
+                    )
+                }
+            }
+        }
+    }
 
     drawPath(
         path = smoothedPath,
@@ -161,9 +214,6 @@ private fun DrawScope.drawPath(
         )
     )
 }
-
-private val CANVAS_SIZE: Dp = 109.dp
-private const val CANVAS_SCALE: Int = 3
 
 fun extractPathData(context: Context, resId: Int): List<List<Offset>> {
     val parser = context.resources.getXml(resId)
@@ -203,7 +253,7 @@ fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20): List<
         for (i in 0..numPoints) {
             val distance = i * pathLength / numPoints
             if (pathMeasure.getPosTan(distance, pos, null)) {
-                points.add(Offset(pos[0], pos[1]))
+                points.add(Offset(pos[0] * 7.5f, pos[1] * 7.5f))
             }
         }
         paths.add(points)
@@ -213,40 +263,43 @@ fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20): List<
 }
 
 
-private fun compareWithDTW(originalPath: List<Offset>, currentPath: List<Offset>): Float {
+private fun compareWithDTW(originalPath: List<Offset>, currentPath: List<Offset>): Boolean {
 
     val matrix = Array(originalPath.count() + 1) {
-        i ->
-            Array(currentPath.count() + 1) {
+            i ->
+        Array(currentPath.count() + 1) {
                 j ->
-                when {
-                    i == 0 && j == 0 -> 0f
-                    i == 0 || j == 0 -> Float.MAX_VALUE - 100
-                    else -> 0f
-                }
+            when {
+                i == 0 && j == 0 -> 0f
+                i == 0 || j == 0 -> Float.POSITIVE_INFINITY
+                else -> 0f
             }
+        }
     }
 
     originalPath.forEachIndexed { i, point ->
         currentPath.forEachIndexed {
-            j, otherPoint ->
-                val cost = cost(p1 = point, p2 = otherPoint)
+                j, otherPoint ->
+            val cost = cost(p1 = point, p2 = otherPoint)
 
-                val bestPreviousCost = min(
-                    matrix[i + 1][j],
-                    matrix[i][j + 1],
-                    matrix[i][j]
-                )
+            val bestPreviousCost = min(
+                matrix[i + 1][j],
+                matrix[i][j + 1],
+                matrix[i][j]
+            )
 
-                matrix[i + 1][j + 1] = bestPreviousCost + cost
+            matrix[i + 1][j + 1] = bestPreviousCost + cost
         }
 
     }
 
-    return matrix[originalPath.count()][currentPath.count()]
+    val value = (matrix[originalPath.count()][currentPath.count()] / 100)
+    return  value < 10
 }
 
-fun cost(p1: Offset, p2: Offset): Float = sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y))
+fun cost(p1: Offset, p2: Offset): Float {
+    return hypot(p1.x - p2.x, p1.y - p2.y)
+}
 
 fun min(a: Float, b: Float, c: Float): Float = min(a, min(b,c))
 
