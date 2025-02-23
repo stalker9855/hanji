@@ -51,11 +51,6 @@ fun PacksScreen(modifier: Modifier = Modifier) {
             viewModel = viewModel,
         )
 
-        Button(
-            onClick = {viewModel.onAction(DrawingAction.OnClearCanvasClick) }
-        ) {
-            Text("Clear")
-        }
     }
 
 }
@@ -115,7 +110,8 @@ fun DrawingCanvas(
         currentPath?.let {
             drawPath(
                 path = it.path,
-                color = it.color
+                color = it.color,
+
             )
         }
 
@@ -155,13 +151,19 @@ fun DrawingCanvas(
 
 
     }
+
+    Button(
+        onClick = {viewModel.onAction(DrawingAction.OnClearCanvasClick) }
+    ) {
+        Text("Clear")
+    }
 }
 
 
 private fun DrawScope.drawPath(
     path: List<Offset>,
     color: Color,
-    thickness: Float = 10f
+    thickness: Float = 15f
 ) {
     val smoothedPath = Path().apply {
         if(path.isNotEmpty()) {
