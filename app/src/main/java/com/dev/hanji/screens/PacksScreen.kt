@@ -8,14 +8,20 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -27,6 +33,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.PathParser
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,9 +50,50 @@ import kotlin.math.min
 @Composable
 fun PacksScreen(modifier: Modifier = Modifier) {
     val viewModel = viewModel<DrawingViewModel>()
+    val originalPath: List<List<Offset>> =
+        extractPathData(LocalContext.current, R.drawable._5b66, 5f)
+
+    // val animationDraw = animateFloatAsState(
+    //     label = "Kanji Draw Animation",
+    //     targetValue = 1f,
+    //     animationSpec = tween(durationMillis = 1000)
+    // )
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Canvas(
+            Modifier
+            .size(109.dp * 2.2f)
+            .aspectRatio(1f)
+                .padding(16.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(Color.Gray)
+        ) {
+            originalPath.forEach { pathOffsets ->
+                val path = Path().apply {
+                    if (pathOffsets.isNotEmpty()) {
+                        moveTo(pathOffsets.first().x, pathOffsets.first().y)
+                        pathOffsets.drop(1).forEach { offset ->
+                            lineTo(offset.x, offset.y)
+                        }
+                    }
+                }
+                drawPath(
+                    path = path,
+                    color = Color.White,
+                    style = Stroke(width = 15f),
+
+                )
+            }
+        }
+        Button(
+            onClick = {}
+        ) {
+            Icon(imageVector =  Icons.Filled.PlayArrow, contentDescription = "Play kanji animation drawing")
+        }
+        Text("Draw a kanji\nKun-Yomi: まな.ぶ\nOn-Yomi: ガク\nMeaning: study, learning, science", textAlign = TextAlign.Center)
+        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
         DrawingCanvas(
             onAction = viewModel::onAction,
             viewModel = viewModel,
@@ -64,7 +112,7 @@ fun DrawingCanvas(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentPath = state.currentPath
     val originalPath: List<List<Offset>> =
-        extractPathData(LocalContext.current, R.drawable._4e8b)
+        extractPathData(LocalContext.current, R.drawable._5b66)
 
     var indexOriginalPath = 0
     val matchedPath = remember  { mutableStateListOf<List<Offset>>() }
@@ -73,6 +121,7 @@ fun DrawingCanvas(
         modifier = modifier
             .size(109.dp * 3)
             .aspectRatio(1f)
+            .padding(16.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(Color.White)
             .pointerInput(Unit) {
@@ -83,11 +132,10 @@ fun DrawingCanvas(
                     onDragEnd = {
                         onAction(DrawingAction.OnPathEnd)
                         if(indexOriginalPath != originalPath.size){
-                            val currentPath = state.currentPath?.path ?: return@detectDragGestures
                             val isCorrect =
                                 compareWithDTW(
                                     originalPath = originalPath[indexOriginalPath],
-                                    currentPath = currentPath
+                                    currentPath = state.currentPath?.path!!
                                 )
 
                             if(isCorrect && originalPath[indexOriginalPath] !in matchedPath) {
@@ -151,12 +199,6 @@ fun DrawingCanvas(
 
 
     }
-
-    Button(
-        onClick = {viewModel.onAction(DrawingAction.OnClearCanvasClick) }
-    ) {
-        Text("Clear")
-    }
 }
 
 
@@ -199,7 +241,7 @@ private fun DrawScope.drawPath(
     )
 }
 
-fun extractPathData(context: Context, resId: Int): List<List<Offset>> {
+fun extractPathData(context: Context, resId: Int, scale: Float = 7.5f): List<List<Offset>> {
     val parser = context.resources.getXml(resId)
     val pathDataList = mutableListOf<String>()
 
@@ -220,10 +262,10 @@ fun extractPathData(context: Context, resId: Int): List<List<Offset>> {
         e.printStackTrace()
     }
 
-    return parsePathData(pathDataList = pathDataList)
+    return parsePathData(pathDataList = pathDataList, scale = scale)
 }
 
-fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20): List<List<Offset>> {
+fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20, scale: Float): List<List<Offset>> {
     val paths = mutableListOf<List<Offset>>()
 
     for (pathData in pathDataList) {
@@ -237,7 +279,7 @@ fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20): List<
         for (i in 0..numPoints) {
             val distance = i * pathLength / numPoints
             if (pathMeasure.getPosTan(distance, pos, null)) {
-                points.add(Offset(pos[0] * 7.5f, pos[1] * 7.5f))
+                points.add(Offset(pos[0] * scale, pos[1] * scale))
             }
         }
         paths.add(points)
