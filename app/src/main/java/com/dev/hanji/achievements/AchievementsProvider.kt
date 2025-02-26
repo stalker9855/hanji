@@ -9,49 +9,49 @@ object AchievementsProvider {
             name = TypeAchievement.TOTAL_KANJI.value,
             condition = "Learn 10 kanji",
             isCompleted = false,
-            imageResourceId = R.drawable.achievement1
+            character = "一"
         ),
         AchievementEntity(
             id = 2,
             name = TypeAchievement.LOGIN_DAY.value,
             condition = "Login for 7 days in a row",
             isCompleted = true,
-            imageResourceId = R.drawable.achievement1
+            character = "二"
         ),
         AchievementEntity(
             id = 3,
             name = TypeAchievement.LOGIN_DAY.value,
             condition = "EXAMPLE",
             isCompleted = true,
-            imageResourceId = R.drawable.achievement1
+            character = "三"
         ),
         AchievementEntity(
             id = 4,
-            name = TypeAchievement.LOGIN_DAY.value,
+            name = TypeAchievement.TOTAL_KANJI.value,
             condition = "EXAMPLE",
             isCompleted = false,
-            imageResourceId = R.drawable.achievement1
+            character = "少"
         ),
         AchievementEntity(
             id = 5,
             name = TypeAchievement.LOGIN_DAY.value,
             condition = "EXAMPLE",
             isCompleted = true,
-            imageResourceId = R.drawable.achievement1
+            character = "中"
         ),
         AchievementEntity(
             id = 6,
             name = TypeAchievement.LOGIN_DAY.value,
             condition = "EXAMPLE",
             isCompleted = true,
-            imageResourceId = R.drawable.achievement1
+            character = "大"
         ),
         AchievementEntity(
             id = 7,
             name = TypeAchievement.LOGIN_DAY.value,
             condition = "EXAMPLE",
             isCompleted = false,
-            imageResourceId = R.drawable.achievement1
+            character = "花"
         ),
     )
 }

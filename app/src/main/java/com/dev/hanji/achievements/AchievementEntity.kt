@@ -25,7 +25,6 @@ data class AchievementEntity (
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean = false,
 
-    @ColumnInfo(name = "image_resource_id")
-    val imageResourceId: Int? = R.drawable.achievement1
-
+    @ColumnInfo(name = "character")
+    val character: String?
 )

@@ -2,15 +2,18 @@ package com.dev.hanji.screens
 
 import android.content.Context
 import android.graphics.PathMeasure
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -51,53 +54,54 @@ import kotlin.math.min
 fun PacksScreen(modifier: Modifier = Modifier) {
     val viewModel = viewModel<DrawingViewModel>()
     val originalPath: List<List<Offset>> =
-        extractPathData(LocalContext.current, R.drawable._5b66, 5f)
-
-    // val animationDraw = animateFloatAsState(
-    //     label = "Kanji Draw Animation",
-    //     targetValue = 1f,
-    //     animationSpec = tween(durationMillis = 1000)
-    // )
+        extractPathData(LocalContext.current, R.drawable._04e82, 5f)
     Column(
-        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Canvas(
-            Modifier
-            .size(109.dp * 2.2f)
-            .aspectRatio(1f)
-                .padding(16.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.Gray)
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            originalPath.forEach { pathOffsets ->
-                val path = Path().apply {
-                    if (pathOffsets.isNotEmpty()) {
-                        moveTo(pathOffsets.first().x, pathOffsets.first().y)
-                        pathOffsets.drop(1).forEach { offset ->
-                            lineTo(offset.x, offset.y)
+            Canvas(
+                Modifier
+                    .size(109.dp * 2.2f)
+                    .aspectRatio(1f)
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Gray)
+            ) {
+                Log.d("size", "$size.minDimension")
+                originalPath.forEach { pathOffsets ->
+                    val path = Path().apply {
+                        if (pathOffsets.isNotEmpty()) {
+                            moveTo(pathOffsets.first().x, pathOffsets.first().y)
+                            pathOffsets.drop(1).forEach { offset ->
+                                lineTo(offset.x, offset.y)
+                            }
                         }
                     }
-                }
-                drawPath(
-                    path = path,
-                    color = Color.White,
-                    style = Stroke(width = 15f),
+                    drawPath(
+                        path = path,
+                        color = Color.White,
+                        style = Stroke(width = 15f),
 
-                )
+                        )
+                }
             }
+            Button(
+                onClick = {}
+            ) {
+                Icon(imageVector =  Icons.Filled.PlayArrow, contentDescription = "Play kanji animation drawing")
+            }
+            Text("Draw a kanji\nKun-Yomi: まな.ぶ\nOn-Yomi: ガク\nMeaning: study, learning, science", textAlign = TextAlign.Center)
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            DrawingCanvas(
+                onAction = viewModel::onAction,
+                viewModel = viewModel,
+            )
+
         }
-        Button(
-            onClick = {}
-        ) {
-            Icon(imageVector =  Icons.Filled.PlayArrow, contentDescription = "Play kanji animation drawing")
-        }
-        Text("Draw a kanji\nKun-Yomi: まな.ぶ\nOn-Yomi: ガク\nMeaning: study, learning, science", textAlign = TextAlign.Center)
-        HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-        DrawingCanvas(
-            onAction = viewModel::onAction,
-            viewModel = viewModel,
-        )
+
 
     }
 
@@ -112,106 +116,110 @@ fun DrawingCanvas(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val currentPath = state.currentPath
     val originalPath: List<List<Offset>> =
-        extractPathData(LocalContext.current, R.drawable._5b66)
+        extractPathData(LocalContext.current, R.drawable._04e82)
 
     var indexOriginalPath = 0
     val matchedPath = remember  { mutableStateListOf<List<Offset>>() }
+    Box {
+        Canvas(
+            modifier = modifier
+                //.fillMaxWidth()
+                .size(109.dp * 3)
+                .aspectRatio(1f)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.White)
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = {
+                            onAction(DrawingAction.OnNewPathStart)
+                        },
+                        onDragEnd = {
+                            onAction(DrawingAction.OnPathEnd)
+                            if(indexOriginalPath != originalPath.size){
+                                val isCorrect =
+                                    compareWithDTW(
+                                        originalPath = originalPath[indexOriginalPath],
+                                        currentPath = state.currentPath?.path!!
+                                    )
 
-    Canvas(
-        modifier = modifier
-            .size(109.dp * 3)
-            .aspectRatio(1f)
-            .padding(16.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color.White)
-            .pointerInput(Unit) {
-                detectDragGestures(
-                    onDragStart = {
-                        onAction(DrawingAction.OnNewPathStart)
-                    },
-                    onDragEnd = {
-                        onAction(DrawingAction.OnPathEnd)
-                        if(indexOriginalPath != originalPath.size){
-                            val isCorrect =
-                                compareWithDTW(
-                                    originalPath = originalPath[indexOriginalPath],
-                                    currentPath = state.currentPath?.path!!
-                                )
-
-                            if(isCorrect && originalPath[indexOriginalPath] !in matchedPath) {
-                                matchedPath.add(originalPath[indexOriginalPath])
-                                indexOriginalPath++
+                                if(isCorrect && originalPath[indexOriginalPath] !in matchedPath) {
+                                    matchedPath.add(originalPath[indexOriginalPath])
+                                    indexOriginalPath++
+                                }
                             }
+                        },
+                        onDrag = { change, _ ->
+                            onAction(DrawingAction.OnDraw(change.position))
+                        },
+                        onDragCancel = {
+                            onAction(DrawingAction.OnPathEnd)
                         }
-                    },
-                    onDrag = { change, _ ->
-                        onAction(DrawingAction.OnDraw(change.position))
-                    },
-                    onDragCancel = {
-                        onAction(DrawingAction.OnPathEnd)
+                    )
+                }
+        ) {
+
+
+            currentPath?.let {
+                drawPath(
+                    path = it.path,
+                    color = it.color,
+
+                    )
+            }
+
+            originalPath.forEach { pathOffsets ->
+                val path = Path().apply {
+                    if (pathOffsets.isNotEmpty()) {
+                        moveTo(pathOffsets.first().x, pathOffsets.first().y)
+                        pathOffsets.drop(1).forEach { offset ->
+                            lineTo(offset.x, offset.y)
+                        }
                     }
+                }
+                drawPath(
+                    path = path,
+                    color = Color.Black,
+                    style = Stroke(width = 15f),
+                    alpha = 0.2f
+
                 )
             }
-    ) {
 
-
-        currentPath?.let {
-            drawPath(
-                path = it.path,
-                color = it.color,
-
-            )
-        }
-
-        originalPath.forEach { pathOffsets ->
-            val path = Path().apply {
-                if (pathOffsets.isNotEmpty()) {
-                    moveTo(pathOffsets.first().x, pathOffsets.first().y)
-                    pathOffsets.drop(1).forEach { offset ->
-                        lineTo(offset.x, offset.y)
+            matchedPath.forEach { pathOffsets ->
+                val path = Path().apply {
+                    if (pathOffsets.isNotEmpty()) {
+                        moveTo(pathOffsets.first().x, pathOffsets.first().y)
+                        pathOffsets.drop(1).forEach { offset ->
+                            lineTo(offset.x, offset.y)
+                        }
                     }
                 }
+                drawPath(
+                    path = path,
+                    color = Color.Black,
+                    style = Stroke(width = 15f)
+                )
             }
-            drawPath(
-                path = path,
-                color = Color.Black,
-                style = Stroke(width = 15f),
-                alpha = 0.2f
 
-            )
+
         }
-
-        matchedPath.forEach { pathOffsets ->
-            val path = Path().apply {
-                if (pathOffsets.isNotEmpty()) {
-                    moveTo(pathOffsets.first().x, pathOffsets.first().y)
-                    pathOffsets.drop(1).forEach { offset ->
-                        lineTo(offset.x, offset.y)
-                    }
-                }
-            }
-            drawPath(
-                path = path,
-                color = Color.Black,
-                style = Stroke(width = 15f)
-            )
-        }
-
 
     }
+
 }
 
 
 private fun DrawScope.drawPath(
     path: List<Offset>,
     color: Color,
-    thickness: Float = 15f
+    thickness: Float = 5f
 ) {
     val smoothedPath = Path().apply {
         if(path.isNotEmpty()) {
             moveTo(path.first().x, path.first().y)
 
-            val smoothness = 5
+            val smoothness = 1
             for (i in 1..path.lastIndex) {
                 val from = path[i - 1]
                 val to = path[i]
@@ -320,7 +328,8 @@ private fun compareWithDTW(originalPath: List<Offset>, currentPath: List<Offset>
     }
 
     val value = (matrix[originalPath.count()][currentPath.count()] / 100)
-    return  value < 10
+    Log.d("value", "$value")
+    return  value < 15
 }
 
 fun cost(p1: Offset, p2: Offset): Float {

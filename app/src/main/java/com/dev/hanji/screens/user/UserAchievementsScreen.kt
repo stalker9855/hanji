@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -113,12 +114,13 @@ fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: Achievement
 @Composable
 private  fun AchieveBox(achievement: AchievementEntity, modifier: Modifier = Modifier) {
     Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).size(SIZE_BOX)
-        .background(if (achievement.isCompleted) MaterialTheme.colorScheme.primaryContainer else Color.Gray)) {
-        Icon(
-            painter = painterResource(id = achievement.imageResourceId!!),
-            contentDescription = achievement.condition,
-            modifier = Modifier.padding(4.dp)
-        )
+        .background(if (achievement.isCompleted) MaterialTheme.colorScheme.primaryContainer else Color.Gray),
+        contentAlignment = Alignment.Center) {
+        Text(
+            text = achievement.character!!,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 32.sp,
+            textAlign = TextAlign.Center)
     }
 }
 
