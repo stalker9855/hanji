@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Create
 import androidx.compose.ui.graphics.vector.ImageVector
 
 interface HanjiDestination {
@@ -55,5 +56,11 @@ object UserAchievements : HanjiDestination {
     override val title: String = "Achievements"
 }
 
-val hanjiScreens = listOf(Home, Packs, User, About, Settings)
+object Draw : HanjiDestination {
+    override val route: String = "draw_screen"
+    override val icon: ImageVector = Icons.Outlined.Create
+    override val title: String = "Draw"
+}
+
+val hanjiScreens = listOf(Home, Packs, User, About, Settings, Draw)
 val userScreens = listOf(UserStats, UserAchievements)

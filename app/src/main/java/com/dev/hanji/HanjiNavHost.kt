@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.dev.hanji.screens.AboutScreen
+import com.dev.hanji.screens.DrawScreen
 import com.dev.hanji.screens.HomeScreen
 import com.dev.hanji.screens.PacksScreen
 import com.dev.hanji.screens.SettingsScreen
@@ -41,6 +42,9 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
         }
         composable(route = About.route) {
             AboutScreen()
+        }
+        composable(route = Draw.route) {
+            DrawScreen()
         }
     }
 }
