@@ -17,7 +17,7 @@ import com.dev.hanji.UserStats
 import com.dev.hanji.achievements.AchievementDao
 import com.dev.hanji.achievements.AchievementViewModel
 import com.dev.hanji.achievements.AchievementViewModelFactory
-import com.dev.hanji.components.UserTabRow
+import com.dev.hanji.components.ScreenTabRow
 import com.dev.hanji.database.AppDatabase
 import com.dev.hanji.user.UserDao
 import com.dev.hanji.user.UserViewModel
@@ -34,12 +34,11 @@ fun UserScreen(modifier: Modifier = Modifier) {
     val achievementDao: AchievementDao = AppDatabase.getInstance(context = LocalContext.current).achievementDao
     val achievementViewModel: AchievementViewModel = viewModel(factory = AchievementViewModelFactory(achievementDao))
 
-    // !!! REPLACE UserAchievements TO UserStats
     var currentScreen: HanjiDestination by remember { mutableStateOf(UserStats) }
     Scaffold(
         topBar = {
-            UserTabRow(
-                userScreens = userScreens,
+            ScreenTabRow(
+                screens = userScreens,
                 onTabSelected = { screen -> currentScreen = screen },
                 currentScreen = currentScreen
             )

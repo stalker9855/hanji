@@ -1,10 +1,8 @@
 package com.dev.hanji
 
-import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -16,7 +14,7 @@ import androidx.navigation.compose.composable
 import com.dev.hanji.screens.AboutScreen
 import com.dev.hanji.screens.DrawScreen
 import com.dev.hanji.screens.HomeScreen
-import com.dev.hanji.screens.PacksScreen
+import com.dev.hanji.screens.packs.PacksScreen
 import com.dev.hanji.screens.SettingsScreen
 import com.dev.hanji.screens.user.UserScreen
 

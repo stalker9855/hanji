@@ -30,17 +30,17 @@ import com.dev.hanji.HanjiDestination
 
 
 @Composable
-fun UserTabRow(userScreens: List<HanjiDestination>,
-               onTabSelected: (HanjiDestination) -> Unit,
-               currentScreen: HanjiDestination
+fun ScreenTabRow(screens: List<HanjiDestination>,
+                 onTabSelected: (HanjiDestination) -> Unit,
+                 currentScreen: HanjiDestination
                ) {
    Surface(
        modifier = Modifier.fillMaxWidth()
    ) {
        Row(modifier = Modifier.selectableGroup().fillMaxWidth(),
            horizontalArrangement = Arrangement.SpaceAround) {
-           userScreens.forEach {screen ->
-              UserTab(
+           screens.forEach { screen ->
+              ScreenTab(
                   text = screen.title,
                   icon = screen.icon,
                   onSelected = { onTabSelected(screen) },
@@ -53,7 +53,7 @@ fun UserTabRow(userScreens: List<HanjiDestination>,
 }
 
 @Composable
-private fun UserTab(text: String, icon: ImageVector, onSelected: () -> Unit, selected: Boolean) {
+private fun ScreenTab(text: String, icon: ImageVector, onSelected: () -> Unit, selected: Boolean) {
 
     // val backgroundColor by animateColorAsState(
     //     targetValue = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,

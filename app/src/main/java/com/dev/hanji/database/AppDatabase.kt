@@ -1,6 +1,7 @@
 package com.dev.hanji.database
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -21,7 +22,8 @@ import com.dev.hanji.user.UserEntity
     AchievementEntity::class,
     KanjiEntity::class,
     KanjiPackEntity::class,
-    KanjiPackCrossRef::class], version = 1
+    KanjiPackCrossRef::class], version = 2,
+    autoMigrations = [AutoMigration(from = 1, to = 2)]
     )
 abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao

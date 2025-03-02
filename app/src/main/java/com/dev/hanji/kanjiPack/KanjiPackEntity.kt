@@ -8,9 +8,20 @@ import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
 import com.dev.hanji.kanji.KanjiEntity
+import com.dev.hanji.user.UserEntity
 
 
-@Entity(tableName = "kanji_packs")
+@Entity(
+    tableName = "kanji_packs",
+    foreignKeys = [
+        ForeignKey(
+            entity = UserEntity::class,
+            parentColumns = ["user_id"],
+            childColumns = ["user_id"]
+        )
+    ]
+
+    )
 data class KanjiPackEntity (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("id")
@@ -21,6 +32,9 @@ data class KanjiPackEntity (
 
     @ColumnInfo("description")
     val description: String,
+
+    @ColumnInfo("user_id")
+    val userId: Int
 )
 
 @Entity(

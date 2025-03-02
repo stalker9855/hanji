@@ -8,6 +8,8 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Create
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.ui.graphics.vector.ImageVector
 
 interface HanjiDestination {
@@ -62,5 +64,18 @@ object Draw : HanjiDestination {
     override val title: String = "Draw"
 }
 
+object AllPacks : HanjiDestination {
+    override val route: String = "packs_screen"
+    override val icon: ImageVector = Icons.Outlined.DateRange
+    override val title: String = "Packs"
+}
+
+object MyPacks : HanjiDestination {
+    override val route: String = "my_packs_screen"
+    override val icon: ImageVector = Icons.Outlined.Favorite
+    override val title: String = "My Packs"
+}
+
 val hanjiScreens = listOf(Home, Packs, User, About, Settings, Draw)
 val userScreens = listOf(UserStats, UserAchievements)
+val packScreens = listOf(AllPacks, MyPacks)
