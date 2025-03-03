@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.dev.hanji.HanjiDestination
 import com.dev.hanji.AllPacks
 import com.dev.hanji.MyPacks
@@ -17,7 +18,8 @@ import com.dev.hanji.packScreens
 
 
 @Composable
-fun PacksScreen(modifier: Modifier = Modifier) {
+fun PacksScreen(modifier: Modifier = Modifier,
+                navController: NavController) {
    var currentScreen: HanjiDestination by remember { mutableStateOf(AllPacks) }
 
    Scaffold(
@@ -33,7 +35,7 @@ fun PacksScreen(modifier: Modifier = Modifier) {
       when(currentScreen) {
          AllPacks -> {
             Log.d("Current Screen", currentScreen.title)
-            AllPacksScreen(modifier = modifier.padding(innerPadding))
+            AllPacksScreen(modifier = modifier.padding(innerPadding), navController = navController)
          }
          MyPacks -> {
             Log.d("Current Screen", currentScreen.title)

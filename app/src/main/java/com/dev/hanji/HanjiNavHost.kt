@@ -16,6 +16,7 @@ import com.dev.hanji.screens.DrawScreen
 import com.dev.hanji.screens.HomeScreen
 import com.dev.hanji.screens.packs.PacksScreen
 import com.dev.hanji.screens.SettingsScreen
+import com.dev.hanji.screens.packs.CreateKanjiPackScreen
 import com.dev.hanji.screens.user.UserScreen
 
 
@@ -30,7 +31,7 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
             HomeScreen()
         }
         composable(route = Packs.route) {
-            PacksScreen()
+            PacksScreen(navController = navController)
         }
         composable(route = User.route) {
             UserScreen()
@@ -43,6 +44,9 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
         }
         composable(route = Draw.route) {
             DrawScreen()
+        }
+        composable(route = CreatePack.route) {
+            CreateKanjiPackScreen()
         }
     }
 }

@@ -1,29 +1,37 @@
 package com.dev.hanji.kanjiPack
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Upsert
 import com.dev.hanji.kanji.KanjiEntity
 
 @Dao
 interface KanjiPackDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertPack(pack: KanjiPackEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
+    suspend fun upsertPack(pack: KanjiPackEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertKanji(kanji: KanjiEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertKanjiPackCrossRef(crossRef: KanjiPackCrossRef)
+    suspend fun insertKanjiPackCrossRef(crossRef: List<KanjiPackCrossRef>)
+
+    @Delete
+    suspend fun deletePack(kanjiPack: KanjiPackEntity)
 
     @Transaction
-    @Query("SELECT * FROM kanji_packs WHERE id = :packId")
-    suspend fun getPackWithKanji(packId: Int): List<PackWithKanji>
+    @Query("SELECT * FROM kanji_packs")
+    fun getAllPacks(): List<KanjiPackEntity>
 
     @Transaction
-    @Query("SELECT * FROM kanji WHERE character = :kanjiCharacter")
-    suspend fun getKanjiWithPacks(kanjiCharacter: String): List<KanjiWithPacks>
+    @Query("SELECT * FROM kanji_packs")
+    fun getAllPacksWithKanji(): List<PackWithKanji>
 }
 

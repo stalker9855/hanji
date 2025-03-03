@@ -24,8 +24,8 @@ import com.dev.hanji.user.UserEntity
     )
 data class KanjiPackEntity (
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo("id")
-    val id: Int,
+    @ColumnInfo("pack_id")
+    val id: Int = 0,
 
     @ColumnInfo("name")
     val name: String,
@@ -39,18 +39,18 @@ data class KanjiPackEntity (
 
 @Entity(
     tableName = "kanji_pack_cross_ref",
-    primaryKeys = ["pack_id", "kanji_character"],
+    primaryKeys = ["pack_id", "character"],
     foreignKeys = [
         ForeignKey(
             entity = KanjiPackEntity::class,
-            parentColumns = ["id"],
+            parentColumns = ["pack_id"],
             childColumns = ["pack_id"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = KanjiEntity::class,
             parentColumns = ["character"],
-            childColumns = ["kanji_character"],
+            childColumns = ["character"],
             onDelete = ForeignKey.CASCADE
         )
     ]
@@ -59,14 +59,14 @@ data class KanjiPackCrossRef(
     @ColumnInfo("pack_id")
     val packId: Int,
 
-    @ColumnInfo("kanji_character")
+    @ColumnInfo("character")
     val character: String
 )
 
 data class KanjiWithPacks(
     @Embedded val kanji: KanjiEntity,
     @Relation(
-        parentColumn = "character",
+        parentColumn = "kanji_character",
         entityColumn = "pack_id",
         associateBy = Junction(KanjiPackCrossRef::class)
     )
@@ -76,8 +76,8 @@ data class KanjiWithPacks(
 data class PackWithKanji(
     @Embedded val pack: KanjiPackEntity,
     @Relation(
-        parentColumn = "id",
-        entityColumn = "kanji_character",
+        parentColumn = "pack_id",
+        entityColumn = "character",
         associateBy = Junction(KanjiPackCrossRef::class)
     )
     val kanjiList: List<KanjiEntity>

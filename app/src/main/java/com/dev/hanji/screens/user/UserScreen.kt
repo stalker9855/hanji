@@ -1,6 +1,5 @@
 package com.dev.hanji.screens.user
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -47,11 +46,9 @@ fun UserScreen(modifier: Modifier = Modifier) {
     ) { innerPadding ->
         when(currentScreen) {
             UserStats ->  {
-                Log.d("Current Screen", currentScreen.title)
                 UserInfoScreen(modifier = modifier.padding(innerPadding), viewModel = userViewModel)
             }
             UserAchievements -> {
-                Log.d("Current Screen", currentScreen.title)
                 UserAchievementsScreen(modifier = modifier.padding(innerPadding), viewModel = achievementViewModel)
             }
         }

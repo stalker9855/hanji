@@ -12,6 +12,7 @@ import com.dev.hanji.kanji.KanjiConverters
 import com.dev.hanji.kanji.KanjiDao
 import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.KanjiPackCrossRef
+import com.dev.hanji.kanjiPack.KanjiPackDao
 import com.dev.hanji.kanjiPack.KanjiPackEntity
 import com.dev.hanji.user.UserDao
 import com.dev.hanji.user.UserEntity
@@ -29,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao
     abstract val achievementDao: AchievementDao
     abstract val kanjiDao: KanjiDao
+    abstract val kanjiPackDao: KanjiPackDao
 
     companion object {
 
