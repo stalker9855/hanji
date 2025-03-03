@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
 import com.dev.hanji.kanji.KanjiEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface KanjiPackDao {
@@ -28,10 +29,11 @@ interface KanjiPackDao {
 
     @Transaction
     @Query("SELECT * FROM kanji_packs")
-    fun getAllPacks(): List<KanjiPackEntity>
+    fun getAllPacks(): Flow<List<KanjiPackEntity>>
 
     @Transaction
     @Query("SELECT * FROM kanji_packs")
-    fun getAllPacksWithKanji(): List<PackWithKanji>
+    fun getAllPacksWithKanji(): Flow<List<PackWithKanji>>
+
 }
 

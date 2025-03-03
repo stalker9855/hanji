@@ -81,4 +81,7 @@ data class PackWithKanji(
         associateBy = Junction(KanjiPackCrossRef::class)
     )
     val kanjiList: List<KanjiEntity>
-)
+) {
+    val kanjiCount: Int
+        get() = kanjiList.size
+}

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -29,36 +30,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.dev.hanji.database.AppDatabase
-import com.dev.hanji.kanjiPack.KanjiPackDao
-import com.dev.hanji.kanjiPack.KanjiPackFactory
-import com.dev.hanji.kanjiPack.KanjiPackState
+import com.dev.hanji.kanjiPack.KanjiPackEntity
 import com.dev.hanji.kanjiPack.KanjiPackViewModel
 
 
-@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun AllPacksScreen(modifier: Modifier = Modifier,
+                   viewModel: KanjiPackViewModel,
                    navController: NavController) {
-    val kanjiPackDao: KanjiPackDao = AppDatabase.getInstance(context = LocalContext.current).kanjiPackDao
-    val viewModel: KanjiPackViewModel = viewModel(factory = KanjiPackFactory(kanjiPackDao))
-    val state by viewModel.state.collectAsState(initial = KanjiPackState())
-    Log.d("VIEWMODEL", "${state.kanji}")
+    val state by viewModel.state.collectAsState()
     Box {
         LazyColumn(
             modifier = modifier
                 .padding(top = 8.dp)
-//                .verticalScroll(rememberScrollState()),
         ) {
-//            items(state.kanji) {
-//            }
+            items(state.kanjiPacks) { kanjiPack ->
+                PackItem(kanjiPack = kanjiPack)
+            }
         }
 //        FloatingActionButton(
 //            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
@@ -73,7 +65,7 @@ fun AllPacksScreen(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun PackItem(modifier: Modifier = Modifier) {
+fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) {
     val checked = remember { mutableStateOf(false) } // temporary value
     Row(
         modifier = Modifier
@@ -105,7 +97,7 @@ fun PackItem(modifier: Modifier = Modifier) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text("Elements",
+                Text(kanjiPack.name,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -114,8 +106,8 @@ fun PackItem(modifier: Modifier = Modifier) {
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     Column {
-                        Text("Kanji Count: 12")
-                        Text("Difficulty: Hard")
+                        Text(kanjiPack.description)
+                        Text("Kanji Count: ")
                     }
                     IconToggleButton(
                         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),

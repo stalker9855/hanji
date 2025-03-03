@@ -2,35 +2,34 @@ package com.dev.hanji.kanjiPack
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dev.hanji.kanji.KanjiEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class KanjiPackViewModel(val dao: KanjiPackDao) : ViewModel() {
+class KanjiPackViewModel(private val dao: KanjiPackDao) : ViewModel() {
 
     private val _state = MutableStateFlow(KanjiPackState())
+    private val _kanjiPacks = dao.getAllPacks()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    private val _kanjiPacks = MutableStateFlow<List<PackWithKanji>>(emptyList())
-    val kanjiPacks: StateFlow<List<PackWithKanji>> = _kanjiPacks
+    private val _kanjiList = dao.getAllPacksWithKanji()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    val state = combine(_state, _kanjiPacks) {
-        state, kanjiPacks ->
+
+    val state = combine(_state, _kanjiPacks, _kanjiList) {
+        state, kanjiPacks, kanjiList ->
             state.copy(
-                kanji = kanjiPacks.flatMap { it.kanjiList },
+                kanjiList = kanjiList.flatMap { it.kanjiList },
+                kanjiPacks = kanjiPacks,
             )
-    }
-    init {
-        viewModelScope.launch {
-            val kanjiPacksList = withContext(Dispatchers.IO) {
-                dao.getAllPacksWithKanji()
-            }
-            _kanjiPacks.value = kanjiPacksList
-        }
-    }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiPackState())
 
 
     fun onEvent(event: KanjiPackEvent) {
@@ -41,11 +40,11 @@ class KanjiPackViewModel(val dao: KanjiPackDao) : ViewModel() {
                }
            }
            KanjiPackEvent.SaveKanjiPack -> {
-               val name = _state.value.name
-               val description = _state.value.description
-               val kanji = _state.value.kanji
+               val name = state.value.name
+               val description = state.value.description
+               val kanjiList = state.value.kanjiList
 
-               if(name.isBlank() || description.isBlank() || kanji.isEmpty()) {
+               if(name.isBlank() || description.isBlank() || kanjiList.isEmpty()) {
                    return
                }
 
@@ -56,7 +55,7 @@ class KanjiPackViewModel(val dao: KanjiPackDao) : ViewModel() {
                )
                viewModelScope.launch {
                    val packId = dao.upsertPack(kanjiPack)
-                   val crossRefs = kanji.map { kanjiEntity ->
+                   val crossRefs = kanjiList.map { kanjiEntity: KanjiEntity ->
                        KanjiPackCrossRef(
                            packId = packId.toInt(),
                            character = kanjiEntity.character
@@ -67,7 +66,7 @@ class KanjiPackViewModel(val dao: KanjiPackDao) : ViewModel() {
            }
            is KanjiPackEvent.SetKanjiCharacters -> {
                _state.update { it.copy(
-                   kanji = event.kanji
+                   kanjiList = event.kanjiList
                ) }
            }
            is KanjiPackEvent.SetKanjiDescription -> {
