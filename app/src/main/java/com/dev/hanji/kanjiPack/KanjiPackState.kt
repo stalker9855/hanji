@@ -9,3 +9,7 @@ data class KanjiPackState(
     val description: String = "",
     val userId: Int = 1,
 )
+data class KanjiPackStateById(
+    val packId: Int = 0,
+    val kanjiPackWithKanjiList: PackWithKanji? = null,
+)

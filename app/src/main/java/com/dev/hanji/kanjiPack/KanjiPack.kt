@@ -66,7 +66,7 @@ data class KanjiPackCrossRef(
 data class KanjiWithPacks(
     @Embedded val kanji: KanjiEntity,
     @Relation(
-        parentColumn = "kanji_character",
+        parentColumn = "character",
         entityColumn = "pack_id",
         associateBy = Junction(KanjiPackCrossRef::class)
     )

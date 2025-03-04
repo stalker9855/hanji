@@ -29,7 +29,7 @@ fun PacksScreen(modifier: Modifier = Modifier,
    var currentScreen: HanjiDestination by remember { mutableStateOf(AllPacks) }
 
    val kanjiPackDao: KanjiPackDao = AppDatabase.getInstance(context = LocalContext.current).kanjiPackDao
-   val viewModel: KanjiPackViewModel = viewModel(factory = KanjiPackFactory(kanjiPackDao))
+   val viewModel: KanjiPackViewModel = viewModel(factory = KanjiPackFactory(kanjiPackDao, packId = 0))
 
    Scaffold(
       topBar = {

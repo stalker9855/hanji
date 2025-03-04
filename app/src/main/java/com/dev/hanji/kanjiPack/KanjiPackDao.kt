@@ -32,8 +32,16 @@ interface KanjiPackDao {
     fun getAllPacks(): Flow<List<KanjiPackEntity>>
 
     @Transaction
+    @Query("SELECT * FROM kanji_packs where pack_id = :packId")
+    fun getPackById(packId: Long): Flow<KanjiPackEntity>
+
+    @Transaction
     @Query("SELECT * FROM kanji_packs")
     fun getAllPacksWithKanji(): Flow<List<PackWithKanji>>
+
+    @Transaction
+    @Query("SELECT * FROM kanji_packs WHERE pack_id = :packId")
+    fun getKanjiListByPackId(packId: Long): Flow<PackWithKanji>
 
 }
 

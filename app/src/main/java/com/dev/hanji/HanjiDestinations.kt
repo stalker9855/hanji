@@ -83,6 +83,12 @@ object CreatePack : HanjiDestination {
     override val title: String = "Create Pack"
 }
 
+object PackDetail: HanjiDestination {
+    override val route: String = "pack_detail"
+    override val icon: ImageVector = Icons.Filled.Info
+    override val title: String = "Detail of pack"
+}
+
 val hanjiScreens = listOf(Home, Packs, User, About, Settings, Draw)
 val userScreens = listOf(UserStats, UserAchievements)
 val packScreens = listOf(AllPacks, MyPacks)

@@ -9,14 +9,17 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.dev.hanji.screens.AboutScreen
 import com.dev.hanji.screens.DrawScreen
 import com.dev.hanji.screens.HomeScreen
 import com.dev.hanji.screens.packs.PacksScreen
 import com.dev.hanji.screens.SettingsScreen
 import com.dev.hanji.screens.packs.CreateKanjiPackScreen
+import com.dev.hanji.screens.packs.KanjiPackDetailScreen
 import com.dev.hanji.screens.user.UserScreen
 
 
@@ -47,6 +50,13 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
         }
         composable(route = CreatePack.route) {
             CreateKanjiPackScreen()
+        }
+        composable(route = "${PackDetail.route}/{packId}",
+            arguments = listOf(navArgument("packId") { type = NavType.LongType})
+        ) { navBackStackEntry ->  
+            val packId = navBackStackEntry.arguments?.getLong("packId")
+            KanjiPackDetailScreen(packId = packId)
+
         }
     }
 }

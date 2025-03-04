@@ -3,6 +3,7 @@ package com.dev.hanji.screens.packs
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.dev.hanji.PackDetail
 import com.dev.hanji.kanjiPack.KanjiPackEntity
 import com.dev.hanji.kanjiPack.KanjiPackViewModel
 
@@ -49,18 +51,18 @@ fun AllPacksScreen(modifier: Modifier = Modifier,
                 .padding(top = 8.dp)
         ) {
             items(state.kanjiPacks) { kanjiPack ->
-                PackItem(kanjiPack = kanjiPack)
+                Box(
+                    modifier = Modifier.clickable {
+                        navController.navigate("${PackDetail.route}/${kanjiPack.id}")
+                    },
+                ) {
+                    PackItem(
+                        kanjiPack = kanjiPack
+                    )
+
+                }
             }
         }
-//        FloatingActionButton(
-//            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-//            onClick = {
-//                navController.navigate("create_pack")
-//            }
-//        ) {
-//            Icon(Icons.Filled.Add, contentDescription = "Add New Pack")
-//        }
-
     }
 }
 
@@ -123,3 +125,11 @@ fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) {
     }
 
 }
+//        FloatingActionButton(
+//            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+//            onClick = {
+//                navController.navigate("create_pack")
+//            }
+//        ) {
+//            Icon(Icons.Filled.Add, contentDescription = "Add New Pack")
+//        }

@@ -3,33 +3,41 @@ package com.dev.hanji.kanjiPack
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.hanji.kanji.KanjiEntity
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
-class KanjiPackViewModel(private val dao: KanjiPackDao) : ViewModel() {
+class KanjiPackViewModel(private val dao: KanjiPackDao, private val packId: Long? = null) : ViewModel() {
 
+    // private states
     private val _state = MutableStateFlow(KanjiPackState())
+    private val _kanjiPackDetailState = MutableStateFlow(KanjiPackStateById())
+
+    // queries
     private val _kanjiPacks = dao.getAllPacks()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
-    private val _kanjiList = dao.getAllPacksWithKanji()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    private val _kanjiPackWithKanjiListById = dao.getKanjiListByPackId(packId = packId!!)
 
 
-    val state = combine(_state, _kanjiPacks, _kanjiList) {
-        state, kanjiPacks, kanjiList ->
+
+    // public states
+    val state = combine(_state, _kanjiPacks) {
+        state, kanjiPacks  ->
             state.copy(
-                kanjiList = kanjiList.flatMap { it.kanjiList },
                 kanjiPacks = kanjiPacks,
             )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiPackState())
+
+    val packDetailState = combine(_kanjiPackDetailState,  _kanjiPackWithKanjiListById) {
+       state, kanjiListById ->
+        state.copy(
+            kanjiPackWithKanjiList = kanjiListById
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiPackStateById())
 
 
     fun onEvent(event: KanjiPackEvent) {
