@@ -109,7 +109,6 @@ fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) {
                 ) {
                     Column {
                         Text(kanjiPack.description)
-                        Text("Kanji Count: ")
                     }
                     IconToggleButton(
                         modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
@@ -123,7 +122,6 @@ fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) {
             }
         }
     }
-
 }
 //        FloatingActionButton(
 //            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),

@@ -1,9 +1,17 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.dev.hanji
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -13,6 +21,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.dev.hanji.database.AppDatabase
+import com.dev.hanji.kanjiPack.KanjiPackDao
+import com.dev.hanji.kanjiPack.KanjiPackFactory
+import com.dev.hanji.kanjiPack.KanjiPackViewModel
 import com.dev.hanji.screens.AboutScreen
 import com.dev.hanji.screens.DrawScreen
 import com.dev.hanji.screens.HomeScreen
@@ -22,43 +34,60 @@ import com.dev.hanji.screens.packs.CreateKanjiPackScreen
 import com.dev.hanji.screens.packs.KanjiPackDetailScreen
 import com.dev.hanji.screens.user.UserScreen
 
+const val FAB_EXPLODE_BOUNDS_KEY = "FAB_EXPLODE_BOUNDS_KEY"
 
 @Composable
 fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
-    NavHost(
-        navController = navController,
-        startDestination = Packs.route,
-        modifier = modifier
-    )  {
-        composable(route = Home.route) {
-            HomeScreen()
-        }
-        composable(route = Packs.route) {
-            PacksScreen(navController = navController)
-        }
-        composable(route = User.route) {
-            UserScreen()
-        }
-        composable(route = Settings.route) {
-            SettingsScreen()
-        }
-        composable(route = About.route) {
-            AboutScreen()
-        }
-        composable(route = Draw.route) {
-            DrawScreen()
-        }
-        composable(route = CreatePack.route) {
-            CreateKanjiPackScreen()
-        }
-        composable(route = "${PackDetail.route}/{packId}",
-            arguments = listOf(navArgument("packId") { type = NavType.LongType})
-        ) { navBackStackEntry ->  
-            val packId = navBackStackEntry.arguments?.getLong("packId")
-            KanjiPackDetailScreen(packId = packId)
-
+    val kanjiPackDao: KanjiPackDao = AppDatabase.getInstance(context = LocalContext.current).kanjiPackDao
+    SharedTransitionLayout {
+        NavHost(
+            navController = navController,
+            startDestination = Packs.route,
+            modifier = modifier
+        )  {
+            composable(route = Home.route) {
+                HomeScreen()
+            }
+            composable(route = Packs.route) {
+                val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))
+                PacksScreen(navController = navController, viewModel = viewModel, animatedVisibilityScope = this
+                    )
+            }
+            composable(route = User.route) {
+                UserScreen()
+            }
+            composable(route = Settings.route) {
+                SettingsScreen()
+            }
+            composable(route = About.route) {
+                AboutScreen()
+            }
+            composable(route = Draw.route) {
+                DrawScreen()
+            }
+            composable(route = CreatePack.route) {
+                val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))
+                val createKanjiPackState by viewModel.createKanjiPackState.collectAsStateWithLifecycle()
+                CreateKanjiPackScreen(onEvent = viewModel::onEvent, state = createKanjiPackState, modifier = Modifier
+                    .fillMaxSize()
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(
+                            key = FAB_EXPLODE_BOUNDS_KEY
+                        ),
+                        animatedVisibilityScope = this
+                    ))
+            }
+            composable(route = "${PackDetail.route}/{packId}",
+                arguments = listOf(navArgument("packId") { type = NavType.LongType})
+            ) { navBackStackEntry ->
+                val packId = navBackStackEntry.arguments?.getLong("packId")
+                val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
+                val packDetailState by viewModel.packDetailState.collectAsStateWithLifecycle()
+                KanjiPackDetailScreen(state = packDetailState)
+            }
         }
     }
+
 }
 
 fun NavHostController.navigateSingleTopTo(route: String) = this.navigate(route) {

@@ -12,4 +12,7 @@ interface KanjiDao {
 
     @Query("SELECT COUNT(*) FROM kanji")
     suspend fun getKanjiCount(): Int
+
+    @Query("SELECT * FROM kanji")
+    suspend fun getAllKanji(): List<KanjiEntity>
 }
