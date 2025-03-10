@@ -1,5 +1,6 @@
 package com.dev.hanji.kanjiPack
 
+import androidx.paging.PagingData
 import com.dev.hanji.kanji.KanjiEntity
 
 data class KanjiPackState(
@@ -13,6 +14,7 @@ data class KanjiPackStateById(
 data class CreateKanjiPackState(
     val selectedKanjiList: List<KanjiEntity> = emptyList(),
     val availableKanjiList: List<KanjiEntity> = emptyList(),
+    val pagedKanjiList: PagingData<KanjiEntity> = PagingData.empty(),
     val name: String = "",
     val description: String = "",
     val userId: Int = 1,

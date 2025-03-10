@@ -1,5 +1,6 @@
 package com.dev.hanji.kanjiPack
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -44,8 +45,12 @@ interface KanjiPackDao {
     fun getKanjiListByPackId(packId: Long): Flow<PackWithKanji>
 
 
-    @Query("SELECT * FROM kanji")
+    @Query("SELECT * FROM kanji LIMIT 10")
     fun getAllKanji(): Flow<List<KanjiEntity>>
+
+
+//    @Query("SELECT * FROM kanji LIMIT 50")
+//    fun getKanjiWithPagination(): PagingSource<Int, KanjiEntity>
 
 }
 

@@ -2,6 +2,10 @@ package com.dev.hanji.kanjiPack
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.dev.hanji.kanji.KanjiEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,6 +21,11 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = null) : 
     private val _kanjiPackDetailState = MutableStateFlow(KanjiPackStateById())
     private val _createKanjiPackState = MutableStateFlow(CreateKanjiPackState())
 
+//    private val pager = Pager(PagingConfig(pageSize = 10), pagingSourceFactory = {
+//
+//        dao.getKanjiWithPagination()
+//    }).flow.cachedIn(viewModelScope)
+//
     // queries
     private val _kanjiPacks = dao.getAllPacks()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -43,6 +52,7 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = null) : 
 
     val createKanjiPackState = combine(_createKanjiPackState, _kanjiList) { state, kanjiList ->
         state.copy(
+//            pagedKanjiList = kanjiList
             availableKanjiList = kanjiList
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateKanjiPackState())

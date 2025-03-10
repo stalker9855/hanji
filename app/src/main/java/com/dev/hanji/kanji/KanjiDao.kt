@@ -15,4 +15,5 @@ interface KanjiDao {
 
     @Query("SELECT * FROM kanji")
     suspend fun getAllKanji(): List<KanjiEntity>
+
 }

@@ -48,6 +48,10 @@ dependencies {
 
     implementation(libs.androidx.appcompat.resources)
     implementation(libs.androidx.vectordrawable)
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.room.paging)
+    implementation(libs.androidx.paging.runtime.ktx)
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
