@@ -92,3 +92,4 @@ object PackDetail: HanjiDestination {
 val hanjiScreens = listOf(Home, Packs, User, About, Settings, Draw)
 val userScreens = listOf(UserStats, UserAchievements)
 val packScreens = listOf(AllPacks, MyPacks)
+val arrowScreens = listOf(CreatePack, PackDetail)

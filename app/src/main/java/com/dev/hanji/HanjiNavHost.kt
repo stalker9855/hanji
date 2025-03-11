@@ -21,6 +21,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev.hanji.database.AppDatabase
 import com.dev.hanji.kanjiPack.KanjiPackDao
 import com.dev.hanji.kanjiPack.KanjiPackFactory
@@ -68,7 +69,12 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
             composable(route = CreatePack.route) {
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))
                 val createKanjiPackState by viewModel.createKanjiPackState.collectAsStateWithLifecycle()
-                CreateKanjiPackScreen(onEvent = viewModel::onEvent, state = createKanjiPackState, modifier = Modifier
+                val pagedKanjiList = viewModel.pagedKanjiList.collectAsLazyPagingItems()
+                CreateKanjiPackScreen(
+                    pagedKanjiList = pagedKanjiList,
+                    onEvent = viewModel::onEvent,
+                    state = createKanjiPackState,
+                    modifier = Modifier
                     .fillMaxSize()
                     .sharedBounds(
                         sharedContentState = rememberSharedContentState(

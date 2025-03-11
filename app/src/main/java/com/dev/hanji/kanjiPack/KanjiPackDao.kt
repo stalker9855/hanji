@@ -49,8 +49,12 @@ interface KanjiPackDao {
     fun getAllKanji(): Flow<List<KanjiEntity>>
 
 
-//    @Query("SELECT * FROM kanji LIMIT 50")
-//    fun getKanjiWithPagination(): PagingSource<Int, KanjiEntity>
+    @Query("""
+    SELECT * FROM kanji 
+    WHERE character LIKE '%' || :query || '%' 
+       OR meanings LIKE '%' || :query || '%'
+        """)
+    fun getKanjiWithPagination(query: String): PagingSource<Int, KanjiEntity>
 
 }
 

@@ -48,7 +48,6 @@ private fun HanjiApp(modifier: Modifier = Modifier) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
-
         NavigationDrawer(scope = scope, navController = navController, modifier = modifier, drawerState = drawerState) {
             Scaffold(modifier = Modifier,
                 topBar = {

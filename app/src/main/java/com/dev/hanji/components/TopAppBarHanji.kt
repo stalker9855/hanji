@@ -1,5 +1,6 @@
 package com.dev.hanji.components
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
@@ -17,14 +18,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import com.dev.hanji.CreatePack
 import com.dev.hanji.R
+import com.dev.hanji.arrowScreens
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarHanji(drawerState: DrawerState, scope: CoroutineScope, currentBackStackEntry: State<NavBackStackEntry?>, onBackClick: () -> Unit = {}) {
-    // if i would have multiple screen where arrow is needed then create listOf in hanjiDestinations
-    val showBackArrow = currentBackStackEntry.value?.destination?.route == CreatePack.route
+    val showBackArrow = arrowScreens.any { it.route == currentBackStackEntry.value?.destination?.route }
     TopAppBar(
         modifier = Modifier,
         title = { Text(text = stringResource(R.string.app_name)) },

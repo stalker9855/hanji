@@ -41,11 +41,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.compose.LazyPagingItems
 import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.CreateKanjiPackState
 import com.dev.hanji.kanjiPack.KanjiPackEvent
 @Composable
-fun CreateKanjiPackScreen(modifier: Modifier = Modifier, onEvent: (KanjiPackEvent) -> Unit, state: CreateKanjiPackState) {
+fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
+                          onEvent: (KanjiPackEvent) -> Unit,
+                          state: CreateKanjiPackState,
+                          pagedKanjiList: LazyPagingItems<KanjiEntity>) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     Scaffold(modifier = modifier,
@@ -53,7 +57,6 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier, onEvent: (KanjiPackEven
             FloatingActionButton(
                 modifier = Modifier.width(100.dp),
                 onClick = {
-                    Log.d("KANJI STATE", "$state")
                     onEvent(KanjiPackEvent.SaveKanjiPack)
                 },
             )
@@ -88,6 +91,15 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier, onEvent: (KanjiPackEven
                 modifier = Modifier.fillMaxWidth()
             )
 
+            OutlinedTextField(
+                label = { Text("Search") },
+                value = state.searchQuery,
+                onValueChange = {
+                    query -> onEvent(KanjiPackEvent.SetSearchQuery(query))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
 
             TabRow(selectedTabIndex = selectedTabIndex, modifier = Modifier.fillMaxWidth()) {
@@ -107,10 +119,18 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier, onEvent: (KanjiPackEven
                 LazyColumn(modifier = Modifier
                     .fillMaxWidth()
                     .height(500.dp)) {
-                    items(state.availableKanjiList) { kanji ->
+                    items(pagedKanjiList.itemCount) { index ->
+                        val kanji = pagedKanjiList[index]
+                        Log.d("kanji", "${pagedKanjiList.itemSnapshotList}")
+                        if (kanji != null) {
                         val isChecked = state.selectedKanjiList.contains(kanji)
                         KanjiItem(kanji = kanji, isChecked = isChecked, onEvent = onEvent)
+                        }
                     }
+//                    items(state.availableKanjiList) { kanji ->
+//                        val isChecked = state.selectedKanjiList.contains(kanji)
+//                        KanjiItem(kanji = kanji, isChecked = isChecked, onEvent = onEvent)
+//                    }
                 }
             }
 

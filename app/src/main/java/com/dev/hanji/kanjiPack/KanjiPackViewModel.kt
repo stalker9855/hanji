@@ -6,10 +6,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev.hanji.kanji.KanjiEntity
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -21,19 +24,29 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = null) : 
     private val _kanjiPackDetailState = MutableStateFlow(KanjiPackStateById())
     private val _createKanjiPackState = MutableStateFlow(CreateKanjiPackState())
 
-//    private val pager = Pager(PagingConfig(pageSize = 10), pagingSourceFactory = {
-//
-//        dao.getKanjiWithPagination()
-//    }).flow.cachedIn(viewModelScope)
-//
+
+
+
     // queries
     private val _kanjiPacks = dao.getAllPacks()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
     private val _kanjiPackWithKanjiListById = packId?.let { dao.getKanjiListByPackId(packId = it) }
 
-    private val _kanjiList = dao.getAllKanji()
+//    private val _kanjiList = dao.getAllKanji()
 
+    private val _searchQuery = MutableStateFlow("")
+    val pagedKanjiList = _searchQuery
+        .debounce(300)
+        .flatMapLatest { query ->
+        Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { dao.getKanjiWithPagination(query) }
+        ).flow.cachedIn(viewModelScope)
+    }
 
     // public states
     val state = combine(_state, _kanjiPacks) {
@@ -50,12 +63,7 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = null) : 
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiPackStateById())
 
-    val createKanjiPackState = combine(_createKanjiPackState, _kanjiList) { state, kanjiList ->
-        state.copy(
-//            pagedKanjiList = kanjiList
-            availableKanjiList = kanjiList
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateKanjiPackState())
+    val createKanjiPackState = _createKanjiPackState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateKanjiPackState())
 
 
 
@@ -115,6 +123,10 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = null) : 
                        name = event.name
                    )
                }
+           }
+           is KanjiPackEvent.SetSearchQuery -> {
+               _searchQuery.value = event.query
+               _createKanjiPackState.update { it.copy(searchQuery = event.query) }
            }
        }
     }
