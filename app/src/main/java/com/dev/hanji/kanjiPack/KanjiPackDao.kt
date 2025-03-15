@@ -53,6 +53,8 @@ interface KanjiPackDao {
     SELECT * FROM kanji 
     WHERE character LIKE '%' || :query || '%' 
        OR meanings LIKE '%' || :query || '%'
+       OR readings_on LIKE '%' || :query || '%'
+       OR readings_kun LIKE '%' || :query || '%'
         """)
     fun getKanjiWithPagination(query: String): PagingSource<Int, KanjiEntity>
 

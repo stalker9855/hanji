@@ -2,10 +2,12 @@
 
 package com.dev.hanji
 
+import android.util.Log
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -63,8 +65,16 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
             composable(route = About.route) {
                 AboutScreen()
             }
-            composable(route = Draw.route) {
-                DrawScreen()
+            composable(route = "${Draw.route}",
+//                arguments = listOf(navArgument(name = "packId") {type = NavType.LongType} )
+            ) { navBackStackEntry ->
+                var packId = navBackStackEntry.arguments?.getLong("packId")
+                val drawingViewModel = viewModel<DrawingViewModel>()
+                packId = 6
+                val kanjiPackViewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
+                val packState by kanjiPackViewModel.packDetailState.collectAsStateWithLifecycle()
+                Log.d("Pack State", "$packState")
+                DrawScreen(drawingViewModel = drawingViewModel, packState = packState)
             }
             composable(route = CreatePack.route) {
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))
@@ -89,7 +99,8 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                 val packId = navBackStackEntry.arguments?.getLong("packId")
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
                 val packDetailState by viewModel.packDetailState.collectAsStateWithLifecycle()
-                KanjiPackDetailScreen(state = packDetailState)
+                Log.d("PACK STATE", "$packDetailState")
+                KanjiPackDetailScreen(state = packDetailState, onEvent = viewModel::onEvent, navController = navController)
             }
         }
     }

@@ -12,15 +12,22 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,23 +36,61 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.KanjiPackEntity
+import com.dev.hanji.kanjiPack.KanjiPackEvent
 import com.dev.hanji.kanjiPack.KanjiPackStateById
+import kotlinx.coroutines.launch
 
 @Composable
-fun KanjiPackDetailScreen(modifier: Modifier = Modifier, state: KanjiPackStateById ) {
-    Column {
-        LazyColumn {
-            state.kanjiPackWithKanjiList?.let { kanjiPackWithKanji ->
-                item {
-                   PackDetail(kanjiPack = kanjiPackWithKanji.pack, count = kanjiPackWithKanji.kanjiCount)
+fun KanjiPackDetailScreen(
+    modifier: Modifier = Modifier,
+    state: KanjiPackStateById,
+    onEvent: (KanjiPackEvent) -> Unit,
+    navController: NavController) {
+
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+    Scaffold(
+        modifier = Modifier,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
+        floatingActionButton = {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                FloatingActionButton(onClick = {
+
+                }) {
+                    Icon(Icons.Filled.Edit, contentDescription = "Delete kanji pack")
                 }
-                items(kanjiPackWithKanji.kanjiList) { kanji ->
-                    KanjiItem(kanji = kanji)
+                FloatingActionButton(onClick = {
+                    scope.launch {
+                        onEvent(KanjiPackEvent.DeleteKanjiPack(state.kanjiPackWithKanjiList!!.pack))
+                        navController.popBackStack()
+                        snackbarHostState.showSnackbar("Kanji Pack Deleted")
+                    }
+                }) {
+                    Icon(Icons.Filled.Delete, contentDescription = "Delete kanji pack")
+                }
+
+            }
+        }
+    ) { _ ->
+        Column {
+            LazyColumn {
+                state.kanjiPackWithKanjiList?.let { kanjiPackWithKanji ->
+                    item {
+                        PackDetail(kanjiPack = kanjiPackWithKanji.pack, count = kanjiPackWithKanji.kanjiCount)
+                    }
+                    items(kanjiPackWithKanji.kanjiList) { kanji ->
+                        KanjiItem(kanji = kanji)
+                    }
                 }
             }
         }
+
     }
 }
 

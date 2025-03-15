@@ -20,3 +20,4 @@ data class CreateKanjiPackState(
     val description: String = "",
     val userId: Int = 1,
 )
+

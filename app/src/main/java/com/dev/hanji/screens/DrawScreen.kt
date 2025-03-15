@@ -1,5 +1,6 @@
 package com.dev.hanji.screens
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PathMeasure
 import android.util.Log
@@ -40,21 +41,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.PathParser
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dev.hanji.DrawingAction
 import com.dev.hanji.DrawingViewModel
-import com.dev.hanji.R
+import com.dev.hanji.kanjiPack.KanjiPackStateById
 import org.xmlpull.v1.XmlPullParser
 import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.math.min
 
 
+@SuppressLint("DiscouragedApi")
 @Composable
-fun DrawScreen(modifier: Modifier = Modifier) {
-    val viewModel = viewModel<DrawingViewModel>()
+fun DrawScreen(modifier: Modifier = Modifier, drawingViewModel: DrawingViewModel, packState: KanjiPackStateById?) {
+    if(packState?.kanjiPackWithKanjiList == null) {
+        Text("Loading . . .")
+        return
+    }
+    val unicodeHex = packState.kanjiPackWithKanjiList.kanjiList.getOrNull(0)?.unicodeHex
+    Log.d("Unicode Hex", "$unicodeHex")
+    val context = LocalContext.current
+    val drawableId = context.resources.getIdentifier("_4e0a", "drawable", context.packageName)
+    if (drawableId == 0) {
+        return
+    }
+    Log.d("ID", "$drawableId")
+
     val originalPath: List<List<Offset>> =
-        extractPathData(LocalContext.current, R.drawable._04e82, 5f)
+        extractPathData(LocalContext.current, drawableId, 5f)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -96,34 +109,34 @@ fun DrawScreen(modifier: Modifier = Modifier) {
             Text("Draw a kanji\nKun-Yomi: まな.ぶ\nOn-Yomi: ガク\nMeaning: study, learning, science", textAlign = TextAlign.Center)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             DrawingCanvas(
-                onAction = viewModel::onAction,
-                viewModel = viewModel,
+                onAction = drawingViewModel::onAction,
+                viewModel = drawingViewModel,
+                drawableId = drawableId
             )
 
         }
 
 
     }
-
 }
 
 @Composable
 fun DrawingCanvas(
     viewModel: DrawingViewModel,
     onAction: (DrawingAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    drawableId: Int,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val currentPath = state.currentPath
     val originalPath: List<List<Offset>> =
-        extractPathData(LocalContext.current, R.drawable._04e82)
+//        extractPathData(LocalContext.current, R.drawable._04e82)
+        extractPathData(LocalContext.current, drawableId)
 
     var indexOriginalPath = 0
     val matchedPath = remember  { mutableStateListOf<List<Offset>>() }
     Box {
         Canvas(
             modifier = modifier
-                //.fillMaxWidth()
                 .size(109.dp * 3)
                 .aspectRatio(1f)
                 .padding(16.dp)
@@ -135,12 +148,18 @@ fun DrawingCanvas(
                             onAction(DrawingAction.OnNewPathStart)
                         },
                         onDragEnd = {
+                            val epsilon = 5f
+                            val simplifiedPath: List<Offset> = if (state.currentPath?.path!!.isNotEmpty()) {
+                                ramerDouglasPeucker(state.currentPath?.path!!, epsilon)
+                            } else {
+                                state.currentPath?.path!!
+                            }
                             onAction(DrawingAction.OnPathEnd)
                             if(indexOriginalPath != originalPath.size){
                                 val isCorrect =
                                     compareWithDTW(
                                         originalPath = originalPath[indexOriginalPath],
-                                        currentPath = state.currentPath?.path!!
+                                        currentPath = simplifiedPath
                                     )
 
                                 if(isCorrect && originalPath[indexOriginalPath] !in matchedPath) {
@@ -160,7 +179,7 @@ fun DrawingCanvas(
         ) {
 
 
-            currentPath?.let {
+            state.currentPath?.let {
                 drawPath(
                     path = it.path,
                     color = it.color,
@@ -219,7 +238,7 @@ private fun DrawScope.drawPath(
         if(path.isNotEmpty()) {
             moveTo(path.first().x, path.first().y)
 
-            val smoothness = 1
+            val smoothness = 3
             for (i in 1..path.lastIndex) {
                 val from = path[i - 1]
                 val to = path[i]
@@ -249,7 +268,7 @@ private fun DrawScope.drawPath(
     )
 }
 
-fun extractPathData(context: Context, resId: Int, scale: Float = 7.5f): List<List<Offset>> {
+private fun extractPathData(context: Context, resId: Int, scale: Float = 7.5f): List<List<Offset>> {
     val parser = context.resources.getXml(resId)
     val pathDataList = mutableListOf<String>()
 
@@ -273,7 +292,7 @@ fun extractPathData(context: Context, resId: Int, scale: Float = 7.5f): List<Lis
     return parsePathData(pathDataList = pathDataList, scale = scale)
 }
 
-fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20, scale: Float): List<List<Offset>> {
+private fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20, scale: Float): List<List<Offset>> {
     val paths = mutableListOf<List<Offset>>()
 
     for (pathData in pathDataList) {
@@ -329,12 +348,44 @@ private fun compareWithDTW(originalPath: List<Offset>, currentPath: List<Offset>
 
     val value = (matrix[originalPath.count()][currentPath.count()] / 100)
     Log.d("value", "$value")
-    return  value < 15
+    return  value < 13
 }
 
-fun cost(p1: Offset, p2: Offset): Float {
+private fun cost(p1: Offset, p2: Offset): Float {
     return hypot(p1.x - p2.x, p1.y - p2.y)
 }
 
-fun min(a: Float, b: Float, c: Float): Float = min(a, min(b,c))
+private fun min(a: Float, b: Float, c: Float): Float = min(a, min(b,c))
+
+
+
+
+private fun perpendicularDistance(point: Offset, start: Offset, end: Offset): Float {
+    val num = (end.y - start.y) * point.x - (end.x - start.x) * point.y + end.x * start.y - end.y * start.x
+    val denom = hypot(end.x - start.x, end.y - start.y)
+    return abs(num) / denom
+}
+
+private fun ramerDouglasPeucker(points: List<Offset>, epsilon: Float): List<Offset> {
+    if (points.size < 2) return points
+
+    var maxDist = 0f
+    var index = 0
+    for (i in 1 until points.size - 1) {
+        val dist = perpendicularDistance(points[i], points[0], points[points.size - 1])
+        if (dist > maxDist) {
+            maxDist = dist
+            index = i
+        }
+    }
+
+    return if (maxDist < epsilon) {
+        listOf(points[0], points[points.size - 1])
+    } else {
+        val firstHalf = ramerDouglasPeucker(points.subList(0, index + 1), epsilon)
+        val secondHalf = ramerDouglasPeucker(points.subList(index, points.size), epsilon)
+
+        return firstHalf.dropLast(1) + secondHalf
+    }
+}
 

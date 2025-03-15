@@ -8,6 +8,8 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev.hanji.kanji.KanjiEntity
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -17,7 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = null) : ViewModel() {
+class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 6) : ViewModel() {
 
     // private states
     private val _state = MutableStateFlow(KanjiPackState())
@@ -36,6 +38,8 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = null) : 
 //    private val _kanjiList = dao.getAllKanji()
 
     private val _searchQuery = MutableStateFlow("")
+
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val pagedKanjiList = _searchQuery
         .debounce(300)
         .flatMapLatest { query ->

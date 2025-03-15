@@ -1,8 +1,11 @@
 package com.dev.hanji
 
+import android.content.Context
+import android.graphics.PathMeasure
 import android.util.Log
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.PathParser
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,7 +29,7 @@ sealed interface DrawingAction {
     data object OnPathEnd: DrawingAction
     data object OnClearCanvasClick: DrawingAction
 
-}
+    }
 
 class DrawingViewModel : ViewModel() {
     private val _state = MutableStateFlow(DrawingState())
@@ -34,12 +37,22 @@ class DrawingViewModel : ViewModel() {
 
     fun onAction(action: DrawingAction) {
         when(action) {
-            DrawingAction.OnClearCanvasClick -> onClearCanvasClick()
-            is DrawingAction.OnDraw -> onDraw(action.offset)
-            DrawingAction.OnNewPathStart -> onNewPathStart()
-            DrawingAction.OnPathEnd -> onPathEnd()
+            DrawingAction.OnClearCanvasClick -> {
+                onClearCanvasClick()
+            }
+            is DrawingAction.OnDraw -> {
+                onDraw(action.offset)
+            }
+            DrawingAction.OnNewPathStart -> {
+                onNewPathStart()
+            }
+            DrawingAction.OnPathEnd -> {
+                onPathEnd()
+            }
+
         }
     }
+
 
 
     private fun onPathEnd() {

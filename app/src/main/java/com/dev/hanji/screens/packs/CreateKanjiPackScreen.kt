@@ -45,6 +45,7 @@ import androidx.paging.compose.LazyPagingItems
 import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.CreateKanjiPackState
 import com.dev.hanji.kanjiPack.KanjiPackEvent
+
 @Composable
 fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
                           onEvent: (KanjiPackEvent) -> Unit,
@@ -55,7 +56,7 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
     Scaffold(modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier.width(100.dp),
+                modifier = Modifier.width(80.dp),
                 onClick = {
                     onEvent(KanjiPackEvent.SaveKanjiPack)
                 },
