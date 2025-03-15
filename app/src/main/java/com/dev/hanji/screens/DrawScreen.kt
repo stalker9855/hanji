@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.PathMeasure
 import android.util.Log
+import android.util.MutableInt
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -16,15 +17,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +50,7 @@ import androidx.core.graphics.PathParser
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dev.hanji.DrawingAction
 import com.dev.hanji.DrawingViewModel
+import com.dev.hanji.R
 import com.dev.hanji.kanjiPack.KanjiPackStateById
 import org.xmlpull.v1.XmlPullParser
 import kotlin.math.abs
@@ -57,10 +65,15 @@ fun DrawScreen(modifier: Modifier = Modifier, drawingViewModel: DrawingViewModel
         Text("Loading . . .")
         return
     }
-    val unicodeHex = packState.kanjiPackWithKanjiList.kanjiList.getOrNull(0)?.unicodeHex
+
+    val currentIndex = remember { mutableIntStateOf(0) }
+    val currentKanji = packState.kanjiPackWithKanjiList.kanjiList.getOrNull(currentIndex.intValue)
+
+//    val unicodeHex = packState.kanjiPackWithKanjiList.kanjiList.getOrNull(2)?.unicodeHex
+    val unicodeHex = currentKanji?.unicodeHex
     Log.d("Unicode Hex", "$unicodeHex")
     val context = LocalContext.current
-    val drawableId = context.resources.getIdentifier("_4e0a", "drawable", context.packageName)
+    val drawableId = context.resources.getIdentifier(unicodeHex, "drawable", context.packageName)
     if (drawableId == 0) {
         return
     }
@@ -68,6 +81,12 @@ fun DrawScreen(modifier: Modifier = Modifier, drawingViewModel: DrawingViewModel
 
     val originalPath: List<List<Offset>> =
         extractPathData(LocalContext.current, drawableId, 5f)
+    Log.d("PATHS", "$originalPath")
+
+    var currentOriginalPath by remember { mutableStateOf(originalPath) }
+    var initialIndex by remember { mutableIntStateOf(0) }
+
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -97,9 +116,22 @@ fun DrawScreen(modifier: Modifier = Modifier, drawingViewModel: DrawingViewModel
                         path = path,
                         color = Color.White,
                         style = Stroke(width = 15f),
-
                         )
                 }
+            }
+            Button(
+                onClick = {
+                    currentIndex.intValue = (currentIndex.intValue + 1) % packState.kanjiPackWithKanjiList.kanjiList.size
+                    val newKanji = packState.kanjiPackWithKanjiList.kanjiList.getOrNull(currentIndex.intValue)
+                    val newUnicodeHex = newKanji?.unicodeHex
+                    val newDrawableId = context.resources.getIdentifier(newUnicodeHex, "drawable", context.packageName)
+                    if (newDrawableId != 0) {
+                        currentOriginalPath = extractPathData(context, newDrawableId, 5f)
+                        initialIndex = 0
+                    }
+                }
+            ) {
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Kanji")
             }
             Button(
                 onClick = {}
@@ -111,7 +143,8 @@ fun DrawScreen(modifier: Modifier = Modifier, drawingViewModel: DrawingViewModel
             DrawingCanvas(
                 onAction = drawingViewModel::onAction,
                 viewModel = drawingViewModel,
-                drawableId = drawableId
+                originalPath = currentOriginalPath,
+                initialIndex = initialIndex
             )
 
         }
@@ -125,15 +158,16 @@ fun DrawingCanvas(
     viewModel: DrawingViewModel,
     onAction: (DrawingAction) -> Unit,
     modifier: Modifier = Modifier,
-    drawableId: Int,
+    originalPath: List<List<Offset>>,
+    initialIndex: Int,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val originalPath: List<List<Offset>> =
-//        extractPathData(LocalContext.current, R.drawable._04e82)
-        extractPathData(LocalContext.current, drawableId)
 
-    var indexOriginalPath = 0
-    val matchedPath = remember  { mutableStateListOf<List<Offset>>() }
+    Log.d("ORIGINAL PATH", "$originalPath")
+
+    var indexOriginalPath by remember { mutableIntStateOf(initialIndex) }
+    val matchedPath = remember { mutableStateListOf<List<Offset>>() }
+
     Box {
         Canvas(
             modifier = modifier
@@ -155,6 +189,7 @@ fun DrawingCanvas(
                                 state.currentPath?.path!!
                             }
                             onAction(DrawingAction.OnPathEnd)
+                            Log.d("Original Size", "${originalPath.size}")
                             if(indexOriginalPath != originalPath.size){
                                 val isCorrect =
                                     compareWithDTW(
@@ -275,7 +310,7 @@ private fun extractPathData(context: Context, resId: Int, scale: Float = 7.5f): 
     try {
         while (parser.eventType != XmlPullParser.END_DOCUMENT) {
             if (parser.eventType == XmlPullParser.START_TAG && parser.name == "path") {
-                for (i in 1 until parser.attributeCount) {
+                for (i in 0 until parser.attributeCount) {
                     if (parser.getAttributeName(i) == "pathData") {
                         val pathData: String = parser.getAttributeValue(i)
                         pathDataList.add(pathData)
