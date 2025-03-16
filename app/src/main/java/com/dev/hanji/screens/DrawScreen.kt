@@ -138,7 +138,7 @@ fun DrawScreen(modifier: Modifier = Modifier, drawingViewModel: DrawingViewModel
             ) {
                 Icon(imageVector =  Icons.Filled.PlayArrow, contentDescription = "Play kanji animation drawing")
             }
-            Text("Draw a kanji\nKun-Yomi: まな.ぶ\nOn-Yomi: ガク\nMeaning: study, learning, science", textAlign = TextAlign.Center)
+            Text("Draw a kanji\nKun-Yomi: ${currentKanji?.readingsKun?.joinToString(", ")}\nOn-Yomi: ${currentKanji?.readingsOn?.joinToString(", ")}\nMeaning:${currentKanji?.meanings?.joinToString(", ")}", textAlign = TextAlign.Center)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             DrawingCanvas(
                 onAction = drawingViewModel::onAction,

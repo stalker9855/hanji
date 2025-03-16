@@ -8,6 +8,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.dev.hanji.achievements.AchievementDao
 import com.dev.hanji.achievements.AchievementEntity
+import com.dev.hanji.kanji.KanjiAttemptEntity
+import com.dev.hanji.kanji.KanjiAttemptWithUser
 import com.dev.hanji.kanji.KanjiConverters
 import com.dev.hanji.kanji.KanjiDao
 import com.dev.hanji.kanji.KanjiEntity
@@ -23,8 +25,10 @@ import com.dev.hanji.user.UserEntity
     AchievementEntity::class,
     KanjiEntity::class,
     KanjiPackEntity::class,
-    KanjiPackCrossRef::class], version = 2,
-    autoMigrations = [AutoMigration(from = 1, to = 2)]
+    KanjiPackCrossRef::class,
+    KanjiAttemptEntity::class,
+    ], version = 1,
+//    autoMigrations = [AutoMigration(from = 1, to = 2)]
     )
 abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao
