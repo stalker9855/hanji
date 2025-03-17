@@ -25,6 +25,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev.hanji.database.AppDatabase
+import com.dev.hanji.kanji.KanjiAttemptDao
+import com.dev.hanji.kanji.KanjiAttemptFactory
+import com.dev.hanji.kanji.KanjiAttemptViewModel
 import com.dev.hanji.kanjiPack.KanjiPackDao
 import com.dev.hanji.kanjiPack.KanjiPackFactory
 import com.dev.hanji.kanjiPack.KanjiPackViewModel
@@ -42,6 +45,7 @@ const val FAB_EXPLODE_BOUNDS_KEY = "FAB_EXPLODE_BOUNDS_KEY"
 @Composable
 fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     val kanjiPackDao: KanjiPackDao = AppDatabase.getInstance(context = LocalContext.current).kanjiPackDao
+    val kanjiAttemptDao: KanjiAttemptDao = AppDatabase.getInstance(context = LocalContext.current).kanjiAttemptDao
     SharedTransitionLayout {
         NavHost(
             navController = navController,
@@ -65,16 +69,18 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
             composable(route = About.route) {
                 AboutScreen()
             }
-            composable(route = "${Draw.route}",
-//                arguments = listOf(navArgument(name = "packId") {type = NavType.LongType} )
+            composable(route = "${Draw.route}/{packId}",
+                arguments = listOf(navArgument(name = "packId") {type = NavType.LongType} )
             ) { navBackStackEntry ->
-                var packId = navBackStackEntry.arguments?.getLong("packId")
+                val packId = navBackStackEntry.arguments?.getLong("packId")
+                Log.d("PACK ID", "$packId")
                 val drawingViewModel = viewModel<DrawingViewModel>()
-                packId = 6
                 val kanjiPackViewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
+                val kanjiAttemptViewModel  = viewModel<KanjiAttemptViewModel>(factory = KanjiAttemptFactory(kanjiAttemptDao))
+
                 val packState by kanjiPackViewModel.packDetailState.collectAsStateWithLifecycle()
-                Log.d("Pack State", "$packState")
-                DrawScreen(drawingViewModel = drawingViewModel, packState = packState)
+
+                DrawScreen(drawingViewModel = drawingViewModel, kanjiAttemptViewModel = kanjiAttemptViewModel, packState = packState)
             }
             composable(route = CreatePack.route) {
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))
@@ -97,9 +103,9 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                 arguments = listOf(navArgument("packId") { type = NavType.LongType})
             ) { navBackStackEntry ->
                 val packId = navBackStackEntry.arguments?.getLong("packId")
+                Log.d("PACK ID DETAIL SCREEN", "$packId")
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
                 val packDetailState by viewModel.packDetailState.collectAsStateWithLifecycle()
-                Log.d("PACK STATE", "$packDetailState")
                 KanjiPackDetailScreen(state = packDetailState, onEvent = viewModel::onEvent, navController = navController)
             }
         }

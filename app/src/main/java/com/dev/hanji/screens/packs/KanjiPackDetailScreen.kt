@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.dev.hanji.Draw
 import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.KanjiPackEntity
 import com.dev.hanji.kanjiPack.KanjiPackEvent
@@ -73,6 +75,12 @@ fun KanjiPackDetailScreen(
                     }
                 }) {
                     Icon(Icons.Filled.Delete, contentDescription = "Delete kanji pack")
+                }
+                FloatingActionButton(onClick = {
+                    navController.navigate("${Draw.route}/${state.packId}")
+
+                }) {
+                    Icon(Icons.Filled.PlayArrow, contentDescription = "Practice")
                 }
 
             }
@@ -162,7 +170,6 @@ fun PackDetail(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity, count:
         Row(
             modifier = Modifier
                 .padding(16.dp)
-                //.clip(RoundedCornerShape(16.dp))
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {

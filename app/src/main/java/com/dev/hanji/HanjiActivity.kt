@@ -31,6 +31,7 @@ class HanjiActivity : ComponentActivity() {
             }
         }
 
+//        deleteDatabase("hanji_database")
         runBlocking(Dispatchers.IO) {
             val db = AppDatabase.getInstance(this@HanjiActivity)
             val kanjiDao = db.kanjiDao

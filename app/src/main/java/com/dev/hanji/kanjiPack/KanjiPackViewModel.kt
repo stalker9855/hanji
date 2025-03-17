@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 6) : ViewModel() {
+class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : ViewModel() {
 
     // private states
     private val _state = MutableStateFlow(KanjiPackState())
@@ -63,7 +63,8 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 6) : Vie
     val packDetailState = combine(_kanjiPackDetailState,  _kanjiPackWithKanjiListById!!) {
        state, kanjiListById ->
         state.copy(
-            kanjiPackWithKanjiList = kanjiListById
+            kanjiPackWithKanjiList = kanjiListById,
+            packId = packId
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiPackStateById())
 

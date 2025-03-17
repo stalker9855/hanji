@@ -8,6 +8,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.dev.hanji.achievements.AchievementDao
 import com.dev.hanji.achievements.AchievementEntity
+import com.dev.hanji.kanji.KanjiAttemptDao
 import com.dev.hanji.kanji.KanjiAttemptEntity
 import com.dev.hanji.kanji.KanjiAttemptWithUser
 import com.dev.hanji.kanji.KanjiConverters
@@ -35,6 +36,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract val achievementDao: AchievementDao
     abstract val kanjiDao: KanjiDao
     abstract val kanjiPackDao: KanjiPackDao
+    abstract val kanjiAttemptDao: KanjiAttemptDao
 
     companion object {
 

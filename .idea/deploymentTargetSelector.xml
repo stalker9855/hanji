@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="hanji">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-03-09T08:47:16.917655154Z">
+        <DropdownSelection timestamp="2025-03-17T06:28:02.197015586Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="Default" identifier="serial=192.168.0.100:44151;connection=97ac33fd" />
+              <DeviceId pluginId="Default" identifier="serial=192.168.0.100:44779;connection=f2d191f3" />
             </handle>
           </Target>
         </DropdownSelection>

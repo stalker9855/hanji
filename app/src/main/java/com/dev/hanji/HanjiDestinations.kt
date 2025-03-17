@@ -89,7 +89,7 @@ object PackDetail: HanjiDestination {
     override val title: String = "Detail of pack"
 }
 
-val hanjiScreens = listOf(Home, Packs, User, About, Settings, Draw)
+val hanjiScreens = listOf(Home, Packs, User, About, Settings)
 val userScreens = listOf(UserStats, UserAchievements)
 val packScreens = listOf(AllPacks, MyPacks)
 val arrowScreens = listOf(CreatePack, PackDetail)

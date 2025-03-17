@@ -1,6 +1,5 @@
 package com.dev.hanji.screens.packs
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -122,16 +121,11 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
                     .height(500.dp)) {
                     items(pagedKanjiList.itemCount) { index ->
                         val kanji = pagedKanjiList[index]
-                        Log.d("kanji", "${pagedKanjiList.itemSnapshotList}")
                         if (kanji != null) {
                         val isChecked = state.selectedKanjiList.contains(kanji)
                         KanjiItem(kanji = kanji, isChecked = isChecked, onEvent = onEvent)
                         }
                     }
-//                    items(state.availableKanjiList) { kanji ->
-//                        val isChecked = state.selectedKanjiList.contains(kanji)
-//                        KanjiItem(kanji = kanji, isChecked = isChecked, onEvent = onEvent)
-//                    }
                 }
             }
 

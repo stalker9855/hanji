@@ -8,7 +8,7 @@ data class KanjiPackState(
     val kanjiPacks: List<KanjiPackEntity> = emptyList(),
 )
 data class KanjiPackStateById(
-    val packId: Int = 0,
+    val packId: Long? = 0,
     val kanjiPackWithKanjiList: PackWithKanji? = null,
 )
 data class CreateKanjiPackState(
