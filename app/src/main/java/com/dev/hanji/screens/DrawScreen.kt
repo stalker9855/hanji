@@ -3,6 +3,7 @@ package com.dev.hanji.screens
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.LinearEasing
@@ -125,7 +126,11 @@ fun DrawScreen(modifier: Modifier = Modifier,
     var indexOriginalPath by remember { mutableIntStateOf(initialIndex) }
     val matchedPath = remember { mutableStateListOf<List<Offset>>() }
 
-    var showDialog by remember { mutableStateOf(false) }
+    var showEndDialog by remember { mutableStateOf(false) }
+
+
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    BackHandler { showDiscardDialog = true }
 
 
     Column(
@@ -150,7 +155,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
                     enabled = isKanjiCompleted,
                     onClick = {
                         if (currentIndex.intValue == packState.kanjiPackWithKanjiList.kanjiList.lastIndex) {
-                            showDialog = true
+                            showEndDialog = true
                         } else {
                             animationJob?.cancel()
                             isKanjiCompleted = false
@@ -343,14 +348,14 @@ fun DrawScreen(modifier: Modifier = Modifier,
 
     }
 
-    if(showDialog) {
+    if(showEndDialog) {
         AlertDialog(
-            onDismissRequest = {showDialog = false},
+            onDismissRequest = {showEndDialog = false},
             title = { Text("Pack completed!")},
             text = { Text("You are successfully completed pack. Omedetou")},
             confirmButton = {
                 Button(onClick = {
-                    showDialog = false
+                    showEndDialog = false
                     navController.popBackStack()
                 }) {
                     Text("Ok")
@@ -358,6 +363,30 @@ fun DrawScreen(modifier: Modifier = Modifier,
             }
 
 
+        )
+    }
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = false },
+            title = { Text("End Practice?") },
+            text = { Text("Are you sure to end practice? This will discard stats.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDiscardDialog = false
+                        navController.popBackStack()
+                    }
+                ) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDiscardDialog = false }
+                ) {
+                    Text("No")
+                }
+            }
         )
     }
 }

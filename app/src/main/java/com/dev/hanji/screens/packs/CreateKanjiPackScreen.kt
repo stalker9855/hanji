@@ -32,25 +32,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
+import com.dev.hanji.components.SnackbarController
+import com.dev.hanji.components.SnackbarEvent
 import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.CreateKanjiPackState
 import com.dev.hanji.kanjiPack.KanjiPackEvent
+import kotlinx.coroutines.launch
 
 @Composable
 fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
                           onEvent: (KanjiPackEvent) -> Unit,
                           state: CreateKanjiPackState,
-                          pagedKanjiList: LazyPagingItems<KanjiEntity>) {
+                          pagedKanjiList: LazyPagingItems<KanjiEntity>,
+                          navController: NavController) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+
 
     Scaffold(modifier = modifier,
         floatingActionButton = {
@@ -58,6 +66,9 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
                 modifier = Modifier.width(80.dp),
                 onClick = {
                     onEvent(KanjiPackEvent.SaveKanjiPack)
+                    if(state.name.isNotBlank() && state.description.isNotBlank() && state.selectedKanjiList.isNotEmpty()) {
+                        navController.popBackStack()
+                    }
                 },
             )
             {
@@ -160,6 +171,7 @@ private fun KanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity, isCheck
         leadingContent = {
             Box(
                 modifier = Modifier
+                    .shadow(4.dp, shape = RoundedCornerShape(16.dp))
                     .clip(RoundedCornerShape(8.dp))
                     .background(MaterialTheme.colorScheme.secondaryContainer)
                     .padding(12.dp),

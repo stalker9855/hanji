@@ -90,6 +90,7 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                     pagedKanjiList = pagedKanjiList,
                     onEvent = viewModel::onEvent,
                     state = createKanjiPackState,
+                    navController = navController,
                     modifier = Modifier
                     .fillMaxSize()
                     .sharedBounds(

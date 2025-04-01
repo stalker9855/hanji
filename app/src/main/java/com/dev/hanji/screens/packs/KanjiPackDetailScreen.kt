@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -26,12 +28,15 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.hanji.Draw
+import com.dev.hanji.components.SnackbarController
+import com.dev.hanji.components.SnackbarEvent
 import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.KanjiPackEntity
 import com.dev.hanji.kanjiPack.KanjiPackEvent
@@ -54,6 +61,7 @@ fun KanjiPackDetailScreen(
 
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showDeleteDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
@@ -65,14 +73,11 @@ fun KanjiPackDetailScreen(
                 FloatingActionButton(onClick = {
 
                 }) {
-                    Icon(Icons.Filled.Edit, contentDescription = "Delete kanji pack")
+                    Icon(Icons.Filled.Edit, contentDescription = "Edit kanji pack")
                 }
                 FloatingActionButton(onClick = {
-                    scope.launch {
-                        onEvent(KanjiPackEvent.DeleteKanjiPack(state.kanjiPackWithKanjiList!!.pack))
-                        navController.popBackStack()
-                        snackbarHostState.showSnackbar("Kanji Pack Deleted")
-                    }
+                    // dialog
+                    showDeleteDialog = true
                 }) {
                     Icon(Icons.Filled.Delete, contentDescription = "Delete kanji pack")
                 }
@@ -100,16 +105,50 @@ fun KanjiPackDetailScreen(
         }
 
     }
+
+    if(showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Warning!") },
+            text = { Text("Are you sure to delete this pack?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeleteDialog = false
+                        scope.launch {
+                            onEvent(KanjiPackEvent.DeleteKanjiPack(state.kanjiPackWithKanjiList!!.pack))
+                            navController.popBackStack()
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = "Kanji pack deleted"
+                                )
+                            )
+                        }
+                    }
+                ) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showDeleteDialog = false }
+                ) {
+                    Text("No")
+                }
+            }
+        )
+    }
 }
 
 @Composable
 fun KanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity) {
     Row(
         modifier = modifier
+            .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
+            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .fillMaxWidth()
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -153,9 +192,10 @@ fun PackDetail(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity, count:
     val checked = remember { mutableStateOf(false) } // temporary value
     Row(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clip(RoundedCornerShape(16.dp))
             .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
         Box(

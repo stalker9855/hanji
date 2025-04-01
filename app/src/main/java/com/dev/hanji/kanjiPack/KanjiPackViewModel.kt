@@ -7,6 +7,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.dev.hanji.components.SnackbarController
+import com.dev.hanji.components.SnackbarEvent
 import com.dev.hanji.kanji.KanjiEntity
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -29,6 +31,7 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
 
 
 
+
     // queries
     private val _kanjiPacks = dao.getAllPacks()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
@@ -41,11 +44,11 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
 
     @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
     val pagedKanjiList = _searchQuery
-        .debounce(300)
+        .debounce(500)
         .flatMapLatest { query ->
         Pager(
             config = PagingConfig(
-                pageSize = 20,
+                pageSize = 5,
                 enablePlaceholders = false
             ),
             pagingSourceFactory = { dao.getKanjiWithPagination(query) }
@@ -85,6 +88,13 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                val selectedKanjiList = createKanjiPackState.value.selectedKanjiList
 
                if(name.isBlank() || description.isBlank() || selectedKanjiList.isEmpty()) {
+                   viewModelScope.launch {
+                       SnackbarController.sendEvent(
+                           event = SnackbarEvent(
+                               message = "Name, Description or Kanji must be not empty",
+                           )
+                       )
+                   }
                    return
                }
 
@@ -102,6 +112,11 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                        )
                    }
                    dao.insertKanjiPackCrossRef(crossRefs)
+                   SnackbarController.sendEvent(
+                       event = SnackbarEvent(
+                           message = "Kanji pack was created",
+                       )
+                   )
                }
            }
            is KanjiPackEvent.SetAvailableKanji -> {

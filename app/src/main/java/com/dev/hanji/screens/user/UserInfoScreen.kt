@@ -6,9 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -23,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
@@ -56,9 +59,11 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
             .verticalScroll(rememberScrollState())
         )
         {
+            Spacer(modifier = Modifier.height(20.dp))
             Row(Modifier
-                .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
                 .fillMaxWidth()
+                .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
                 .background(MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                 Image(painter = painterResource(R.drawable.avatar4),
@@ -87,6 +92,7 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
+                            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
                             .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
                             .background(MaterialTheme.colorScheme.surfaceContainer)
                     ) {
@@ -110,6 +116,8 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
 
                     }
                     CircleStats(user = user, totalAttempts = totalAttempts)
+
+                    Spacer(modifier = Modifier.height(20.dp))
 
                 }
 
@@ -151,6 +159,7 @@ fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modi
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
             .aspectRatio(1f)
             .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
             .background(MaterialTheme.colorScheme.surfaceContainer)
