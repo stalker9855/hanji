@@ -80,7 +80,7 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
 
                 val packState by kanjiPackViewModel.packDetailState.collectAsStateWithLifecycle()
 
-                DrawScreen(drawingViewModel = drawingViewModel, kanjiAttemptViewModel = kanjiAttemptViewModel, packState = packState)
+                DrawScreen(drawingViewModel = drawingViewModel, kanjiAttemptViewModel = kanjiAttemptViewModel, packState = packState, navController =  navController)
             }
             composable(route = CreatePack.route) {
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))

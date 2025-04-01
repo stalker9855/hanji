@@ -2,35 +2,32 @@ package com.dev.hanji.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.PathMeasure
 import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -40,6 +37,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -55,6 +53,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -67,11 +66,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.PathParser
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.dev.hanji.DrawingAction
 import com.dev.hanji.DrawingViewModel
 import com.dev.hanji.kanji.KanjiAttemptViewModel
 import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.KanjiPackStateById
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.xmlpull.v1.XmlPullParser
 import kotlin.math.abs
@@ -84,7 +85,8 @@ import kotlin.math.min
 fun DrawScreen(modifier: Modifier = Modifier,
                drawingViewModel: DrawingViewModel,
                kanjiAttemptViewModel: KanjiAttemptViewModel,
-               packState: KanjiPackStateById?) {
+               packState: KanjiPackStateById?,
+               navController: NavController) {
     if (packState?.kanjiPackWithKanjiList == null) {
         Text("Loading . . .")
         return
@@ -107,10 +109,23 @@ fun DrawScreen(modifier: Modifier = Modifier,
         extractPathData(LocalContext.current, drawableId)
     var currentOriginalPath by remember { mutableStateOf(originalPath) }
 
+    var isKanjiCompleted by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    val progressList = remember { mutableStateListOf<Animatable<Float, AnimationVector1D>>() }
+    var animationJob by remember { mutableStateOf<Job?>(null) }
+
+    LaunchedEffect(currentOriginalPath) {
+        progressList.clear()
+        progressList.addAll(currentOriginalPath.map { Animatable(0f) })
+    }
+
 
     var initialIndex by remember { mutableIntStateOf(0) }
     var indexOriginalPath by remember { mutableIntStateOf(initialIndex) }
     val matchedPath = remember { mutableStateListOf<List<Offset>>() }
+
+    var showDialog by remember { mutableStateOf(false) }
 
 
     Column(
@@ -120,27 +135,42 @@ fun DrawScreen(modifier: Modifier = Modifier,
             modifier = Modifier.verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+
+                Text("Draw kanji")
+                Text("Meaning: ${currentKanji!!.meanings.joinToString(", ")}")
+            }
+
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
+                    enabled = isKanjiCompleted,
                     onClick = {
-                        currentIndex.intValue =
-                            (currentIndex.intValue + 1) % packState.kanjiPackWithKanjiList.kanjiList.size
-                        val newKanji =
-                            packState.kanjiPackWithKanjiList.kanjiList.getOrNull(currentIndex.intValue)
-                        val newUnicodeHex = newKanji?.unicodeHex
-                        val newDrawableId = context.resources.getIdentifier(
-                            newUnicodeHex,
-                            "drawable",
-                            context.packageName
-                        )
-                        if (newDrawableId != 0) {
-                            currentOriginalPath = extractPathData(context, newDrawableId)
-                            initialIndex = 0
-                            indexOriginalPath = 0
-                            Log.d("current original path", "$currentOriginalPath")
-                            matchedPath.clear()
+                        if (currentIndex.intValue == packState.kanjiPackWithKanjiList.kanjiList.lastIndex) {
+                            showDialog = true
+                        } else {
+                            animationJob?.cancel()
+                            isKanjiCompleted = false
+                            currentIndex.intValue =
+                                (currentIndex.intValue + 1) % packState.kanjiPackWithKanjiList.kanjiList.size
+                            val newKanji =
+                                packState.kanjiPackWithKanjiList.kanjiList.getOrNull(currentIndex.intValue)
+                            val newUnicodeHex = newKanji?.unicodeHex
+                            val newDrawableId = context.resources.getIdentifier(
+                                newUnicodeHex,
+                                "drawable",
+                                context.packageName
+                            )
+                            if (newDrawableId != 0) {
+                                currentOriginalPath = extractPathData(context, newDrawableId)
+                                initialIndex = 0
+                                indexOriginalPath = 0
+                                Log.d("current original path", "$currentOriginalPath")
+                                matchedPath.clear()
+                            }
                         }
                     }
                 ) {
@@ -150,7 +180,18 @@ fun DrawScreen(modifier: Modifier = Modifier,
                     )
                 }
                 Button(
-                    onClick = {}
+                    onClick = {
+                        animationJob?.cancel()
+                        animationJob = coroutineScope.launch {
+                            progressList.forEach {it.snapTo(0f)}
+                            progressList.forEach { progress ->
+                                progress.animateTo(
+                                targetValue = 1f,
+                                animationSpec = tween(durationMillis = 850, easing = LinearEasing)
+                            )
+                            }
+                        }
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Filled.PlayArrow,
@@ -198,6 +239,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
                                     }
                                     if (indexOriginalPath == currentOriginalPath.size) {
                                         indexOriginalPath = 0
+                                        isKanjiCompleted = true
                                     }
                                 }
                             },
@@ -252,22 +294,30 @@ fun DrawScreen(modifier: Modifier = Modifier,
                         )
                 }
 
-                originalPath.forEach { pathOffsets ->
-                    val path = Path().apply {
-                        if (pathOffsets.isNotEmpty()) {
-                            moveTo(pathOffsets.first().x, pathOffsets.first().y)
-                            pathOffsets.drop(1).forEach { offset ->
-                                lineTo(offset.x, offset.y)
+                originalPath.forEachIndexed { index, pathOffsets ->
+                    if(index < progressList.size) {
+
+                        val path = Path().apply {
+                            if (pathOffsets.isNotEmpty()) {
+                                moveTo(pathOffsets.first().x, pathOffsets.first().y)
+                                pathOffsets.drop(1).forEach { offset ->
+                                    lineTo(offset.x, offset.y)
+                                }
                             }
                         }
-                    }
-                    drawPath(
-                        path = path,
-                        color = Color.Black,
-                        style = Stroke(width = 15f),
-                        alpha = 0.2f
+                        val pathMeasure = PathMeasure()
+                        pathMeasure.setPath(path, false)
+                        val pathLength = pathMeasure.length
+                        val animatedPath = Path()
+                        pathMeasure.getSegment(0f, pathLength * progressList[index].value, animatedPath, true)
+                        drawPath(
+                            path = animatedPath,
+                            color = Color.Black,
+                            style = Stroke(width = 25f),
+                            alpha = 0.2f
 
-                    )
+                        )
+                    }
                 }
 
                 matchedPath.forEach { pathOffsets ->
@@ -282,7 +332,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
                     drawPath(
                         path = path,
                         color = Color.Black,
-                        style = Stroke(width = 15f)
+                        style = Stroke(width = 25f)
                     )
                 }
 
@@ -291,6 +341,24 @@ fun DrawScreen(modifier: Modifier = Modifier,
 
         }
 
+    }
+
+    if(showDialog) {
+        AlertDialog(
+            onDismissRequest = {showDialog = false},
+            title = { Text("Pack completed!")},
+            text = { Text("You are successfully completed pack. Omedetou")},
+            confirmButton = {
+                Button(onClick = {
+                    showDialog = false
+                    navController.popBackStack()
+                }) {
+                    Text("Ok")
+                }
+            }
+
+
+        )
     }
 }
 
@@ -380,7 +448,7 @@ private fun KanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity?) {
 private fun DrawScope.drawPath(
     path: List<Offset>,
     color: Color,
-    thickness: Float = 5f
+    thickness: Float = 10f
 ) {
     val smoothedPath = Path().apply {
         if(path.isNotEmpty()) {
@@ -446,7 +514,7 @@ private fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20
     for (pathData in pathDataList) {
         val points = mutableListOf<Offset>()
         val path = PathParser.createPathFromPathData(pathData)
-        val pathMeasure = PathMeasure(path, false)
+        val pathMeasure = android.graphics.PathMeasure(path, false)
         val pos = FloatArray(2)
 
         val pathLength = pathMeasure.length
@@ -496,7 +564,7 @@ private fun compareWithDTW(originalPath: List<Offset>, currentPath: List<Offset>
 
     val value = (matrix[originalPath.count()][currentPath.count()] / 100)
     Log.d("value", "$value")
-    return  value < 17
+    return  value < 16.33
 }
 
 private fun cost(p1: Offset, p2: Offset): Float {

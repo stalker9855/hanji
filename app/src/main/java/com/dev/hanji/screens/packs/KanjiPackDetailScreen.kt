@@ -127,15 +127,19 @@ fun KanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity) {
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
+                text = "Meanings: ${kanji.meanings.joinToString(", ")}",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Text(
                 text = "Strokes: ${kanji.strokes}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Readings On Yomi: ${kanji.readingsOn}",
+                text = "Readings On Yomi: ${kanji.readingsOn.joinToString(", ")}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Readings Kun Yomi: ${kanji.readingsKun}",
+                text = "Readings Kun Yomi: ${kanji.readingsKun.joinToString(", ")}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }
