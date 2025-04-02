@@ -88,24 +88,24 @@ private fun HanjiApp(modifier: Modifier = Modifier) {
         }
 
     }
-        NavigationDrawer(scope = scope, navController = navController, modifier = modifier, drawerState = drawerState) {
-            Scaffold(modifier = Modifier,
-                snackbarHost = {
-                    SnackbarHost(
-                        hostState = snackbarHostState
-                    )
-                },
-                topBar = {
-                    TopAppBarHanji(drawerState, scope, currentBackStackEntry,
-                        onBackClick = {
-                            navController.popBackStack()
-                        })
-                }) { innerPadding ->
-                HanjiNavHost(
-                    navController = navController,
-                    modifier = Modifier.padding(innerPadding)
+    NavigationDrawer(scope = scope, navController = navController, modifier = modifier, drawerState = drawerState) {
+        Scaffold(modifier = Modifier,
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState
                 )
-            }
+            },
+            topBar = {
+                TopAppBarHanji(drawerState, scope, currentBackStackEntry,
+                    onBackClick = {
+                        navController.popBackStack()
+                    })
+            }) { innerPadding ->
+            HanjiNavHost(
+                navController = navController,
+                modifier = Modifier.padding(innerPadding)
+            )
         }
+    }
 
 }

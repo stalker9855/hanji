@@ -25,7 +25,7 @@ import com.dev.hanji.user.UserEntity
 data class KanjiPackEntity (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("pack_id")
-    val id: Int = 0,
+    val id: Long = 0,
 
     @ColumnInfo("name")
     val name: String,
@@ -57,7 +57,7 @@ data class KanjiPackEntity (
 )
 data class KanjiPackCrossRef(
     @ColumnInfo("pack_id")
-    val packId: Int,
+    val packId: Long,
 
     @ColumnInfo("character")
     val character: String

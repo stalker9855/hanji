@@ -3,6 +3,7 @@ package com.dev.hanji
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
@@ -83,6 +84,13 @@ object CreatePack : HanjiDestination {
     override val title: String = "Create Pack"
 }
 
+
+object EditPack: HanjiDestination {
+    override val route: String = "edit_pack"
+    override val icon: ImageVector = Icons.Filled.Edit
+    override val title: String = "Edit pack"
+}
+
 object PackDetail: HanjiDestination {
     override val route: String = "pack_detail"
     override val icon: ImageVector = Icons.Filled.Info
@@ -92,4 +100,4 @@ object PackDetail: HanjiDestination {
 val hanjiScreens = listOf(Home, Packs, User, About, Settings)
 val userScreens = listOf(UserStats, UserAchievements)
 val packScreens = listOf(AllPacks, MyPacks)
-val arrowScreens = listOf(CreatePack, PackDetail)
+val arrowScreens = listOf(CreatePack, PackDetail, EditPack)

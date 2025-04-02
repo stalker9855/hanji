@@ -67,7 +67,7 @@ fun AllPacksScreen(modifier: Modifier = Modifier,
 }
 
 @Composable
-fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) {
+private fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) {
     val checked = remember { mutableStateOf(false) } // temporary value
     Row(
         modifier = Modifier

@@ -25,6 +25,9 @@ interface KanjiPackDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertKanjiPackCrossRef(crossRef: List<KanjiPackCrossRef>)
 
+    @Upsert
+    suspend fun upsertKanjiPackCrossRef(crossRef: List<KanjiPackCrossRef>)
+
     @Delete
     suspend fun deletePack(kanjiPack: KanjiPackEntity)
 

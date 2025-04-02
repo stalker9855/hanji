@@ -11,7 +11,8 @@ data class KanjiPackStateById(
     val packId: Long? = 0,
     val kanjiPackWithKanjiList: PackWithKanji? = null,
 )
-data class CreateKanjiPackState(
+data class CreateEditKanjiPackState(
+    val packId: Long? = null,
     val selectedKanjiList: List<KanjiEntity> = emptyList(),
     val availableKanjiList: List<KanjiEntity> = emptyList(),
     val pagedKanjiList: PagingData<KanjiEntity> = PagingData.empty(),

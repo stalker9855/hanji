@@ -3,16 +3,23 @@
 package com.dev.hanji
 
 import android.util.Log
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -37,6 +44,7 @@ import com.dev.hanji.screens.HomeScreen
 import com.dev.hanji.screens.packs.PacksScreen
 import com.dev.hanji.screens.SettingsScreen
 import com.dev.hanji.screens.packs.CreateKanjiPackScreen
+import com.dev.hanji.screens.packs.EditKanjiPackScreen
 import com.dev.hanji.screens.packs.KanjiPackDetailScreen
 import com.dev.hanji.screens.user.UserScreen
 
@@ -100,11 +108,25 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                         animatedVisibilityScope = this
                     ))
             }
+            composable(route = "${EditPack.route}/{packId}",
+                arguments = listOf(navArgument("packId") {type = NavType.LongType})
+            ) { navBackStackEntry ->
+                val packId =  navBackStackEntry.arguments?.getLong("packId") ?: return@composable
+                val viewModel = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId))
+//                val viewModel = remember(packId) {
+//                    ViewModelProvider(
+//                        owner = navBackStackEntry,
+//                        factory = KanjiPackFactory(kanjiPackDao, packId)
+//                    )[KanjiPackViewModel::class.java]
+//                }
+                val state by viewModel.editKanjiPackState.collectAsStateWithLifecycle()
+                val pagedKanjiList = viewModel.pagedKanjiList.collectAsLazyPagingItems()
+                EditKanjiPackScreen(state = state, onEvent = viewModel::onEvent, pagedKanjiList = pagedKanjiList, navController = navController)
+            }
             composable(route = "${PackDetail.route}/{packId}",
                 arguments = listOf(navArgument("packId") { type = NavType.LongType})
             ) { navBackStackEntry ->
                 val packId = navBackStackEntry.arguments?.getLong("packId")
-                Log.d("PACK ID DETAIL SCREEN", "$packId")
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
                 val packDetailState by viewModel.packDetailState.collectAsStateWithLifecycle()
                 KanjiPackDetailScreen(state = packDetailState, onEvent = viewModel::onEvent, navController = navController)

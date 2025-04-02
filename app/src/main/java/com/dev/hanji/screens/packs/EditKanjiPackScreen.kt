@@ -1,5 +1,6 @@
 package com.dev.hanji.screens.packs
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,21 +32,23 @@ import com.dev.hanji.kanji.KanjiEntity
 import com.dev.hanji.kanjiPack.CreateEditKanjiPackState
 import com.dev.hanji.kanjiPack.KanjiPackEvent
 
-@Composable
-fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
-                          onEvent: (KanjiPackEvent) -> Unit,
-                          state: CreateEditKanjiPackState,
-                          pagedKanjiList: LazyPagingItems<KanjiEntity>,
-                          navController: NavController) {
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
+@Composable
+fun EditKanjiPackScreen(modifier: Modifier = Modifier,
+                        onEvent: (KanjiPackEvent) -> Unit,
+                        state: CreateEditKanjiPackState,
+                        pagedKanjiList: LazyPagingItems<KanjiEntity>,
+                        navController: NavController
+) {
+
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
 
     Scaffold(modifier = modifier,
         floatingActionButton = {
             FloatingActionButton(
                 modifier = Modifier.width(80.dp),
                 onClick = {
-                    onEvent(KanjiPackEvent.SaveKanjiPack)
+                    onEvent(KanjiPackEvent.UpdateKanjiPack)
                     if(state.name.isNotBlank() && state.description.isNotBlank() && state.selectedKanjiList.isNotEmpty()) {
                         navController.popBackStack()
                     }
@@ -86,7 +89,7 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
                 label = { Text("Search") },
                 value = state.searchQuery,
                 onValueChange = {
-                    query -> onEvent(KanjiPackEvent.SetSearchQuery(query))
+                        query -> onEvent(KanjiPackEvent.SetSearchQuery(query))
                 },
                 modifier = Modifier.fillMaxWidth()
             )
@@ -113,8 +116,8 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
                     items(pagedKanjiList.itemCount) { index ->
                         val kanji = pagedKanjiList[index]
                         if (kanji != null) {
-                        val isChecked = state.selectedKanjiList.contains(kanji)
-                        CreateEditKanjiItem(kanji = kanji, isChecked = isChecked, onEvent = onEvent)
+                            val isChecked = state.selectedKanjiList.contains(kanji)
+                            CreateEditKanjiItem(kanji = kanji, isChecked = isChecked, onEvent = onEvent)
                         }
                     }
                 }
@@ -134,5 +137,3 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
         }
     }
 }
-
-

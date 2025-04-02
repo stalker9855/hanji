@@ -1,12 +1,12 @@
 package com.dev.hanji.kanjiPack
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev.hanji.components.SnackbarController
 import com.dev.hanji.components.SnackbarEvent
 import com.dev.hanji.kanji.KanjiEntity
@@ -26,7 +26,7 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
     // private states
     private val _state = MutableStateFlow(KanjiPackState())
     private val _kanjiPackDetailState = MutableStateFlow(KanjiPackStateById())
-    private val _createKanjiPackState = MutableStateFlow(CreateKanjiPackState())
+    private val _createEditKanjiPackState = MutableStateFlow(CreateEditKanjiPackState())
 
 
 
@@ -66,12 +66,23 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
     val packDetailState = combine(_kanjiPackDetailState,  _kanjiPackWithKanjiListById!!) {
        state, kanjiListById ->
         state.copy(
-            kanjiPackWithKanjiList = kanjiListById,
-            packId = packId
+            packId = packId,
+            kanjiPackWithKanjiList = kanjiListById
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiPackStateById())
 
-    val createKanjiPackState = _createKanjiPackState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateKanjiPackState())
+    val createKanjiPackState = _createEditKanjiPackState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateEditKanjiPackState())
+
+    val editKanjiPackState = combine(_createEditKanjiPackState, _kanjiPackWithKanjiListById!!) {
+        state, kanjiListById ->
+        Log.d("ViewModel", "Combining states. Current name: ${state.name}, New name: ${kanjiListById.pack.name}")
+        state.copy(
+            packId = packId,
+            selectedKanjiList =  kanjiListById.kanjiList ,
+            name = kanjiListById.pack.name ,
+            description = kanjiListById.pack.description
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateEditKanjiPackState())
 
 
 
@@ -82,7 +93,47 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                    dao.deletePack(event.kanjiPack)
                }
            }
-           KanjiPackEvent.SaveKanjiPack -> {
+           is KanjiPackEvent.UpdateKanjiPack -> {
+               val id = editKanjiPackState.value.packId
+               val name = editKanjiPackState.value.name
+               val description = editKanjiPackState.value.description
+               val selectedKanjiList = editKanjiPackState.value.selectedKanjiList
+
+               if(name.isBlank() || description.isBlank() || selectedKanjiList.isEmpty()) {
+                   viewModelScope.launch {
+                       SnackbarController.sendEvent(
+                           event = SnackbarEvent(
+                               message = "Name, Description or Kanji must be not empty",
+                           )
+                       )
+                   }
+                   return
+               }
+
+               val kanjiPack = KanjiPackEntity(
+                   id = id!!,
+                   name = name,
+                   description = description,
+                   userId = 1,
+               )
+               viewModelScope.launch {
+                   dao.upsertPack(kanjiPack)
+                   val crossRefs = selectedKanjiList.map { kanjiEntity: KanjiEntity ->
+                       KanjiPackCrossRef(
+                           packId = id,
+                           character = kanjiEntity.character
+                       )
+                   }
+                   dao.upsertKanjiPackCrossRef(crossRefs)
+                   SnackbarController.sendEvent(
+                       event = SnackbarEvent(
+                           message = "Kanji pack was created",
+                       )
+                   )
+               }
+
+           }
+           is KanjiPackEvent.SaveKanjiPack -> {
                val name = createKanjiPackState.value.name
                val description = createKanjiPackState.value.description
                val selectedKanjiList = createKanjiPackState.value.selectedKanjiList
@@ -107,7 +158,7 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                    val packId = dao.upsertPack(kanjiPack)
                    val crossRefs = selectedKanjiList.map { kanjiEntity: KanjiEntity ->
                        KanjiPackCrossRef(
-                           packId = packId.toInt(),
+                           packId = packId,
                            character = kanjiEntity.character
                        )
                    }
@@ -120,25 +171,26 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                }
            }
            is KanjiPackEvent.SetAvailableKanji -> {
-               _createKanjiPackState.update { it.copy(availableKanjiList = event.kanjiList) }
+               _createEditKanjiPackState.update { it.copy(availableKanjiList = event.kanjiList) }
            }
            is KanjiPackEvent.AddKanjiToPack -> {
-               _createKanjiPackState.update { it.copy(
+               _createEditKanjiPackState.update { it.copy(
                    selectedKanjiList = it.selectedKanjiList + event.kanji
                ) }
            }
            is KanjiPackEvent.RemoveKanjiFromPack -> {
-               _createKanjiPackState.update { it.copy(
+               _createEditKanjiPackState.update { it.copy(
                    selectedKanjiList = it.selectedKanjiList - event.kanji
                ) }
            }
            is KanjiPackEvent.SetKanjiDescription -> {
-               _createKanjiPackState.update { it.copy(
+               _createEditKanjiPackState.update { it.copy(
                    description = event.description
                ) }
            }
            is KanjiPackEvent.SetKanjiPackName -> {
-               _createKanjiPackState.update {
+               Log.d("ViewModel", "Event received: ${event.name}")
+               _createEditKanjiPackState.update {
                    it.copy(
                        name = event.name
                    )
@@ -146,7 +198,7 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
            }
            is KanjiPackEvent.SetSearchQuery -> {
                _searchQuery.value = event.query
-               _createKanjiPackState.update { it.copy(searchQuery = event.query) }
+               _createEditKanjiPackState.update { it.copy(searchQuery = event.query) }
            }
        }
     }

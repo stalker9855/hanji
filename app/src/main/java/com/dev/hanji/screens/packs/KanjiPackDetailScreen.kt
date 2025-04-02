@@ -37,13 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.hanji.Draw
+import com.dev.hanji.EditPack
 import com.dev.hanji.components.SnackbarController
 import com.dev.hanji.components.SnackbarEvent
 import com.dev.hanji.kanji.KanjiEntity
@@ -62,6 +62,7 @@ fun KanjiPackDetailScreen(
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showPracticeDialog by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier,
         snackbarHost = { SnackbarHost(hostState = snackbarHostState)},
@@ -71,7 +72,7 @@ fun KanjiPackDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 FloatingActionButton(onClick = {
-
+                    navController.navigate("${EditPack.route}/${state.packId}")
                 }) {
                     Icon(Icons.Filled.Edit, contentDescription = "Edit kanji pack")
                 }
@@ -82,7 +83,7 @@ fun KanjiPackDetailScreen(
                     Icon(Icons.Filled.Delete, contentDescription = "Delete kanji pack")
                 }
                 FloatingActionButton(onClick = {
-                    navController.navigate("${Draw.route}/${state.packId}")
+                    showPracticeDialog = true
 
                 }) {
                     Icon(Icons.Filled.PlayArrow, contentDescription = "Practice")
@@ -105,6 +106,32 @@ fun KanjiPackDetailScreen(
         }
 
     }
+
+    if(showPracticeDialog) {
+        AlertDialog(
+            onDismissRequest = { showPracticeDialog = false },
+            title = { Text("Practice") },
+            text = { Text("Want to start this pack?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showPracticeDialog = false
+                        navController.navigate("${Draw.route}/${state.packId}")
+                    }
+                ) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = { showPracticeDialog = false }
+                ) {
+                    Text("No")
+                }
+            }
+        )
+    }
+
 
     if(showDeleteDialog) {
         AlertDialog(
@@ -141,7 +168,7 @@ fun KanjiPackDetailScreen(
 }
 
 @Composable
-fun KanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity) {
+private fun KanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity) {
     Row(
         modifier = modifier
             .fillMaxWidth()
