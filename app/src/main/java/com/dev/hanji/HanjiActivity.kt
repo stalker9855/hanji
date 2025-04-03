@@ -23,9 +23,9 @@ import com.dev.hanji.components.ObserveAsEvents
 import com.dev.hanji.components.SnackbarController
 import com.dev.hanji.ui.theme.HanjiTheme
 import com.dev.hanji.components.TopAppBarHanji
-import com.dev.hanji.database.AppDatabase
-import com.dev.hanji.kanji.insertKanjiFromJson
-import com.dev.hanji.user.UserEntity
+import com.dev.hanji.data.database.AppDatabase
+import com.dev.hanji.data.dao.insertKanjiFromJson
+import com.dev.hanji.data.model.UserEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

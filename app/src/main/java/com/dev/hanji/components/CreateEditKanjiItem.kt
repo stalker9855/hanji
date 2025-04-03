@@ -23,8 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dev.hanji.kanji.KanjiEntity
-import com.dev.hanji.kanjiPack.KanjiPackEvent
+import com.dev.hanji.data.model.KanjiEntity
+import com.dev.hanji.data.events.KanjiPackEvent
 
 @Composable
 fun CreateEditKanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity, isChecked: Boolean, onEvent: (KanjiPackEvent) -> Unit) {

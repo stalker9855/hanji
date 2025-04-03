@@ -3,15 +3,8 @@
 package com.dev.hanji
 
 import android.util.Log
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,7 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -31,22 +23,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.dev.hanji.database.AppDatabase
-import com.dev.hanji.kanji.KanjiAttemptDao
-import com.dev.hanji.kanji.KanjiAttemptFactory
-import com.dev.hanji.kanji.KanjiAttemptViewModel
-import com.dev.hanji.kanjiPack.KanjiPackDao
-import com.dev.hanji.kanjiPack.KanjiPackFactory
-import com.dev.hanji.kanjiPack.KanjiPackViewModel
-import com.dev.hanji.screens.AboutScreen
-import com.dev.hanji.screens.DrawScreen
-import com.dev.hanji.screens.HomeScreen
-import com.dev.hanji.screens.packs.PacksScreen
-import com.dev.hanji.screens.SettingsScreen
-import com.dev.hanji.screens.packs.CreateKanjiPackScreen
-import com.dev.hanji.screens.packs.EditKanjiPackScreen
-import com.dev.hanji.screens.packs.KanjiPackDetailScreen
-import com.dev.hanji.screens.user.UserScreen
+import com.dev.hanji.data.database.AppDatabase
+import com.dev.hanji.data.dao.KanjiAttemptDao
+import com.dev.hanji.data.factory.KanjiAttemptFactory
+import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
+import com.dev.hanji.data.dao.KanjiPackDao
+import com.dev.hanji.data.factory.KanjiPackFactory
+import com.dev.hanji.data.viewmodel.KanjiPackViewModel
+import com.dev.hanji.ui.screens.about.AboutScreen
+import com.dev.hanji.ui.screens.draw.DrawScreen
+import com.dev.hanji.ui.screens.home.HomeScreen
+import com.dev.hanji.ui.screens.packs.PacksScreen
+import com.dev.hanji.ui.screens.settings.SettingsScreen
+import com.dev.hanji.data.viewmodel.DrawingViewModel
+import com.dev.hanji.ui.screens.packs.CreateKanjiPackScreen
+import com.dev.hanji.ui.screens.packs.EditKanjiPackScreen
+import com.dev.hanji.ui.screens.packs.KanjiPackDetailScreen
+import com.dev.hanji.ui.screens.user.UserScreen
 
 const val FAB_EXPLODE_BOUNDS_KEY = "FAB_EXPLODE_BOUNDS_KEY"
 
@@ -81,14 +74,13 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                 arguments = listOf(navArgument(name = "packId") {type = NavType.LongType} )
             ) { navBackStackEntry ->
                 val packId = navBackStackEntry.arguments?.getLong("packId")
-                Log.d("PACK ID", "$packId")
                 val drawingViewModel = viewModel<DrawingViewModel>()
                 val kanjiPackViewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
                 val kanjiAttemptViewModel  = viewModel<KanjiAttemptViewModel>(factory = KanjiAttemptFactory(kanjiAttemptDao))
 
                 val packState by kanjiPackViewModel.packDetailState.collectAsStateWithLifecycle()
 
-                DrawScreen(drawingViewModel = drawingViewModel, kanjiAttemptViewModel = kanjiAttemptViewModel, packState = packState, navController =  navController)
+                DrawScreen(drawingViewModel = drawingViewModel, kanjiAttemptViewModel = kanjiAttemptViewModel, packState = packState, onEvent = kanjiAttemptViewModel::onEvent, navController =  navController)
             }
             composable(route = CreatePack.route) {
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))
@@ -108,8 +100,8 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                         animatedVisibilityScope = this
                     ))
             }
-            composable(route = "${EditPack.route}/{packId}",
-                arguments = listOf(navArgument("packId") {type = NavType.LongType})
+            composable(route = "${EditPack.route}/{state}",
+                arguments = listOf(navArgument("state") {type = NavType.LongType})
             ) { navBackStackEntry ->
                 val packId =  navBackStackEntry.arguments?.getLong("packId") ?: return@composable
                 val viewModel = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId))
