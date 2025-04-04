@@ -48,17 +48,17 @@ class HanjiActivity : ComponentActivity() {
             if(kanjiDao.getKanjiCount() == 0) {
                 insertKanjiFromJson(this@HanjiActivity)
             }
-               userDao.insert(
-                   UserEntity(
-                       id = 1,
-                       username = "bobross",
-                       email = "bob@mail.com",
-                       greatAttempts = 123,
-                       goodAttempts = 321,
-                       normalAttempts = 43,
-                       failedAttempts = 22
-                   )
-               )
+//               userDao.insert(
+//                   UserEntity(
+//                       id = 1,
+//                       username = "bobross",
+//                       email = "bob@mail.com",
+//                       greatAttempts = 123,
+//                       goodAttempts = 321,
+//                       normalAttempts = 43,
+//                       failedAttempts = 22
+//                   )
+//               )
         }
     }
 }

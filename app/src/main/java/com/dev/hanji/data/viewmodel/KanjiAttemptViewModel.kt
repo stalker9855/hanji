@@ -70,15 +70,48 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
                 _state.update { state ->
                     val updatedList = state.attemptsList.map {
                         if (it.character == state.attemptsList[state.currentIndex].character) {
-                            it.copy(errors = it.errors + 1)
+                            updateKanjiAttempt(it, userGrade = 2)
                         } else it
                     }
                     state.copy(attemptsList = updatedList)
                 }
-                Log.d("UPDADED", "${_state.value}")
             }
         }
+    }
 
+    private fun updateKanjiAttempt(attempt: KanjiAttemptEntity, userGrade: Int): KanjiAttemptEntity {
+        val now = System.currentTimeMillis()
+        val isEarlyReview = now < attempt.nextReviewDate
+
+
+        val newErrors = attempt.errors + 1
+        val newEFactor = calculateEFactor(attempt.eFactor, userGrade)
+
+        val newInterval = when {
+            newErrors > 3 -> 1
+            isEarlyReview -> attempt.interval
+            else -> calculateInterval(attempt.interval, newEFactor)
+        }
+
+
+        val nextReview = System.currentTimeMillis() + newInterval * 24 * 60 * 60 * 1000
+
+        return attempt.copy(
+            errors = newErrors,
+            eFactor = newEFactor,
+            interval = newInterval,
+            lastReview = System.currentTimeMillis(),
+            nextReviewDate = nextReview
+        )
+    }
+
+    private fun calculateEFactor(eFactor: Double, grade: Int): Double {
+        val newEFactor = eFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02))
+        return newEFactor.coerceIn(1.3, 2.5)
+    }
+
+    private fun calculateInterval(previousInterval: Int, eFactor: Double): Int {
+        return if (previousInterval == 1) 2 else (previousInterval * eFactor).toInt()
     }
 }
 

@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Create
@@ -97,7 +98,19 @@ object PackDetail: HanjiDestination {
     override val title: String = "Detail of pack"
 }
 
-val hanjiScreens = listOf(Home, Packs, User, About, Settings)
+object KanjiAll : HanjiDestination {
+    override val route: String = "kanji_all"
+    override val icon: ImageVector = Icons.Filled.Menu
+    override val title: String = "All Kanji"
+}
+
+object KanjiAttempts : HanjiDestination {
+    override val route: String = "kanji_attempts"
+    override val icon: ImageVector = Icons.Filled.Info
+    override val title: String = "Kanji user attempts"
+}
+
+val hanjiScreens = listOf(Home, Packs, User, KanjiAll, About, Settings)
 val userScreens = listOf(UserStats, UserAchievements)
 val packScreens = listOf(AllPacks, MyPacks)
 val arrowScreens = listOf(CreatePack, PackDetail, EditPack)

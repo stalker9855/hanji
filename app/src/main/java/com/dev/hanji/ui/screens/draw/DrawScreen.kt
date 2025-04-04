@@ -374,7 +374,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
         AlertDialog(
             onDismissRequest = {
                 showEndDialog = false
-//                onEvent(KanjiAttemptEvent.SaveAttemptKanji)
+                onEvent(KanjiAttemptEvent.SaveAttemptKanji)
                 navController.popBackStack()
             },
             title = { Text("Pack completed!")},
@@ -382,7 +382,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
             confirmButton = {
                 Button(onClick = {
                     showEndDialog = false
-                    // onEvent(KanjiAttemptEvent.SaveAttemptKanji)
+                     onEvent(KanjiAttemptEvent.SaveAttemptKanji)
                     navController.popBackStack()
                 }) {
                     Text("Ok")

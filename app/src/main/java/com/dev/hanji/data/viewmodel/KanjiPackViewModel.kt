@@ -9,6 +9,7 @@ import androidx.paging.cachedIn
 import com.dev.hanji.components.SnackbarController
 import com.dev.hanji.components.SnackbarEvent
 import com.dev.hanji.data.dao.KanjiPackDao
+import com.dev.hanji.data.events.KanjiEvent
 import com.dev.hanji.data.events.KanjiPackEvent
 import com.dev.hanji.data.model.KanjiPackCrossRef
 import com.dev.hanji.data.model.KanjiPackEntity
@@ -206,6 +207,7 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                _searchQuery.value = event.query
                _createEditKanjiPackState.update { it.copy(searchQuery = event.query) }
            }
+
        }
     }
 }

@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.hanji.Draw
 import com.dev.hanji.EditPack
+import com.dev.hanji.components.KanjiItem
 import com.dev.hanji.components.SnackbarController
 import com.dev.hanji.components.SnackbarEvent
 import com.dev.hanji.data.model.KanjiEntity
@@ -168,50 +169,6 @@ fun KanjiPackDetailScreen(
     }
 }
 
-@Composable
-private fun KanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = kanji.character,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 36.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .align(Alignment.CenterVertically)
-        )
-
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = "Meanings: ${kanji.meanings.joinToString(", ")}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Strokes: ${kanji.strokes}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Readings On Yomi: ${kanji.readingsOn.joinToString(", ")}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Text(
-                text = "Readings Kun Yomi: ${kanji.readingsKun.joinToString(", ")}",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
 
 
 

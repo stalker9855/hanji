@@ -25,9 +25,11 @@ import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev.hanji.data.database.AppDatabase
 import com.dev.hanji.data.dao.KanjiAttemptDao
+import com.dev.hanji.data.dao.KanjiDao
 import com.dev.hanji.data.factory.KanjiAttemptFactory
 import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
 import com.dev.hanji.data.dao.KanjiPackDao
+import com.dev.hanji.data.factory.KanjiFactory
 import com.dev.hanji.data.factory.KanjiPackFactory
 import com.dev.hanji.data.viewmodel.KanjiPackViewModel
 import com.dev.hanji.ui.screens.about.AboutScreen
@@ -36,6 +38,8 @@ import com.dev.hanji.ui.screens.home.HomeScreen
 import com.dev.hanji.ui.screens.packs.PacksScreen
 import com.dev.hanji.ui.screens.settings.SettingsScreen
 import com.dev.hanji.data.viewmodel.DrawingViewModel
+import com.dev.hanji.data.viewmodel.KanjiViewModel
+import com.dev.hanji.ui.screens.kanji.KanjiAllScreen
 import com.dev.hanji.ui.screens.packs.CreateKanjiPackScreen
 import com.dev.hanji.ui.screens.packs.EditKanjiPackScreen
 import com.dev.hanji.ui.screens.packs.KanjiPackDetailScreen
@@ -47,6 +51,7 @@ const val FAB_EXPLODE_BOUNDS_KEY = "FAB_EXPLODE_BOUNDS_KEY"
 fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
     val kanjiPackDao: KanjiPackDao = AppDatabase.getInstance(context = LocalContext.current).kanjiPackDao
     val kanjiAttemptDao: KanjiAttemptDao = AppDatabase.getInstance(context = LocalContext.current).kanjiAttemptDao
+    val kanjiDao: KanjiDao = AppDatabase.getInstance(context = LocalContext.current).kanjiDao
     SharedTransitionLayout {
         NavHost(
             navController = navController,
@@ -122,6 +127,11 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
                 val packDetailState by viewModel.packDetailState.collectAsStateWithLifecycle()
                 KanjiPackDetailScreen(state = packDetailState, onEvent = viewModel::onEvent, navController = navController)
+            }
+            composable(route = KanjiAll.route) {
+                val viewModel = viewModel<KanjiViewModel>(factory = KanjiFactory(kanjiDao))
+                val kanjiList = viewModel.kanjiList.collectAsLazyPagingItems()
+                KanjiAllScreen(kanjiList = kanjiList, onEvent = viewModel::onEvent)
             }
         }
     }
