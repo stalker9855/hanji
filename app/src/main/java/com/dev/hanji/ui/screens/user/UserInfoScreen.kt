@@ -58,7 +58,6 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
             .verticalScroll(rememberScrollState())
         )
         {
-            Spacer(modifier = Modifier.height(20.dp))
             Row(Modifier
                 .fillMaxWidth()
                 .shadow(4.dp, shape = RoundedCornerShape(16.dp))

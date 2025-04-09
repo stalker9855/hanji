@@ -23,14 +23,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.dev.hanji.data.dao.AchievementDao
 import com.dev.hanji.data.database.AppDatabase
 import com.dev.hanji.data.dao.KanjiAttemptDao
 import com.dev.hanji.data.dao.KanjiDao
 import com.dev.hanji.data.factory.KanjiAttemptFactory
 import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
 import com.dev.hanji.data.dao.KanjiPackDao
+import com.dev.hanji.data.dao.UserDao
+import com.dev.hanji.data.factory.AchievementViewModelFactory
 import com.dev.hanji.data.factory.KanjiFactory
 import com.dev.hanji.data.factory.KanjiPackFactory
+import com.dev.hanji.data.viewmodel.AchievementViewModel
 import com.dev.hanji.data.viewmodel.KanjiPackViewModel
 import com.dev.hanji.ui.screens.about.AboutScreen
 import com.dev.hanji.ui.screens.draw.DrawScreen
@@ -43,7 +47,12 @@ import com.dev.hanji.ui.screens.kanji.KanjiAllScreen
 import com.dev.hanji.ui.screens.packs.CreateKanjiPackScreen
 import com.dev.hanji.ui.screens.packs.EditKanjiPackScreen
 import com.dev.hanji.ui.screens.packs.KanjiPackDetailScreen
+import com.dev.hanji.ui.screens.user.UserAchievementsScreen
+import com.dev.hanji.ui.screens.user.UserInfoScreen
+import com.dev.hanji.ui.screens.user.UserKanjiAttemptScreen
 import com.dev.hanji.ui.screens.user.UserScreen
+import com.dev.hanji.ui.screens.user.UserViewModel
+import com.dev.hanji.ui.screens.user.UserViewModelFactory
 
 const val FAB_EXPLODE_BOUNDS_KEY = "FAB_EXPLODE_BOUNDS_KEY"
 
@@ -67,7 +76,8 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                     )
             }
             composable(route = User.route) {
-                UserScreen()
+                UserScreen(
+                )
             }
             composable(route = Settings.route) {
                 SettingsScreen()

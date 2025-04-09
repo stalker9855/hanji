@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.dev.hanji.data.model.KanjiAttemptEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface KanjiAttemptDao {
@@ -12,6 +13,6 @@ interface KanjiAttemptDao {
     suspend fun insert(kanjiAttempt: KanjiAttemptEntity)
 
     @Query("SELECT * FROM kanji_attempts")
-    suspend fun getAllAttemptsKanji(): List<KanjiAttemptEntity>
+    fun getAllAttemptsKanji(): Flow<List<KanjiAttemptEntity>>
 
 }

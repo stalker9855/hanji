@@ -1,5 +1,8 @@
 package com.dev.hanji.ui.screens.user
 
+import android.util.Log
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -8,46 +11,71 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.dev.hanji.HanjiDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.dev.hanji.UserAchievements
+import com.dev.hanji.UserAttemptsKanji
 import com.dev.hanji.UserStats
-import com.dev.hanji.data.dao.AchievementDao
 import com.dev.hanji.data.viewmodel.AchievementViewModel
 import com.dev.hanji.data.factory.AchievementViewModelFactory
 import com.dev.hanji.components.ScreenTabRow
 import com.dev.hanji.data.database.AppDatabase
-import com.dev.hanji.data.dao.UserDao
+import com.dev.hanji.data.factory.KanjiAttemptFactory
+import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
 import com.dev.hanji.userScreens
 
 
 @Composable
-fun UserScreen(modifier: Modifier = Modifier) {
+fun UserScreen(modifier: Modifier = Modifier,
+               ) {
 
-    val userDao: UserDao = AppDatabase.getInstance(context = LocalContext.current).userDao
-    val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userDao = userDao))
+    val context = LocalContext.current
+    val childNavController = rememberNavController()
+    val currentRoute = childNavController.currentDestination?.route
+    Log.d("CURRENT ROUTE", "$currentRoute")
 
-    val achievementDao: AchievementDao = AppDatabase.getInstance(context = LocalContext.current).achievementDao
-    val achievementViewModel: AchievementViewModel = viewModel(factory = AchievementViewModelFactory(achievementDao))
-
-    var currentScreen: HanjiDestination by remember { mutableStateOf(UserStats) }
     Scaffold(
         topBar = {
             ScreenTabRow(
                 screens = userScreens,
-                onTabSelected = { screen -> currentScreen = screen },
-                currentScreen = currentScreen
+                onTabSelected = { screen ->
+                    childNavController.navigate(screen.route) {
+                        launchSingleTop = true
+                        popUpTo(childNavController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
+                },
+                currentScreen = currentRoute
             )
         }
-
     ) { innerPadding ->
-        when(currentScreen) {
-            UserStats ->  {
-                UserInfoScreen(modifier = modifier.padding(innerPadding), viewModel = userViewModel)
+        NavHost(
+            navController = childNavController,
+            startDestination = UserStats.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(UserStats.route) {
+                val userDao = AppDatabase.getInstance(context).userDao
+                val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userDao))
+                UserInfoScreen(viewModel = userViewModel)
             }
-            UserAchievements -> {
-                UserAchievementsScreen(modifier = modifier.padding(innerPadding), viewModel = achievementViewModel)
+            composable(UserAchievements.route) {
+                val achievementDao = AppDatabase.getInstance(context).achievementDao
+                val achievementViewModel: AchievementViewModel = viewModel(factory = AchievementViewModelFactory(achievementDao))
+                UserAchievementsScreen(viewModel = achievementViewModel)
+            }
+            composable(UserAttemptsKanji.route) {
+                val attemptDao = AppDatabase.getInstance(context).kanjiAttemptDao
+                val attemptViewModel: KanjiAttemptViewModel = viewModel(factory = KanjiAttemptFactory(attemptDao))
+                UserKanjiAttemptScreen(viewModel = attemptViewModel)
             }
         }
     }

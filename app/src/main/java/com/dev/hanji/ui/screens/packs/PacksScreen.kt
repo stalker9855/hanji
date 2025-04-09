@@ -41,7 +41,7 @@ fun SharedTransitionScope.PacksScreen(modifier: Modifier = Modifier,
          ScreenTabRow(
             screens = packScreens,
             onTabSelected = { screen -> currentScreen = screen },
-            currentScreen = currentScreen
+            currentScreen = currentScreen.route
          )
       },
       floatingActionButton = {

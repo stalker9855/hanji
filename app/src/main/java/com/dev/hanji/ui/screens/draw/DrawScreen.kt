@@ -95,7 +95,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
         return
     }
 
-    val attemptState by kanjiAttemptViewModel.state.collectAsStateWithLifecycle()
+    val attemptState by kanjiAttemptViewModel.practiceState.collectAsStateWithLifecycle()
     val state by drawingViewModel.state.collectAsStateWithLifecycle()
 
 

@@ -110,7 +110,13 @@ object KanjiAttempts : HanjiDestination {
     override val title: String = "Kanji user attempts"
 }
 
+object UserAttemptsKanji : HanjiDestination {
+    override val route: String = "user_kanji_attempts"
+    override val icon: ImageVector = Icons.Filled.Info
+    override val title: String = "Attempts"
+}
+
 val hanjiScreens = listOf(Home, Packs, User, KanjiAll, About, Settings)
-val userScreens = listOf(UserStats, UserAchievements)
+val userScreens = listOf(UserStats, UserAchievements, UserAttemptsKanji)
 val packScreens = listOf(AllPacks, MyPacks)
 val arrowScreens = listOf(CreatePack, PackDetail, EditPack)
