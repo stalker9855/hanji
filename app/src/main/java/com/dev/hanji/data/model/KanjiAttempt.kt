@@ -34,6 +34,9 @@ data class KanjiAttemptEntity(
 
     val attempts: Long = 0,
 
+    @ColumnInfo(defaultValue = "0")
+    val clean: Long = 0,
+
     val errors: Long = 0,
 
     @ColumnInfo("e_factor")

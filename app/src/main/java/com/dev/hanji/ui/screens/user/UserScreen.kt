@@ -59,7 +59,7 @@ fun UserScreen(modifier: Modifier = Modifier,
     ) { innerPadding ->
         NavHost(
             navController = childNavController,
-            startDestination = UserStats.route,
+            startDestination = UserAttemptsKanji.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(UserStats.route) {

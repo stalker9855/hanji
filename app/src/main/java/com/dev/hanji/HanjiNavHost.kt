@@ -64,7 +64,7 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
     SharedTransitionLayout {
         NavHost(
             navController = navController,
-            startDestination = Packs.route,
+            startDestination = User.route,
             modifier = modifier
         )  {
             composable(route = Home.route) {
@@ -95,7 +95,7 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
 
                 val packState by kanjiPackViewModel.packDetailState.collectAsStateWithLifecycle()
 
-                DrawScreen(drawingViewModel = drawingViewModel, kanjiAttemptViewModel = kanjiAttemptViewModel, packState = packState, onEvent = kanjiAttemptViewModel::onEvent, navController =  navController)
+               DrawScreen(drawingViewModel = drawingViewModel, kanjiAttemptViewModel = kanjiAttemptViewModel, packState = packState, onEvent = kanjiAttemptViewModel::onEvent, navController =  navController)
             }
             composable(route = CreatePack.route) {
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))

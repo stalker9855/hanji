@@ -129,6 +129,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
 
 
     var initialIndex by remember { mutableIntStateOf(0) }
+    var currentErrors by remember { mutableIntStateOf(0) }
     var indexOriginalPath by remember { mutableIntStateOf(initialIndex) }
     val matchedPath = remember { mutableStateListOf<List<Offset>>() }
 
@@ -162,7 +163,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
                 Text("Meaning: ${currentKanji?.meanings!!.joinToString(", ")}")
                 Text(text =
                 if(attemptState.attemptsList.isNotEmpty()) {
-                    "Errors: ${attemptState.attemptsList[currentIndex.intValue].errors}"
+                    "Errors: $currentErrors"
                 } else "Errors: 0"
                 )
             }
@@ -258,15 +259,20 @@ fun DrawScreen(modifier: Modifier = Modifier,
                                         )
 
                                     if (isCorrect && currentOriginalPath[indexOriginalPath] !in matchedPath) {
+                                        onEvent(KanjiAttemptEvent.IncrementAttempt)
                                         matchedPath.add(currentOriginalPath[indexOriginalPath])
                                         indexOriginalPath++
                                     } else {
+                                        currentErrors++
                                         onEvent(KanjiAttemptEvent.IncrementError)
-                                        Log.d("ERRORS: ", "${attemptState.attemptsList[currentIndex.intValue].errors}")
+                                        onEvent(KanjiAttemptEvent.IncrementAttempt)
                                     }
                                     if (indexOriginalPath == currentOriginalPath.size) {
                                         indexOriginalPath = 0
                                         isKanjiCompleted = true
+                                        if(currentErrors == 0) {
+                                            onEvent(KanjiAttemptEvent.IncrementClean)
+                                        }
                                     }
                                 }
                             },
