@@ -1,6 +1,13 @@
 package com.dev.hanji.data.state
 
+import androidx.compose.ui.graphics.Color
 import com.dev.hanji.data.model.KanjiAttemptEntity
+
+data class KanjiAttemptColor (
+    val attempt: Long,
+    val color: Color,
+    val description: String
+)
 
 data class KanjiAttemptState (
     val attemptsList: List<KanjiAttemptEntity> = emptyList(),

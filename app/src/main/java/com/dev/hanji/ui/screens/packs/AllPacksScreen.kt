@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.hanji.PackDetail
+import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.model.KanjiPackEntity
 import com.dev.hanji.data.viewmodel.KanjiPackViewModel
 
@@ -71,11 +72,8 @@ private fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) 
     val checked = remember { mutableStateOf(false) } // temporary value
     Row(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp)
-            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .cardStyle()
     ) {
         Box(
             modifier = Modifier
@@ -85,7 +83,7 @@ private fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) 
                 .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
-            Text(kanjiPack.title.toString(),
+            Text(kanjiPack.title,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 48.sp
             )
@@ -93,7 +91,6 @@ private fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) 
         Row(
             modifier = Modifier
                 .padding(16.dp)
-                //.clip(RoundedCornerShape(16.dp))
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
@@ -124,11 +121,3 @@ private fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) 
         }
     }
 }
-//        FloatingActionButton(
-//            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
-//            onClick = {
-//                navController.navigate("create_pack")
-//            }
-//        ) {
-//            Icon(Icons.Filled.Add, contentDescription = "Add New Pack")
-//        }

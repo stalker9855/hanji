@@ -58,7 +58,6 @@ fun ScreenTabRow(screens: List<HanjiDestination>,
 
 @Composable
 private fun ScreenTab(text: String, icon: ImageVector, onSelected: () -> Unit, selected: Boolean) {
-    Log.d("SELECTED", "$selected")
 
     Row(modifier =  Modifier
         .wrapContentHeight()

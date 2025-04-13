@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dev.hanji.R
+import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.state.UserAttempt
 import com.dev.hanji.data.state.UserState
 import com.dev.hanji.data.viewmodel.UserViewModel
@@ -61,11 +62,7 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
             .verticalScroll(rememberScrollState())
         )
         {
-            Row(Modifier
-                .fillMaxWidth()
-                .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
-                .background(MaterialTheme.colorScheme.surfaceContainer)
+            Row(Modifier.cardStyle()
                 ) {
                 Image(painter = painterResource(R.drawable.avatar4),
                     contentDescription = "avatar", modifier = Modifier
@@ -93,11 +90,8 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                 Column {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-                            .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
-                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .cardStyle()
                     ) {
                         Text(
                             text ="Attempts · 試み",
@@ -158,14 +152,11 @@ fun CircleStats(state: UserState?, modifier: Modifier = Modifier) {
     val textLayoutResult = textMeasure.measure(text = AnnotatedString(textStats), style = textStyle)
     val textSize = textLayoutResult.size
 
+
     Box(
         modifier = modifier
-            .fillMaxWidth()
-            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+            .cardStyle()
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(CORNER_SHAPE_SIZE))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(16.dp)
     ) {
         Canvas(
             modifier = Modifier.matchParentSize(),

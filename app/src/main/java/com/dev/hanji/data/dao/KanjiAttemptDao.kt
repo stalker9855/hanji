@@ -21,6 +21,7 @@ interface KanjiAttemptDao {
     @Query("SELECT * FROM kanji_attempts")
     fun getAllAttemptsKanji(): Flow<List<KanjiAttemptEntity>>
 
+
     @Query("""
     SELECT k.* FROM kanji k
     INNER JOIN kanji_attempts a ON k.character = a.character

@@ -10,18 +10,16 @@ import com.dev.hanji.data.state.AttemptWithColor
 import com.dev.hanji.data.state.TypeAttempt
 import com.dev.hanji.data.state.UserAttempt
 import com.dev.hanji.data.state.UserState
-import com.dev.hanji.ui.theme.ErrorAttemptColor
+import com.dev.hanji.ui.theme.BadAttemptColor
 import com.dev.hanji.ui.theme.GoodAttemptColor
-import com.dev.hanji.ui.theme.GreatAttemptColor
+import com.dev.hanji.ui.theme.CleanAttemptColor
 import com.dev.hanji.ui.theme.NormalAttemptColor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.lang.reflect.Type
 
 
 class UserViewModel(dao: UserDao) : ViewModel() {
@@ -34,9 +32,9 @@ class UserViewModel(dao: UserDao) : ViewModel() {
         .map { attemptState ->
             listOf(
                 AttemptWithColor(attemptState.attempts, NormalAttemptColor, type = TypeAttempt.NORMAL),
-                AttemptWithColor(attemptState.clean, GreatAttemptColor, type = TypeAttempt.GREAT),
+                AttemptWithColor(attemptState.clean, CleanAttemptColor, type = TypeAttempt.GREAT),
                 AttemptWithColor(attemptState.good, GoodAttemptColor, type = TypeAttempt.GOOD),
-                AttemptWithColor(attemptState.bad, ErrorAttemptColor, type = TypeAttempt.BAD),
+                AttemptWithColor(attemptState.bad, BadAttemptColor, type = TypeAttempt.BAD),
                 AttemptWithColor(attemptState.errors, Color.Black, type = TypeAttempt.ERROR)
             )
         }

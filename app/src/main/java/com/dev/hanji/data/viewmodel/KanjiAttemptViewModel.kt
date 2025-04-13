@@ -1,6 +1,6 @@
 package com.dev.hanji.data.viewmodel
 
-import android.util.Log
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.hanji.components.SnackbarController
@@ -12,13 +12,10 @@ import com.dev.hanji.data.model.KanjiEntity
 import com.dev.hanji.data.model.KanjiPackCrossRef
 import com.dev.hanji.data.model.KanjiPackEntity
 import com.dev.hanji.data.state.KanjiAttemptState
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -29,6 +26,7 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
 
     private val _kanjiAttempts = dao.getAllAttemptsKanji()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
 
 
     val practiceState =

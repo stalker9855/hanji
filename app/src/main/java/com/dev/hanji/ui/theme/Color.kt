@@ -1,6 +1,5 @@
 package com.dev.hanji.ui.theme
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFD0BCFF)
@@ -19,7 +18,8 @@ val Yellow2 = Color(0xFFfaedcd)
 val Brown1 = Color(0xFFD4A373)
 
 
-val GreatAttemptColor = Color(0xFFBFEA7C)
+val CleanAttemptColor = Color(0xFFBFEA7C)
 val GoodAttemptColor = Color(0xFF416D19)
 val NormalAttemptColor = Color(0xFFFFF67E)
-val ErrorAttemptColor = Color(0xFFE52020)
+val BadAttemptColor = Color(0xFFE52020)
+val ErrorAttemptColor = Color(0x00000000)

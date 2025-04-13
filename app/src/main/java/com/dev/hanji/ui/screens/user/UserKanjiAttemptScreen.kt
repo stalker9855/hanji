@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -21,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,18 +29,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.events.KanjiAttemptEvent
 import com.dev.hanji.data.model.KanjiAttemptEntity
+import com.dev.hanji.data.state.KanjiAttemptColor
 import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
-import com.dev.hanji.ui.theme.ErrorAttemptColor
+import com.dev.hanji.ui.theme.BadAttemptColor
 import com.dev.hanji.ui.theme.GoodAttemptColor
-import com.dev.hanji.ui.theme.GreatAttemptColor
+import com.dev.hanji.ui.theme.CleanAttemptColor
 import com.dev.hanji.ui.theme.NormalAttemptColor
 import java.time.Instant
 import java.time.ZoneId
@@ -101,12 +99,18 @@ fun UserKanjiAttemptScreen(modifier: Modifier = Modifier, viewModel: KanjiAttemp
 
 @Composable
 private fun KanjiAttemptItem(modifier: Modifier = Modifier, attempt: KanjiAttemptEntity) {
+
+    // SYBAU
+    val attempts = listOf(
+        KanjiAttemptColor(attempt = attempt.attempts, color = NormalAttemptColor, description = " Attempts (lines): ${attempt.attempts}"),
+        KanjiAttemptColor(attempt = attempt.clean, color = CleanAttemptColor, description = " Clean: ${attempt.clean}"),
+        KanjiAttemptColor(attempt = attempt.good, color = GoodAttemptColor, description = " Good: ${attempt.good}"),
+        KanjiAttemptColor(attempt = attempt.bad, color = BadAttemptColor, description = " Bad: ${attempt.attempts}"),
+        KanjiAttemptColor(attempt = attempt.errors, color = Color.Black, description = " Failed: ${attempt.errors}"),
+    )
     Column(modifier = Modifier
-        .fillMaxWidth()
         .padding(vertical = 4.dp)
-        .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-        .clip(RoundedCornerShape(16.dp))
-        .background(MaterialTheme.colorScheme.surfaceContainer)
+        .cardStyle()
 )
     {
         Row(modifier = Modifier
@@ -132,18 +136,16 @@ private fun KanjiAttemptItem(modifier: Modifier = Modifier, attempt: KanjiAttemp
                     .padding(vertical = 8.dp)
                 )
 
-                AttemptValuesBox(color = GreatAttemptColor, text = " Clean: ${attempt.clean}")
-                AttemptValuesBox(color = GoodAttemptColor, text = " Good: ${attempt.good}")
-                AttemptValuesBox(color = NormalAttemptColor, text = " Attempts (lines): ${attempt.attempts}")
-                AttemptValuesBox(color = ErrorAttemptColor, text = " Errors: ${attempt.errors}")
-
+                attempts.forEach { attempt ->
+                    AttemptValuesBox(attempt = attempt)
+                }
             }
         }
     }
 }
 
 @Composable
-private fun AttemptValuesBox(color: Color, text: String) {
+private fun AttemptValuesBox(attempt: KanjiAttemptColor) {
     Row(
         modifier = Modifier
             .padding(4.dp)
@@ -152,9 +154,9 @@ private fun AttemptValuesBox(color: Color, text: String) {
             modifier = Modifier
                 .clip(RoundedCornerShape(8.dp))
                 .size(28.dp)
-                .background(color)
+                .background(attempt.color)
         )
-        Text(text = text, fontWeight = FontWeight.Normal, fontSize = 18.sp)
+        Text(text = attempt.description, fontWeight = FontWeight.Normal, fontSize = 18.sp)
     }
 }
 
