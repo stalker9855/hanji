@@ -46,8 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dev.hanji.R
-import com.dev.hanji.data.model.UserAttempt
-import com.dev.hanji.data.model.UserEntity
+import com.dev.hanji.data.state.UserAttempt
+import com.dev.hanji.data.state.UserState
 import com.dev.hanji.data.viewmodel.UserViewModel
 
 
@@ -110,15 +110,14 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                         )
-//                        LazyColumn(modifier = Modifier.padding(12.dp)) {
-//                            items(state.attempts) { attempt ->
-//                                UserStat(attempt)
-//                            }
-//
-//                        }
+                        Column(modifier = Modifier.padding(12.dp)) {
+                            state.attempts?.forEach { attempt ->
+                                UserStat(attempt)
+                            }
+                        }
 
                     }
-                    state.attempts?.let { CircleStats(user = state.user, totalAttempts = it.total) }
+                    state.attempts?.let { CircleStats(state = state) }
 
                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -141,13 +140,13 @@ private fun UserStat(attempt: UserAttempt, modifier: Modifier = Modifier) {
                 .size(28.dp)
                 .background(attempt.color)
         )
-        Text("${attempt.type.value}: ${attempt.count}", modifier = modifier.padding(start = 8.dp))
+        Text("${attempt.type.value}: ${attempt.attempt}", modifier = modifier.padding(start = 8.dp))
     }
 }
 
 
 @Composable
-fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modifier) {
+fun CircleStats(state: UserState?, modifier: Modifier = Modifier) {
     val textStats = stringResource(R.string.stats)
     val textMeasure = rememberTextMeasurer()
     val textStyle = TextStyle(
@@ -176,8 +175,8 @@ fun CircleStats(user: UserEntity?, totalAttempts: Int, modifier: Modifier = Modi
                 var sweepAngle: Float
                 var startAngle = 0f
 
-                user?.attempts?.forEach { attempt ->
-                    sweepAngle = (attempt.count.toFloat() / totalAttempts) * 360
+                state?.attempts?.forEach { attempt ->
+                    sweepAngle = (attempt.attempt.toFloat() / state.total) * 360
                     drawArc(
                         color = attempt.color,
                         startAngle = startAngle,

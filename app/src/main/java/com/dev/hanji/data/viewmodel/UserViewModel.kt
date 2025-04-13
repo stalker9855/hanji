@@ -1,11 +1,19 @@
 package com.dev.hanji.data.viewmodel
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.hanji.data.dao.UserDao
 import com.dev.hanji.data.model.UserEntity
 import com.dev.hanji.data.state.AttemptState
+import com.dev.hanji.data.state.AttemptWithColor
+import com.dev.hanji.data.state.TypeAttempt
+import com.dev.hanji.data.state.UserAttempt
 import com.dev.hanji.data.state.UserState
+import com.dev.hanji.ui.theme.ErrorAttemptColor
+import com.dev.hanji.ui.theme.GoodAttemptColor
+import com.dev.hanji.ui.theme.GreatAttemptColor
+import com.dev.hanji.ui.theme.NormalAttemptColor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -13,6 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.lang.reflect.Type
 
 
 class UserViewModel(dao: UserDao) : ViewModel() {
@@ -21,7 +30,18 @@ class UserViewModel(dao: UserDao) : ViewModel() {
     private val _user: Flow<UserEntity> = dao.getUser()
     private val _attempts: Flow<AttemptState> = dao.getAttempts()
 
-    val state = combine(_state, _user, _attempts) {
+    private val _attemptsWithColor: Flow<List<UserAttempt>> = _attempts
+        .map { attemptState ->
+            listOf(
+                AttemptWithColor(attemptState.attempts, NormalAttemptColor, type = TypeAttempt.NORMAL),
+                AttemptWithColor(attemptState.clean, GreatAttemptColor, type = TypeAttempt.GREAT),
+                AttemptWithColor(attemptState.good, GoodAttemptColor, type = TypeAttempt.GOOD),
+                AttemptWithColor(attemptState.bad, ErrorAttemptColor, type = TypeAttempt.BAD),
+                AttemptWithColor(attemptState.errors, Color.Black, type = TypeAttempt.ERROR)
+            )
+        }
+
+    val state = combine(_state, _user, _attemptsWithColor) {
         state, user, attempts ->
             state.copy(
                 attempts = attempts,
