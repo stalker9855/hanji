@@ -133,6 +133,7 @@ private fun KanjiAttemptItem(modifier: Modifier = Modifier, attempt: KanjiAttemp
                 )
 
                 AttemptValuesBox(color = GreatAttemptColor, text = " Clean: ${attempt.clean}")
+                AttemptValuesBox(color = GoodAttemptColor, text = " Good: ${attempt.good}")
                 AttemptValuesBox(color = NormalAttemptColor, text = " Attempts (lines): ${attempt.attempts}")
                 AttemptValuesBox(color = ErrorAttemptColor, text = " Errors: ${attempt.errors}")
 

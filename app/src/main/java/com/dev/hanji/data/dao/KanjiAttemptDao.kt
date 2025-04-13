@@ -21,11 +21,13 @@ interface KanjiAttemptDao {
     @Query("SELECT * FROM kanji_attempts")
     fun getAllAttemptsKanji(): Flow<List<KanjiAttemptEntity>>
 
-    @Query("SELECT k.* FROM kanji k " +
-            " INNER JOIN kanji_attempts a ON k.character = a.character" +
-            " " +
-            " AND a.user_id = :userId" +
-            " AND DATE(a.next_review_data / 1000, 'unixepoch') = DATE('now', '+1 day')")
+    @Query("""
+    SELECT k.* FROM kanji k
+    INNER JOIN kanji_attempts a ON k.character = a.character
+    WHERE a.user_id = :userId
+      AND DATE(a.next_review_data / 1000, 'unixepoch') >= DATE('now', '-2 day')
+      AND a.next_review_data > a.last_review
+    """)
     fun getKanjiDueTomorrow(userId: Long): Flow<List<KanjiEntity>>
 
     @Query("SELECT * FROM kanji_attempts WHERE character = :character LIMIT 1")

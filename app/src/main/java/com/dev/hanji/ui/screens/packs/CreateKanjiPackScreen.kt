@@ -73,6 +73,16 @@ fun CreateKanjiPackScreen(modifier: Modifier = Modifier,
             )
             OutlinedTextField(
                 label = {
+                    Text("Title (1 Character)")
+                },
+                value = state.title,
+                onValueChange = {
+                    onEvent(KanjiPackEvent.SetTitle(it))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                label = {
                     Text("Description")
                 },
                 value = state.description,

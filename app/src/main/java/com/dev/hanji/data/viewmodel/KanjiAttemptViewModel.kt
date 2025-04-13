@@ -45,11 +45,11 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
     fun onEvent(event: KanjiAttemptEvent) {
         when (event) {
             KanjiAttemptEvent.SaveAttemptKanji -> {
-//                viewModelScope.launch {
-//                    practiceState.value.attemptsList.forEach { kanjiAttempt ->
-//                        dao.insert(kanjiAttempt)
-//                    }
-//                }
+                viewModelScope.launch {
+                    practiceState.value.attemptsList.forEach { kanjiAttempt ->
+                        dao.insert(kanjiAttempt)
+                    }
+                }
             }
 
             is KanjiAttemptEvent.SetCharacter -> {
@@ -88,7 +88,7 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
                 }
             }
 
-            KanjiAttemptEvent.IncrementError -> {
+            is KanjiAttemptEvent.IncrementError -> {
                 viewModelScope.launch {
                     _practiceState.update { state ->
                         val updatedList = state.attemptsList.mapIndexed { index, attempt ->
@@ -108,7 +108,7 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
             }
 
 
-            KanjiAttemptEvent.IncrementAttempt -> {
+            is KanjiAttemptEvent.IncrementAttempt -> {
                 _practiceState.update { state ->
                     val updatedList = state.attemptsList.mapIndexed { index, attempt ->
                         if (index == state.currentIndex) {
@@ -123,16 +123,29 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
                 }
             }
 
-            KanjiAttemptEvent.IncrementClean -> {
+            is KanjiAttemptEvent.IncrementAttemptOnTheEnd -> {
                 _practiceState.update { state ->
                     val updatedList = state.attemptsList.mapIndexed { index, attempt ->
                         if (index == state.currentIndex) {
-                            val updatedAttempt = attempt.copy(clean = attempt.clean + 1)
+                            val updatedAttempt = when (event.currentErrors) {
+                                0 -> {
+                                    attempt.copy(clean = attempt.clean + 1)
+                                }
+                                in 1..4 -> {
+                                    attempt.copy(good = attempt.good + 1)
+                                }
+                                 in 5..Int.MAX_VALUE -> {
+                                    attempt.copy(bad = attempt.bad + 1)
+                                }
+                                else -> attempt
+                            }
                             viewModelScope.launch {
                                 dao.update(updatedAttempt)
                             }
                             updatedAttempt
-                        } else attempt
+                        } else {
+                            attempt
+                        }
                     }
                     state.copy(attemptsList = updatedList)
                 }

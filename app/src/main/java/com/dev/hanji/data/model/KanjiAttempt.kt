@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.Relation
 
 @Entity(
@@ -22,7 +23,8 @@ import androidx.room.Relation
             childColumns = ["user_id"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index("character")]
 )
 data class KanjiAttemptEntity(
 
@@ -36,6 +38,12 @@ data class KanjiAttemptEntity(
 
     @ColumnInfo(defaultValue = "0")
     val clean: Long = 0,
+
+    @ColumnInfo(defaultValue = "0")
+    val good: Long = 0,
+
+    @ColumnInfo(defaultValue = "0")
+    val bad: Long = 0,
 
     val errors: Long = 0,
 

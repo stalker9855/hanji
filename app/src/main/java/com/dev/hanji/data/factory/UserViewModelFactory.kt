@@ -1,8 +1,9 @@
-package com.dev.hanji.ui.screens.user
+package com.dev.hanji.data.factory
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.dev.hanji.data.dao.UserDao
+import com.dev.hanji.data.viewmodel.UserViewModel
 
 class UserViewModelFactory(private val userDao: UserDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

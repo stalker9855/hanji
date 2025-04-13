@@ -142,10 +142,33 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
            }
            is KanjiPackEvent.SaveKanjiPack -> {
                val name = createKanjiPackState.value.name
+               val title = createKanjiPackState.value.title
                val description = createKanjiPackState.value.description
                val selectedKanjiList = createKanjiPackState.value.selectedKanjiList
 
-               if(name.isBlank() || description.isBlank() || selectedKanjiList.isEmpty()) {
+               if(!isSingleSymbol(title)) {
+                   viewModelScope.launch {
+                       SnackbarController.sendEvent(
+                           event = SnackbarEvent(
+                               message = "Title must be 1 character",
+                           )
+                       )
+                   }
+                   return
+               }
+
+               if(name.length > 20) {
+                   viewModelScope.launch {
+                       SnackbarController.sendEvent(
+                           event = SnackbarEvent(
+                               message = "Name must no be more than 20 symbols",
+                           )
+                       )
+                   }
+                   return
+               }
+
+               if(name.isBlank() || description.isBlank() || selectedKanjiList.isEmpty() || title.isEmpty()) {
                    viewModelScope.launch {
                        SnackbarController.sendEvent(
                            event = SnackbarEvent(
@@ -157,6 +180,7 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                }
 
                val kanjiPack = KanjiPackEntity(
+                   title = title,
                    name = name,
                    description = description,
                    userId = 1,
@@ -208,6 +232,18 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                _createEditKanjiPackState.update { it.copy(searchQuery = event.query) }
            }
 
+           is KanjiPackEvent.SetTitle -> {
+               _createEditKanjiPackState.update { state ->
+                   state.copy(
+                       title = event.title
+                   )
+               }
+           }
        }
+    }
+
+
+    private fun isSingleSymbol(input: String): Boolean {
+        return input.trim().codePointCount(0, input.trim().length) == 1
     }
 }

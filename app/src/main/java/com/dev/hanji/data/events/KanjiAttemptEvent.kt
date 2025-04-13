@@ -7,8 +7,8 @@ sealed interface KanjiAttemptEvent {
     data class SetCharacter(val character: String): KanjiAttemptEvent
     data class SetUser(val userId: Long): KanjiAttemptEvent
     data class SetCurrentIndex(val index: Int): KanjiAttemptEvent
+    data class IncrementAttemptOnTheEnd(val currentErrors: Int): KanjiAttemptEvent
     data object IncrementError: KanjiAttemptEvent
     data object IncrementAttempt: KanjiAttemptEvent
-    data object IncrementClean: KanjiAttemptEvent
     data object SaveGeneratedKanjiPack: KanjiAttemptEvent
 }

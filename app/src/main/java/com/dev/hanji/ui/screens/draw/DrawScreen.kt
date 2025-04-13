@@ -270,9 +270,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
                                     if (indexOriginalPath == currentOriginalPath.size) {
                                         indexOriginalPath = 0
                                         isKanjiCompleted = true
-                                        if(currentErrors == 0) {
-                                            onEvent(KanjiAttemptEvent.IncrementClean)
-                                        }
+                                        onEvent(KanjiAttemptEvent.IncrementAttemptOnTheEnd(currentErrors))
                                     }
                                 }
                             },

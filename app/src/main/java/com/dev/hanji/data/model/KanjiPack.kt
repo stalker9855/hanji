@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.Junction
 import androidx.room.PrimaryKey
 import androidx.room.Relation
@@ -17,13 +18,17 @@ import androidx.room.Relation
             parentColumns = ["user_id"],
             childColumns = ["user_id"]
         )
-    ]
+    ],
+    indices = [Index("user_id")]
 
     )
 data class KanjiPackEntity (
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo("pack_id")
     val id: Long = 0,
+
+    @ColumnInfo(defaultValue = "火")
+    val title: String = "火",
 
     @ColumnInfo("name")
     val name: String,
@@ -51,7 +56,8 @@ data class KanjiPackEntity (
             childColumns = ["character"],
             onDelete = ForeignKey.CASCADE
         )
-    ]
+    ],
+    indices = [Index("character")]
 )
 data class KanjiPackCrossRef(
     @ColumnInfo("pack_id")

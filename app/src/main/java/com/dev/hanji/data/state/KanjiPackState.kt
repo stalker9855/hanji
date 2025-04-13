@@ -19,6 +19,7 @@ data class CreateEditKanjiPackState(
     val availableKanjiList: List<KanjiEntity> = emptyList(),
     val pagedKanjiList: PagingData<KanjiEntity> = PagingData.empty(),
     val searchQuery: String = "",
+    val title: String = "",
     val name: String = "",
     val description: String = "",
     val userId: Int = 1,

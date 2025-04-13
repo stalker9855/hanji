@@ -85,7 +85,7 @@ private fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) 
                 .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
-            Text("火",
+            Text(kanjiPack.title.toString(),
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 48.sp
             )

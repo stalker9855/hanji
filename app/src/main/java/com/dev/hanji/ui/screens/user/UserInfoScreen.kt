@@ -1,5 +1,6 @@
 package com.dev.hanji.ui.screens.user
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,12 +48,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.dev.hanji.R
 import com.dev.hanji.data.model.UserAttempt
 import com.dev.hanji.data.model.UserEntity
+import com.dev.hanji.data.viewmodel.UserViewModel
 
 
 @Composable
 fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
-    val user by viewModel.user.collectAsStateWithLifecycle()
-    val totalAttempts by viewModel.totalAttempts.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     Column {
         Column(modifier = modifier
             .padding(16.dp)
@@ -73,10 +76,12 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                     ,
                         )
                 Column(modifier = Modifier.padding(16.dp).align(Alignment.CenterVertically)) {
-                    Text(text= user.username,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
-                    )
+                    state.user?.let {
+                        Text(text= it.username,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 24.sp
+                        )
+                    }
                     HorizontalDivider(modifier =
                     Modifier
                         .fillMaxWidth()
@@ -105,15 +110,15 @@ fun UserInfoScreen(modifier: Modifier = Modifier, viewModel: UserViewModel) {
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp)
                         )
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            user.attempts.forEach {attempt ->
-                                UserStat(attempt)
-                            }
-
-                        }
+//                        LazyColumn(modifier = Modifier.padding(12.dp)) {
+//                            items(state.attempts) { attempt ->
+//                                UserStat(attempt)
+//                            }
+//
+//                        }
 
                     }
-                    CircleStats(user = user, totalAttempts = totalAttempts)
+                    state.attempts?.let { CircleStats(user = state.user, totalAttempts = it.total) }
 
                     Spacer(modifier = Modifier.height(20.dp))
 

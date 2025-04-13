@@ -1,21 +1,11 @@
 package com.dev.hanji.ui.screens.user
 
-import android.util.Log
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,7 +17,9 @@ import com.dev.hanji.data.factory.AchievementViewModelFactory
 import com.dev.hanji.components.ScreenTabRow
 import com.dev.hanji.data.database.AppDatabase
 import com.dev.hanji.data.factory.KanjiAttemptFactory
+import com.dev.hanji.data.factory.UserViewModelFactory
 import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
+import com.dev.hanji.data.viewmodel.UserViewModel
 import com.dev.hanji.userScreens
 
 
@@ -38,7 +30,6 @@ fun UserScreen(modifier: Modifier = Modifier,
     val context = LocalContext.current
     val childNavController = rememberNavController()
     val currentRoute = childNavController.currentDestination?.route
-    Log.d("CURRENT ROUTE", "$currentRoute")
 
     Scaffold(
         topBar = {
