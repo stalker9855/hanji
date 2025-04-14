@@ -1,0 +1,179 @@
+package com.dev.hanji.ui.screens.kanji
+
+import android.annotation.SuppressLint
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.dev.hanji.data.state.KanjiState
+import com.dev.hanji.ui.screens.draw.extractPathData
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+
+@SuppressLint("DiscouragedApi")
+@Composable
+fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
+
+    if (state.character == null) {
+        Text("Loading . . .")
+        return
+    }
+
+
+
+    val unicodeHex = state.character.unicodeHex
+    val context = LocalContext.current
+    val drawableId = context.resources.getIdentifier(unicodeHex, "drawable", context.packageName)
+    if (drawableId == 0) {
+        return
+    }
+
+    val originalPath: List<List<Offset>> =
+        extractPathData(LocalContext.current, drawableId)
+
+
+    val coroutineScope = rememberCoroutineScope()
+    val progressList = remember { mutableStateListOf<Animatable<Float, AnimationVector1D>>() }
+    var animationJob by remember { mutableStateOf<Job?>(null) }
+    Column {
+        Text("${state.character}")
+        Text("${state.attempt}")
+
+        LaunchedEffect(originalPath) {
+            progressList.clear()
+            progressList.addAll(originalPath.map { Animatable(0f) })
+
+            animationJob?.cancel()
+            animationJob = coroutineScope.launch {
+                progressList.forEach { it.snapTo(0f) }
+                progressList.forEach { progress ->
+                    progress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 850, easing = LinearEasing)
+                    )
+                }
+            }
+        }
+
+        Button(
+            onClick = {
+                animationJob?.cancel()
+                animationJob = coroutineScope.launch {
+                    progressList.forEach {it.snapTo(0f)}
+                    progressList.forEach { progress ->
+                        progress.animateTo(
+                            targetValue = 1f,
+                            animationSpec = tween(durationMillis = 850, easing = LinearEasing)
+                        )
+                    }
+                }
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.PlayArrow,
+                contentDescription = "Play kanji animation drawing"
+            )
+        }
+
+        Box {
+            Canvas(
+                modifier = modifier
+                    .size(109.dp * 3)
+                    .aspectRatio(1f)
+                    .padding(16.dp)
+                    .background(Color.White)
+                    .border(width = 2.dp, color = Color.Black)
+            ) {
+
+                val canvasWidth = size.width
+                val canvasHeight = size.height
+
+                val centerX = canvasWidth / 2
+                val centerY = canvasHeight / 2
+
+                val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+
+                val horizontalLine = Path().apply {
+                    moveTo(0f, centerY)
+                    lineTo(canvasWidth, centerY)
+                }
+
+                val verticalLine = Path().apply {
+                    moveTo(centerX, 0f)
+                    lineTo(centerX, canvasHeight)
+                }
+
+                drawPath(
+                    path = horizontalLine,
+                    color = Color.Black,
+                    style = Stroke(width = 5f, pathEffect = dashEffect),
+                    alpha = 0.15f
+                )
+
+                drawPath(
+                    path = verticalLine,
+                    color = Color.Black,
+                    style = Stroke(width = 5f, pathEffect = dashEffect),
+                    alpha = 0.15f
+                )
+
+                originalPath.forEachIndexed { index, pathOffsets ->
+                    if(index < progressList.size) {
+
+                        val path = Path().apply {
+                            if (pathOffsets.isNotEmpty()) {
+                                moveTo(pathOffsets.first().x, pathOffsets.first().y)
+                                pathOffsets.drop(1).forEach { offset ->
+                                    lineTo(offset.x, offset.y)
+                                }
+                            }
+                        }
+                        val pathMeasure = PathMeasure()
+                        pathMeasure.setPath(path, false)
+                        val pathLength = pathMeasure.length
+                        val animatedPath = Path()
+                        pathMeasure.getSegment(0f, pathLength * progressList[index].value, animatedPath, true)
+                        drawPath(
+                            path = animatedPath,
+                            color = Color.Black,
+                            style = Stroke(width = 25f),
+
+                        )
+                    }
+                }
+            }
+
+        }
+    }
+
+}

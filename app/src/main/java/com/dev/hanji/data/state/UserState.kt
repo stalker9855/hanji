@@ -6,7 +6,7 @@ import com.dev.hanji.data.model.UserEntity
 
 enum class TypeAttempt(val value: String) {
     BAD("Bad"),
-    NORMAL("Normal"),
+    NORMAL("Attempts (on lines)"),
     GOOD("Good"),
     GREAT("Great"),
     ERROR("Failed")

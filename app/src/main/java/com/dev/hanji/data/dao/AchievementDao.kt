@@ -1,5 +1,6 @@
 package com.dev.hanji.data.dao
 
+import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -9,16 +10,21 @@ import androidx.room.Update
 import com.dev.hanji.data.model.AchievementEntity
 import kotlinx.coroutines.flow.Flow
 
+data class KanjiWithAttemptStatus(
+    val character: String,
+    val isAttempted: Boolean
+)
+
+
 @Dao
 interface AchievementDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(achievement: AchievementEntity)
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(achievement: AchievementEntity)
-
-    @Query("SELECT * FROM current_achievements")
-    fun get(): Flow<AchievementEntity>
+    @Query("SELECT k.character," +
+            " CASE WHEN ka.character IS NOT NULL" +
+            " THEN 1 ELSE 0 END AS isAttempted " +
+            "FROM kanji k " +
+            "LEFT JOIN kanji_attempts ka on k.character = ka.character")
+    fun getKanjiWithAttemptStatus(): PagingSource<Int, KanjiWithAttemptStatus>
 
     @Delete
     suspend fun delete(achievement: AchievementEntity)

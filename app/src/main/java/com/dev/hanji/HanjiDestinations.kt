@@ -55,10 +55,10 @@ object UserStats : HanjiDestination {
     override val title: String = "Info"
 }
 
-object UserAchievements : HanjiDestination {
-    override val route: String = "user_achievements"
+object UserProgress : HanjiDestination {
+    override val route: String = "user_progress"
     override val icon: ImageVector = Icons.Filled.Star
-    override val title: String = "Achievements"
+    override val title: String = "Progress"
 }
 
 object Draw : HanjiDestination {
@@ -110,6 +110,12 @@ object KanjiAttempts : HanjiDestination {
     override val title: String = "Kanji user attempts"
 }
 
+object KanjiDetail : HanjiDestination {
+    override val route: String = "kanji_detail"
+    override val icon: ImageVector = Icons.Filled.Info
+    override val title: String = "Kanji Detail"
+}
+
 object UserAttemptsKanji : HanjiDestination {
     override val route: String = "user_kanji_attempts"
     override val icon: ImageVector = Icons.Filled.Info
@@ -117,6 +123,6 @@ object UserAttemptsKanji : HanjiDestination {
 }
 
 val hanjiScreens = listOf(Home, Packs, User, KanjiAll, About, Settings)
-val userScreens = listOf(UserStats, UserAchievements, UserAttemptsKanji)
+val userScreens = listOf(UserStats, UserProgress, UserAttemptsKanji)
 val packScreens = listOf(AllPacks, MyPacks)
 val arrowScreens = listOf(CreatePack, PackDetail, EditPack)

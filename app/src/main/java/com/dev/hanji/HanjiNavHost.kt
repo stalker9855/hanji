@@ -39,6 +39,7 @@ import com.dev.hanji.ui.screens.settings.SettingsScreen
 import com.dev.hanji.data.viewmodel.DrawingViewModel
 import com.dev.hanji.data.viewmodel.KanjiViewModel
 import com.dev.hanji.ui.screens.kanji.KanjiAllScreen
+import com.dev.hanji.ui.screens.kanji.KanjiDetailScreen
 import com.dev.hanji.ui.screens.packs.CreateKanjiPackScreen
 import com.dev.hanji.ui.screens.packs.EditKanjiPackScreen
 import com.dev.hanji.ui.screens.packs.KanjiPackDetailScreen
@@ -67,6 +68,7 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
             }
             composable(route = User.route) {
                 UserScreen(
+                    navController = navController
                 )
             }
             composable(route = Settings.route) {
@@ -129,9 +131,19 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                 KanjiPackDetailScreen(state = packDetailState, onEvent = viewModel::onEvent, navController = navController)
             }
             composable(route = KanjiAll.route) {
-                val viewModel = viewModel<KanjiViewModel>(factory = KanjiFactory(kanjiDao))
+                val viewModel = viewModel<KanjiViewModel>(factory = KanjiFactory(kanjiDao, ""))
                 val kanjiList = viewModel.kanjiList.collectAsLazyPagingItems()
                 KanjiAllScreen(kanjiList = kanjiList, onEvent = viewModel::onEvent)
+            }
+
+            composable(route = "${KanjiDetail.route}/{character}",
+                arguments = listOf(navArgument("character") { type = NavType.StringType })
+            ) { navBackStackEntry ->
+                val character = navBackStackEntry.arguments?.getString("character")
+                val viewModel = viewModel<KanjiViewModel>(factory = KanjiFactory(kanjiDao, character!!))
+                val kanjiDetailState by viewModel.kanjiState.collectAsStateWithLifecycle()
+                KanjiDetailScreen(state = kanjiDetailState)
+
             }
         }
     }

@@ -5,7 +5,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.dev.hanji.data.model.KanjiAttemptEntity
 import com.dev.hanji.data.model.KanjiEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface KanjiDao {
@@ -17,6 +19,13 @@ interface KanjiDao {
 
     @Query("SELECT * FROM kanji")
     suspend fun getAllKanji(): List<KanjiEntity>
+
+    @Query("SELECT * FROM kanji where character = :character")
+    fun getKanjiByCharacter(character: String): Flow<KanjiEntity>
+
+    @Query("SELECT * FROM kanji_attempts WHERE character = :character LIMIT 1")
+    fun getAttemptKanjiByCharacter(character: String): Flow<KanjiAttemptEntity>
+
 
 
     @Query("""

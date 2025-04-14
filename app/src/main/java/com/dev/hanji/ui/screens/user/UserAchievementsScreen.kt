@@ -1,6 +1,7 @@
 package com.dev.hanji.ui.screens.user
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,14 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -34,17 +34,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.dev.hanji.UserAchievements
-import com.dev.hanji.data.model.AchievementEntity
+import androidx.navigation.NavController
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.dev.hanji.KanjiDetail
+import com.dev.hanji.UserProgress
+import com.dev.hanji.components.cardStyle
+import com.dev.hanji.data.dao.KanjiWithAttemptStatus
 import com.dev.hanji.data.viewmodel.AchievementViewModel
 
 
 @Composable
-fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: AchievementViewModel) {
-    val achievements by viewModel.achievements.collectAsStateWithLifecycle()
-    val completedAchievements by viewModel.completedAchievements.collectAsStateWithLifecycle()
-    var sliderPosition by remember { mutableFloatStateOf(completedAchievements.toFloat()) }
+fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: AchievementViewModel, navController: NavController) {
+    val kanjiProgress: LazyPagingItems<KanjiWithAttemptStatus> = viewModel.progress.collectAsLazyPagingItems()
+    var sliderPosition by remember { mutableFloatStateOf(kanjiProgress.itemCount.toFloat()) }
+
+    val attemptedCount by remember { derivedStateOf {
+        kanjiProgress.itemSnapshotList.items.count { it.isAttempted }
+    } }
 
         Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
             Column(
@@ -57,20 +64,20 @@ fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: Achievement
             ) {
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = UserAchievements.title + " · 実績",
+                    text = UserProgress.title + " · 実績",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = "Progress: $completedAchievements / ${achievements.size}",
+                    text = "Progress: $attemptedCount / ${kanjiProgress.itemCount}",
                     fontSize = 20.sp,
                     // fontWeight = FontWeight.Bold
                 )
-                LaunchedEffect(completedAchievements) {
-                    sliderPosition = completedAchievements.toFloat()
-                }
+//                LaunchedEffect(completedAchievements) {
+//                    sliderPosition = completedAchievements.toFloat()
+//                }
                 Slider(
                     value = sliderPosition,
                     onValueChange = {  },
@@ -80,8 +87,8 @@ fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: Achievement
                         disabledActiveTrackColor = MaterialTheme.colorScheme.secondary,
                         disabledInactiveTickColor = Color.Transparent
                     ),
-                    steps = achievements.size - 1,
-                    valueRange = 0f..achievements.size.toFloat()
+                    steps = kanjiProgress.itemCount,
+                    valueRange = 0f..kanjiProgress.itemCount.toFloat()
                 )
 
             }
@@ -102,8 +109,9 @@ fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: Achievement
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    items(achievements) { achievement ->
-                        AchieveBox(achievement = achievement)
+                    items(kanjiProgress.itemCount) { index ->
+                        val progress = kanjiProgress[index]
+                        progress?.let { AchieveBox(progress = it, navController = navController) }
                     }
                 }
 
@@ -113,12 +121,18 @@ fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: Achievement
     }
 
 @Composable
-private  fun AchieveBox(achievement: AchievementEntity, modifier: Modifier = Modifier) {
-    Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).size(SIZE_BOX)
-        .background(if (achievement.isCompleted) MaterialTheme.colorScheme.primaryContainer else Color.Gray),
+private  fun AchieveBox(
+    progress: KanjiWithAttemptStatus,
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
+    Box(modifier = Modifier.cardStyle().size(SIZE_BOX).clickable {
+        navController.navigate("${KanjiDetail.route}/${progress.character}")
+    }
+        .background(if (progress.isAttempted) MaterialTheme.colorScheme.primaryContainer else Color.Gray),
         contentAlignment = Alignment.Center) {
         Text(
-            text = achievement.character!!,
+            text = progress.character,
             fontWeight = FontWeight.SemiBold,
             fontSize = 32.sp,
             textAlign = TextAlign.Center)

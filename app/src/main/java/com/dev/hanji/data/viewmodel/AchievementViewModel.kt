@@ -2,35 +2,29 @@ package com.dev.hanji.data.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dev.hanji.data.model.AchievementsProvider
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.dev.hanji.data.dao.AchievementDao
-import com.dev.hanji.data.model.AchievementEntity
+import com.dev.hanji.data.state.KanjiProgressState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
-class AchievementViewModel(private val achievementDao: AchievementDao): ViewModel() {
-    private val _achievements = MutableStateFlow<List<AchievementEntity>>(emptyList())
-    val achievements: StateFlow<List<AchievementEntity>>
-        get() = _achievements
+class AchievementViewModel(private val dao: AchievementDao): ViewModel() {
+//    private val _progressState = MutableStateFlow(KanjiProgressState())
 
-    val completedAchievements: StateFlow<Int> = _achievements.map {
-        achievementsList -> achievementsList.count { it.isCompleted}
-    }.stateIn(
-        viewModelScope, SharingStarted.Lazily, 0
-    )
-
-
-    init {
-        loadAchievements()
-    }
-
-    private fun loadAchievements() {
-        viewModelScope.launch {
-            _achievements.value = AchievementsProvider.achievements
-        }
-    }
+//    private val _progress = dao.getKanjiWithAttemptStatus()
+//        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    val progress = Pager(
+        config = PagingConfig(pageSize = 50),
+        pagingSourceFactory = { dao.getKanjiWithAttemptStatus() }
+    ).flow.cachedIn(viewModelScope)
+//    val progressState = combine(_progressState, progress) {
+//        state, progress ->
+//        state.copy(
+//            progress = progress
+//        )
+//    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiProgressState())
 }

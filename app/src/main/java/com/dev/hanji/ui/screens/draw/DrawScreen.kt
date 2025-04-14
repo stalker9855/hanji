@@ -542,7 +542,7 @@ private fun DrawScope.drawPath(
     )
 }
 
-private fun extractPathData(context: Context, resId: Int, scale: Float = 7.2f): List<List<Offset>> {
+fun extractPathData(context: Context, resId: Int, scale: Float = 7.2f): List<List<Offset>> {
     val parser = context.resources.getXml(resId)
     val pathDataList = mutableListOf<String>()
 
