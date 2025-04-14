@@ -19,11 +19,9 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -41,17 +40,18 @@ import com.dev.hanji.KanjiDetail
 import com.dev.hanji.UserProgress
 import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.dao.KanjiWithAttemptStatus
-import com.dev.hanji.data.viewmodel.AchievementViewModel
+import com.dev.hanji.data.viewmodel.ProgressViewModel
 
 
 @Composable
-fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: AchievementViewModel, navController: NavController) {
+fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: ProgressViewModel, navController: NavController) {
     val kanjiProgress: LazyPagingItems<KanjiWithAttemptStatus> = viewModel.progress.collectAsLazyPagingItems()
-    var sliderPosition by remember { mutableFloatStateOf(kanjiProgress.itemCount.toFloat()) }
+    val attempts by viewModel.progressState.collectAsStateWithLifecycle()
+    val sliderPosition by remember { mutableFloatStateOf(kanjiProgress.itemCount.toFloat()) }
 
-    val attemptedCount by remember { derivedStateOf {
-        kanjiProgress.itemSnapshotList.items.count { it.isAttempted }
-    } }
+//    val attemptedCount by remember { derivedStateOf {
+//        kanjiProgress.itemSnapshotList.items.count { it.isAttempted }
+//    } }
 
         Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
             Column(
@@ -71,7 +71,7 @@ fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: Achievement
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = "Progress: $attemptedCount / ${kanjiProgress.itemCount}",
+                    text = "Progress: ${attempts.kanjiProgressState?.attempted} / ${attempts.kanjiProgressState?.total}",
                     fontSize = 20.sp,
                     // fontWeight = FontWeight.Bold
                 )

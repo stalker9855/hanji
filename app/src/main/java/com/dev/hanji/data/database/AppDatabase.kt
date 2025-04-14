@@ -6,7 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.dev.hanji.data.dao.AchievementDao
+import com.dev.hanji.data.dao.ProgressDao
 import com.dev.hanji.data.model.AchievementEntity
 import com.dev.hanji.data.dao.KanjiAttemptDao
 import com.dev.hanji.data.model.KanjiAttemptEntity
@@ -32,7 +32,7 @@ import com.dev.hanji.data.model.UserEntity
     )
 abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao
-    abstract val achievementDao: AchievementDao
+    abstract val progressDao: ProgressDao
     abstract val kanjiDao: KanjiDao
     abstract val kanjiPackDao: KanjiPackDao
     abstract val kanjiAttemptDao: KanjiAttemptDao

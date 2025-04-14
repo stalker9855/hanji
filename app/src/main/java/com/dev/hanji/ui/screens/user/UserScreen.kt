@@ -15,12 +15,12 @@ import androidx.navigation.compose.rememberNavController
 import com.dev.hanji.UserProgress
 import com.dev.hanji.UserAttemptsKanji
 import com.dev.hanji.UserStats
-import com.dev.hanji.data.viewmodel.AchievementViewModel
-import com.dev.hanji.data.factory.AchievementViewModelFactory
+import com.dev.hanji.data.viewmodel.ProgressViewModel
+import com.dev.hanji.data.factory.ProgressFactory
 import com.dev.hanji.components.ScreenTabRow
 import com.dev.hanji.data.database.AppDatabase
 import com.dev.hanji.data.factory.KanjiAttemptFactory
-import com.dev.hanji.data.factory.UserViewModelFactory
+import com.dev.hanji.data.factory.UserFactory
 import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
 import com.dev.hanji.data.viewmodel.UserViewModel
 import com.dev.hanji.userScreens
@@ -61,13 +61,13 @@ fun UserScreen(modifier: Modifier = Modifier,
         ) {
             composable(UserStats.route) {
                 val userDao = AppDatabase.getInstance(context).userDao
-                val userViewModel: UserViewModel = viewModel(factory = UserViewModelFactory(userDao))
+                val userViewModel: UserViewModel = viewModel(factory = UserFactory(userDao))
                 UserInfoScreen(viewModel = userViewModel)
             }
             composable(UserProgress.route) {
-                val achievementDao = AppDatabase.getInstance(context).achievementDao
-                val achievementViewModel: AchievementViewModel = viewModel(factory = AchievementViewModelFactory(achievementDao))
-                UserAchievementsScreen(viewModel = achievementViewModel, navController = navController)
+                val progressDao = AppDatabase.getInstance(context).progressDao
+                val progressViewModel: ProgressViewModel = viewModel(factory = ProgressFactory(progressDao))
+                UserAchievementsScreen(viewModel = progressViewModel, navController = navController)
             }
             composable(UserAttemptsKanji.route) {
                 val attemptDao = AppDatabase.getInstance(context).kanjiAttemptDao

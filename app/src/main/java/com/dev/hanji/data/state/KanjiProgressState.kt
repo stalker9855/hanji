@@ -1,8 +1,10 @@
 package com.dev.hanji.data.state
 
-import androidx.paging.PagingData
-import com.dev.hanji.data.dao.KanjiWithAttemptStatus
+data class InitialProgressState(
+    val total: Int = 0,
+    val attempted: Int = 0,
+)
 
 data class KanjiProgressState(
-    val progress: PagingData<KanjiWithAttemptStatus> = PagingData.empty()
+    val kanjiProgressState: InitialProgressState? = null
 )
