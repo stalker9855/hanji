@@ -133,7 +133,7 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
             composable(route = KanjiAll.route) {
                 val viewModel = viewModel<KanjiViewModel>(factory = KanjiFactory(kanjiDao, ""))
                 val kanjiList = viewModel.kanjiList.collectAsLazyPagingItems()
-                KanjiAllScreen(kanjiList = kanjiList, onEvent = viewModel::onEvent)
+                KanjiAllScreen(kanjiList = kanjiList, onEvent = viewModel::onEvent, navController = navController)
             }
 
             composable(route = "${KanjiDetail.route}/{character}",

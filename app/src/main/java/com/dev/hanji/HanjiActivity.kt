@@ -25,7 +25,6 @@ import com.dev.hanji.ui.theme.HanjiTheme
 import com.dev.hanji.components.TopAppBarHanji
 import com.dev.hanji.data.database.AppDatabase
 import com.dev.hanji.data.dao.insertKanjiFromJson
-import com.dev.hanji.data.model.UserEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -73,6 +72,19 @@ private fun HanjiApp(modifier: Modifier = Modifier) {
     val snackbarHostState = remember {
         SnackbarHostState()
     }
+
+
+    val currentRoute = currentBackStackEntry.value?.destination?.route
+    val showBackArrow = when {
+        currentRoute?.startsWith(Draw.route) == true -> true
+        currentRoute == CreatePack.route -> true
+        currentRoute?.startsWith(EditPack.route) == true -> true
+        currentRoute?.startsWith(PackDetail.route) == true -> true
+        currentRoute?.startsWith(KanjiDetail.route) == true -> true
+        else -> false
+    }
+
+
     ObserveAsEvents(flow = SnackbarController.events, snackbarHostState) { event ->
         scope.launch {
             snackbarHostState.currentSnackbarData?.dismiss()
@@ -88,7 +100,7 @@ private fun HanjiApp(modifier: Modifier = Modifier) {
         }
 
     }
-    NavigationDrawer(scope = scope, navController = navController, modifier = modifier, drawerState = drawerState) {
+    NavigationDrawer(scope = scope, navController = navController, modifier = modifier, drawerState = drawerState, gesturesEnabled = !showBackArrow) {
         Scaffold(modifier = Modifier,
             snackbarHost = {
                 SnackbarHost(
@@ -96,7 +108,7 @@ private fun HanjiApp(modifier: Modifier = Modifier) {
                 )
             },
             topBar = {
-                TopAppBarHanji(drawerState, scope, currentBackStackEntry,
+                TopAppBarHanji(drawerState, scope, currentBackStackEntry, showBackArrow,
                     onBackClick = {
                         navController.popBackStack()
                     })

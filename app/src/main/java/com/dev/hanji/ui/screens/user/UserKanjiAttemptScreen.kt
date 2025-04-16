@@ -1,6 +1,7 @@
 package com.dev.hanji.ui.screens.user
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import com.dev.hanji.KanjiDetail
 import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.events.KanjiAttemptEvent
 import com.dev.hanji.data.model.KanjiAttemptEntity
@@ -48,7 +51,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun UserKanjiAttemptScreen(modifier: Modifier = Modifier, viewModel: KanjiAttemptViewModel) {
+fun UserKanjiAttemptScreen(modifier: Modifier = Modifier, viewModel: KanjiAttemptViewModel, navController: NavController) {
     val state by viewModel.attemptState.collectAsStateWithLifecycle()
     val onEvent = viewModel::onEvent
     var showDialogGenerate by remember { mutableStateOf(false)}
@@ -66,7 +69,7 @@ fun UserKanjiAttemptScreen(modifier: Modifier = Modifier, viewModel: KanjiAttemp
             .verticalScroll(rememberScrollState())
         ) {
             state.attemptsList.forEach { attempt ->
-                KanjiAttemptItem(attempt = attempt)
+                KanjiAttemptItem(attempt = attempt, navController = navController)
             }
         }
 
@@ -79,8 +82,8 @@ fun UserKanjiAttemptScreen(modifier: Modifier = Modifier, viewModel: KanjiAttemp
             confirmButton = {
                 Button(
                     onClick = {
-                        showDialogGenerate = false
                         onEvent(KanjiAttemptEvent.SaveGeneratedKanjiPack)
+                        showDialogGenerate = false
                     }
                 ) {
                     Text("Yes")
@@ -98,7 +101,7 @@ fun UserKanjiAttemptScreen(modifier: Modifier = Modifier, viewModel: KanjiAttemp
 }
 
 @Composable
-private fun KanjiAttemptItem(modifier: Modifier = Modifier, attempt: KanjiAttemptEntity) {
+private fun KanjiAttemptItem(modifier: Modifier = Modifier, attempt: KanjiAttemptEntity, navController: NavController) {
 
     // SYBAU
     val attempts = listOf(
@@ -111,6 +114,9 @@ private fun KanjiAttemptItem(modifier: Modifier = Modifier, attempt: KanjiAttemp
     Column(modifier = Modifier
         .padding(vertical = 4.dp)
         .cardStyle()
+        .clickable {
+            navController.navigate("${KanjiDetail.route}/${attempt.character}")
+        }
 )
     {
         Row(modifier = Modifier

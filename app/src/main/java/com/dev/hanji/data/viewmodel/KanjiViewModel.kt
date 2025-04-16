@@ -1,5 +1,6 @@
 package com.dev.hanji.data.viewmodel
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -7,17 +8,26 @@ import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import com.dev.hanji.data.dao.KanjiDao
 import com.dev.hanji.data.events.KanjiEvent
+import com.dev.hanji.data.state.AttemptWithColor
 import com.dev.hanji.data.state.KanjiState
+import com.dev.hanji.data.state.TypeAttempt
+import com.dev.hanji.data.state.UserAttempt
+import com.dev.hanji.ui.theme.BadAttemptColor
+import com.dev.hanji.ui.theme.CleanAttemptColor
+import com.dev.hanji.ui.theme.GoodAttemptColor
+import com.dev.hanji.ui.theme.NormalAttemptColor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-class KanjiViewModel(private val dao : KanjiDao, private val character: String?) : ViewModel() {
+class KanjiViewModel(private val dao : KanjiDao, character: String?) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
 
@@ -42,11 +52,23 @@ class KanjiViewModel(private val dao : KanjiDao, private val character: String?)
             ).flow.cachedIn(viewModelScope)
         }
 
-    val kanjiState = combine(_kanjiState, _kanjiCharacter, _kanjiAttempt) {
+    private val _attemptsWithColor: Flow<List<UserAttempt>> = _kanjiAttempt
+        .map { attemptState ->
+            listOf(
+                AttemptWithColor(attemptState?.attempts, NormalAttemptColor, type = TypeAttempt.NORMAL),
+                AttemptWithColor(attemptState?.clean, CleanAttemptColor, type = TypeAttempt.GREAT),
+                AttemptWithColor(attemptState?.good, GoodAttemptColor, type = TypeAttempt.GOOD),
+                AttemptWithColor(attemptState?.bad, BadAttemptColor, type = TypeAttempt.BAD),
+                AttemptWithColor(attemptState?.errors, Color.Black, type = TypeAttempt.ERROR)
+
+            )
+        }
+
+    val kanjiState = combine(_kanjiState, _kanjiCharacter, _attemptsWithColor) {
         state, character, attempt ->
             state.copy(
                 character = character,
-                attempt = attempt
+                attempts = attempt
             )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiState())
 

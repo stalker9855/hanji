@@ -49,9 +49,6 @@ fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: ProgressVie
     val attempts by viewModel.progressState.collectAsStateWithLifecycle()
     val sliderPosition by remember { mutableFloatStateOf(kanjiProgress.itemCount.toFloat()) }
 
-//    val attemptedCount by remember { derivedStateOf {
-//        kanjiProgress.itemSnapshotList.items.count { it.isAttempted }
-//    } }
 
         Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
             Column(
@@ -71,13 +68,9 @@ fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: ProgressVie
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = "Progress: ${attempts.kanjiProgressState?.attempted} / ${attempts.kanjiProgressState?.total}",
+                    text = "${attempts.kanjiProgressState?.attempted} / ${attempts.kanjiProgressState?.total}",
                     fontSize = 20.sp,
-                    // fontWeight = FontWeight.Bold
                 )
-//                LaunchedEffect(completedAchievements) {
-//                    sliderPosition = completedAchievements.toFloat()
-//                }
                 Slider(
                     value = sliderPosition,
                     onValueChange = {  },

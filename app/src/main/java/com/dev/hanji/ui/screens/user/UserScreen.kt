@@ -56,7 +56,7 @@ fun UserScreen(modifier: Modifier = Modifier,
     ) { innerPadding ->
         NavHost(
             navController = childNavController,
-            startDestination = UserAttemptsKanji.route,
+            startDestination = UserStats.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(UserStats.route) {
@@ -72,7 +72,7 @@ fun UserScreen(modifier: Modifier = Modifier,
             composable(UserAttemptsKanji.route) {
                 val attemptDao = AppDatabase.getInstance(context).kanjiAttemptDao
                 val attemptViewModel: KanjiAttemptViewModel = viewModel(factory = KanjiAttemptFactory(attemptDao))
-                UserKanjiAttemptScreen(viewModel = attemptViewModel)
+                UserKanjiAttemptScreen(viewModel = attemptViewModel, navController = navController)
             }
         }
     }

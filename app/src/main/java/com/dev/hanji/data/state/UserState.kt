@@ -13,25 +13,25 @@ enum class TypeAttempt(val value: String) {
 }
 
 interface UserAttempt {
-    val attempt: Int
+    val attempt: Long?
     val color: Color
     val type: TypeAttempt
 }
 
 
 data class AttemptState(
-    val attempts: Int = 0,
-    val clean: Int = 0,
-    val good: Int = 0,
-    val bad: Int = 0,
-    val errors: Int = 0,
+    val attempts: Long = 0,
+    val clean: Long = 0,
+    val good: Long = 0,
+    val bad: Long = 0,
+    val errors: Long = 0,
 ){
-    val total: Int
+    val total: Long
         get() = attempts + clean + good + errors + bad
 }
 
 data class AttemptWithColor(
-    override val attempt: Int,
+    override val attempt: Long?,
     override val color: Color,
     override val type: TypeAttempt
 ) : UserAttempt
@@ -43,7 +43,8 @@ data class UserState (
     val user: UserEntity? = null,
     val attempts: List<UserAttempt>? = null
 ) {
-    val total: Int
-        get() = attempts?.sumOf { it.attempt } ?: 0
+    val total: Long
+        get() = attempts?.sumOf { it.attempt ?: 0 } ?: 0
+
 
 }

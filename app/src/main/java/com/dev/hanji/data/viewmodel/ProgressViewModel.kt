@@ -22,7 +22,7 @@ class ProgressViewModel(private val dao: ProgressDao): ViewModel() {
 //    private val _progress = dao.getKanjiWithAttemptStatus()
 //        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     val progress = Pager(
-        config = PagingConfig(pageSize = 50),
+        config = PagingConfig(pageSize = 50, prefetchDistance = 50),
         pagingSourceFactory = { dao.getKanjiWithAttemptStatus() }
     ).flow.cachedIn(viewModelScope)
     val progressState = combine(_progressState, _attempts) {

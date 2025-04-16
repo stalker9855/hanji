@@ -1,6 +1,5 @@
 package com.dev.hanji.data.viewmodel
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.hanji.components.SnackbarController
@@ -8,16 +7,19 @@ import com.dev.hanji.components.SnackbarEvent
 import com.dev.hanji.data.dao.KanjiAttemptDao
 import com.dev.hanji.data.events.KanjiAttemptEvent
 import com.dev.hanji.data.model.KanjiAttemptEntity
-import com.dev.hanji.data.model.KanjiEntity
 import com.dev.hanji.data.model.KanjiPackCrossRef
 import com.dev.hanji.data.model.KanjiPackEntity
 import com.dev.hanji.data.state.KanjiAttemptState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
 
@@ -151,31 +153,29 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
 
             is KanjiAttemptEvent.SaveGeneratedKanjiPack -> {
                 viewModelScope.launch {
-                    dao.getKanjiDueTomorrow(userId = 1).collect {
-                            attemptsList ->
-                        val kanjiPack = KanjiPackEntity(
-                            name = "askldjakld",
-                            description = "jaskldjaskld",
-                            userId = 1
-                        )
-                        val packId = dao.insertKanjiPack(kanjiPack)
+                    val attemptsList = dao.getKanjiDueTomorrow(userId = 1).first()
 
+                    val kanjiPack = KanjiPackEntity(
+                        name = formatTimestamp(timestamp = System.currentTimeMillis()),
+                        description = formatTimestamp(timestamp = System.currentTimeMillis()),
+                        userId = 1
+                    )
+                    val packId = dao.insertKanjiPack(kanjiPack)
 
-                        val crossRefs = attemptsList.map { kanjiEntity: KanjiEntity ->
-                            KanjiPackCrossRef(
-                                packId = packId,
-                                character = kanjiEntity.character
-                            )
-                        }
-                        dao.upsertKanjiPackCrossRef(crossRefs)
-                        SnackbarController.sendEvent(
-                            event = SnackbarEvent(
-                                message = "Kanji pack was created",
-                            )
+                    val crossRefs = attemptsList.map { kanjiEntity ->
+                        KanjiPackCrossRef(
+                            packId = packId,
+                            character = kanjiEntity.character
                         )
                     }
-
+                    dao.upsertKanjiPackCrossRef(crossRefs)
+                    SnackbarController.sendEvent(
+                        event = SnackbarEvent(
+                            message = "Kanji pack was created",
+                        )
+                    )
                 }
+
 
 
             }
@@ -216,6 +216,19 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
 
     private fun calculateInterval(previousInterval: Int, eFactor: Double): Int {
         return if (previousInterval == 1) 2 else (previousInterval * eFactor).toInt()
+    }
+
+    private fun randomKanjiChar(): Char {
+        val start = 0x4E00
+        val end = 0x9FAF
+        return (start..end).random().toChar()
+    }
+
+
+    private fun formatTimestamp(timestamp: Long): String {
+        val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+            .withZone(ZoneId.systemDefault())
+        return formatter.format(Instant.ofEpochMilli(timestamp))
     }
 }
 
