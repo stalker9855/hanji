@@ -17,15 +17,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import com.dev.hanji.CreatePack
+import com.dev.hanji.Draw
+import com.dev.hanji.EditPack
+import com.dev.hanji.KanjiDetail
+import com.dev.hanji.PackDetail
 import com.dev.hanji.R
-import com.dev.hanji.arrowScreens
+import com.dev.hanji.arrowBackScreens
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarHanji(drawerState: DrawerState, scope: CoroutineScope, currentBackStackEntry: State<NavBackStackEntry?>, onBackClick: () -> Unit = {}) {
-    val showBackArrow = arrowScreens.any { it.route == currentBackStackEntry.value?.destination?.route }
+fun TopAppBarHanji(drawerState: DrawerState, scope: CoroutineScope, currentBackStackEntry: State<NavBackStackEntry?>, showBackArrow: Boolean, onBackClick: () -> Unit = {}) {
     TopAppBar(
         modifier = Modifier,
         title = { Text(text = stringResource(R.string.app_name)) },
@@ -42,7 +45,9 @@ fun TopAppBarHanji(drawerState: DrawerState, scope: CoroutineScope, currentBackS
                     scope.launch {
                         drawerState.open()
                     }
-                }) {
+
+                },
+                    enabled = !drawerState.isOpen) {
                     Icon(
                         imageVector = Icons.Filled.Menu,
                         contentDescription = "Open Drawer Menu"

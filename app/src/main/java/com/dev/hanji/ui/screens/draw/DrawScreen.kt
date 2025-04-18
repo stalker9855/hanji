@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -113,7 +114,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
 
 
     val originalPath: List<List<Offset>> =
-        extractPathData(LocalContext.current, drawableId)
+        extractPathData(LocalContext.current, drawableId, scale = 9.4f)
     var currentOriginalPath by remember { mutableStateOf(originalPath) }
 
     var isKanjiCompleted by remember { mutableStateOf(false) }
@@ -191,7 +192,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
                             )
                             onEvent(KanjiAttemptEvent.SetCharacter(newKanji!!.character))
                             if (newDrawableId != 0) {
-                                currentOriginalPath = extractPathData(context, newDrawableId)
+                                currentOriginalPath = extractPathData(context, newDrawableId, scale = 9.4f)
                                 initialIndex = 0
                                 indexOriginalPath = 0
                                 Log.d("current original path", "$currentOriginalPath")
@@ -232,11 +233,13 @@ fun DrawScreen(modifier: Modifier = Modifier,
         Box {
             Canvas(
                 modifier = modifier
-                    .size(109.dp * 3)
+                    .size(109.dp * 4)
                     .aspectRatio(1f)
                     .padding(16.dp)
-                    .background(Color.White)
-                    .border(width = 2.dp, color = Color.Black)
+                    .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+                    .border(width = 2.dp, color = Color.Black, shape = RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFFFFFDD0))
                     .pointerInput(Unit) {
                         detectDragGestures(
                             onDragStart = {

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -21,9 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,26 +35,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.PathMeasure
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dev.hanji.R
+import com.dev.hanji.components.AttemptBox
+import com.dev.hanji.components.CircleStats
 import com.dev.hanji.components.KanjiItem
-import com.dev.hanji.components.UserStat
 import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.state.KanjiState
 import com.dev.hanji.ui.screens.draw.extractPathData
@@ -95,7 +85,7 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        KanjiItem(kanji = state.character)
+        Text(text = "Kanji", textAlign = TextAlign.Center, fontSize = 36.sp, fontWeight = FontWeight.SemiBold)
 
         LaunchedEffect(originalPath) {
             progressList.clear()
@@ -205,6 +195,8 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
             )
             Text("Animate")
         }
+
+        KanjiItem(kanji = state.character)
             state.attempts?.let {
                 // WTF ???
                 if(it[0].attempt != null) {
@@ -212,27 +204,8 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
                         .padding(12.dp)
                         .cardStyle()
                     ) {
-
-                        Column(
-                            modifier = Modifier
-                                .padding(vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = "Attempts · 試み",
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                                    .padding(vertical = 12.dp),
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            HorizontalDivider(
-                                modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                            )
-                            state.attempts.forEach { attempt ->
-                                UserStat(attempt)
-                            }
+                        Column(modifier = Modifier.padding(vertical = 8.dp).cardStyle()) {
+                            AttemptBox(attempts = state.attempts)
                         }
                     }
                     CircleStats(state = state, modifier = Modifier.padding(horizontal = 12.dp))
@@ -242,63 +215,5 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
     }
     }
 
-@Composable
-private fun CircleStats(state: KanjiState, modifier: Modifier = Modifier) {
-    val textStats = stringResource(R.string.stats)
-    val textMeasure = rememberTextMeasurer()
-    val textStyle = TextStyle(
-        fontSize = 36.sp,
-        fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.primary
-    )
-
-    val textLayoutResult = textMeasure.measure(text = AnnotatedString(textStats), style = textStyle)
-    val textSize = textLayoutResult.size
-
-
-    Box(
-        modifier = modifier
-            .cardStyle()
-            .aspectRatio(1f)
-    ) {
-        Canvas(
-            modifier = Modifier.matchParentSize()
-            ,
-            onDraw = {
-                val padding = 16.dp.toPx()
-                val size = size.minDimension - padding * 2
-                var sweepAngle: Float
-                var startAngle = 0f
-
-                state.attempts?.forEach { attempt ->
-                    sweepAngle = ((attempt.attempt?.toFloat() ?: 0f) / state.total) * 360
-                    drawArc(
-                        color = attempt.color,
-                        startAngle = startAngle,
-                        sweepAngle = sweepAngle,
-                        useCenter = false,
-                        style = Stroke(
-                            width = 16f,
-                            cap = StrokeCap.Round,
-                            join = StrokeJoin.Round
-                        ),
-                        size = Size(size, size),
-                        topLeft = center - Offset(size / 2f, size / 2f)
-                    )
-                    startAngle += sweepAngle
-                }
-
-                drawText(
-                    textMeasure, textStats,
-                    topLeft = Offset(
-                        (this.size.width - textSize.width) / 2f,
-                        (this.size.height - textSize.height) / 2f,
-                    ),
-                    style = textStyle
-                )
-            }
-        )
-    }
-}
 
 

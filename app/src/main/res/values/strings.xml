@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">Hanji</string>
     <string name="stats">統計</string>
+    <string name="stats_en">Statistics</string>
+
+    <string name="attempts">試み</string>
+    <string name="attempts_en">Attempts</string>
 </resources>

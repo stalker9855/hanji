@@ -54,11 +54,11 @@ fun KanjiItem(modifier: Modifier = Modifier, kanji: KanjiEntity) {
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Readings On Yomi: ${kanji.readingsOn.joinToString(", ")}",
+                text = "On-Yomi: ${kanji.readingsOn.joinToString(", ")}",
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
-                text = "Readings Kun Yomi: ${kanji.readingsKun.joinToString(", ")}",
+                text = "Kun-Yomi: ${kanji.readingsKun.joinToString(", ")}",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

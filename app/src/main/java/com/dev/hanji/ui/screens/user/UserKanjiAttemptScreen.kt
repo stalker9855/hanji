@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,11 +40,11 @@ import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.events.KanjiAttemptEvent
 import com.dev.hanji.data.model.KanjiAttemptEntity
 import com.dev.hanji.data.state.KanjiAttemptColor
+import com.dev.hanji.data.state.TypeAttempt
 import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
 import com.dev.hanji.ui.theme.BadAttemptColor
 import com.dev.hanji.ui.theme.GoodAttemptColor
 import com.dev.hanji.ui.theme.CleanAttemptColor
-import com.dev.hanji.ui.theme.NormalAttemptColor
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -105,11 +104,9 @@ private fun KanjiAttemptItem(modifier: Modifier = Modifier, attempt: KanjiAttemp
 
     // SYBAU
     val attempts = listOf(
-        KanjiAttemptColor(attempt = attempt.attempts, color = NormalAttemptColor, description = " Attempts (lines): ${attempt.attempts}"),
-        KanjiAttemptColor(attempt = attempt.clean, color = CleanAttemptColor, description = " Clean: ${attempt.clean}"),
-        KanjiAttemptColor(attempt = attempt.good, color = GoodAttemptColor, description = " Good: ${attempt.good}"),
-        KanjiAttemptColor(attempt = attempt.bad, color = BadAttemptColor, description = " Bad: ${attempt.attempts}"),
-        KanjiAttemptColor(attempt = attempt.errors, color = Color.Black, description = " Failed: ${attempt.errors}"),
+        KanjiAttemptColor(attempt = attempt.clean, color = CleanAttemptColor, description = " ${TypeAttempt.CLEAN.value}: ${attempt.clean}"),
+        KanjiAttemptColor(attempt = attempt.good, color = GoodAttemptColor, description = " ${TypeAttempt.GOOD.value}: ${attempt.good}"),
+        KanjiAttemptColor(attempt = attempt.bad, color = BadAttemptColor, description = " ${TypeAttempt.BAD.value}: ${attempt.attempts}"),
     )
     Column(modifier = Modifier
         .padding(vertical = 4.dp)

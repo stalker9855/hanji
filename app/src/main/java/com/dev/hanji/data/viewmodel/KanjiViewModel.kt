@@ -1,6 +1,5 @@
 package com.dev.hanji.data.viewmodel
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -15,7 +14,6 @@ import com.dev.hanji.data.state.UserAttempt
 import com.dev.hanji.ui.theme.BadAttemptColor
 import com.dev.hanji.ui.theme.CleanAttemptColor
 import com.dev.hanji.ui.theme.GoodAttemptColor
-import com.dev.hanji.ui.theme.NormalAttemptColor
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -55,11 +53,9 @@ class KanjiViewModel(private val dao : KanjiDao, character: String?) : ViewModel
     private val _attemptsWithColor: Flow<List<UserAttempt>> = _kanjiAttempt
         .map { attemptState ->
             listOf(
-                AttemptWithColor(attemptState?.attempts, NormalAttemptColor, type = TypeAttempt.NORMAL),
-                AttemptWithColor(attemptState?.clean, CleanAttemptColor, type = TypeAttempt.GREAT),
+                AttemptWithColor(attemptState?.clean, CleanAttemptColor, type = TypeAttempt.CLEAN),
                 AttemptWithColor(attemptState?.good, GoodAttemptColor, type = TypeAttempt.GOOD),
                 AttemptWithColor(attemptState?.bad, BadAttemptColor, type = TypeAttempt.BAD),
-                AttemptWithColor(attemptState?.errors, Color.Black, type = TypeAttempt.ERROR)
 
             )
         }

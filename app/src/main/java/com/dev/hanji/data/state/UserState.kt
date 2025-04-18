@@ -5,11 +5,11 @@ import com.dev.hanji.data.model.UserEntity
 
 
 enum class TypeAttempt(val value: String) {
-    BAD("Bad"),
-    NORMAL("Attempts (on lines)"),
+    CLEAN("Clean"),
     GOOD("Good"),
-    GREAT("Great"),
-    ERROR("Failed")
+    BAD("Bad"),
+    ATTEMPT_LINE("Attempts (lines)"),
+    FAIL_LINE("Failed (lines)"),
 }
 
 interface UserAttempt {
@@ -18,6 +18,10 @@ interface UserAttempt {
     val type: TypeAttempt
 }
 
+interface HasAttempts {
+    val attempts: List<UserAttempt>?
+    val total: Long
+}
 
 data class AttemptState(
     val attempts: Long = 0,
@@ -36,15 +40,17 @@ data class AttemptWithColor(
     override val type: TypeAttempt
 ) : UserAttempt
 
+
 data class UserState (
     val userId: Int = 0,
     val username: String = "",
     val email: String = "",
     val user: UserEntity? = null,
-    val attempts: List<UserAttempt>? = null
-) {
-    val total: Long
+    override val attempts: List<UserAttempt>? = null
+): HasAttempts {
+    override val total: Long
         get() = attempts?.sumOf { it.attempt ?: 0 } ?: 0
 
 
 }
+

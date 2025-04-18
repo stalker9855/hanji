@@ -1,6 +1,5 @@
 package com.dev.hanji.data.viewmodel
 
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.hanji.data.dao.UserDao
@@ -13,7 +12,6 @@ import com.dev.hanji.data.state.UserState
 import com.dev.hanji.ui.theme.BadAttemptColor
 import com.dev.hanji.ui.theme.GoodAttemptColor
 import com.dev.hanji.ui.theme.CleanAttemptColor
-import com.dev.hanji.ui.theme.NormalAttemptColor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,11 +29,9 @@ class UserViewModel(dao: UserDao) : ViewModel() {
     private val _attemptsWithColor: Flow<List<UserAttempt>> = _attempts
         .map { attemptState ->
             listOf(
-                AttemptWithColor(attemptState.attempts, NormalAttemptColor, type = TypeAttempt.NORMAL),
-                AttemptWithColor(attemptState.clean, CleanAttemptColor, type = TypeAttempt.GREAT),
+                AttemptWithColor(attemptState.clean, CleanAttemptColor, type = TypeAttempt.CLEAN),
                 AttemptWithColor(attemptState.good, GoodAttemptColor, type = TypeAttempt.GOOD),
                 AttemptWithColor(attemptState.bad, BadAttemptColor, type = TypeAttempt.BAD),
-                AttemptWithColor(attemptState.errors, Color.Black, type = TypeAttempt.ERROR)
             )
         }
 

@@ -28,11 +28,17 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun NavigationDrawer(navController: NavHostController, scope: CoroutineScope, drawerState: DrawerState, modifier: Modifier, content: @Composable () -> Unit) {
+fun NavigationDrawer(navController: NavHostController,
+                     scope: CoroutineScope,
+                     drawerState: DrawerState,
+                     modifier: Modifier,
+                     gesturesEnabled: Boolean = true,
+                     content: @Composable () -> Unit) {
 
     val selectedItem = remember { mutableStateOf(hanjiScreens[0]) }
 
     ModalNavigationDrawer(
+        gesturesEnabled = gesturesEnabled,
         drawerContent = {
             ModalDrawerSheet {
                 Column(

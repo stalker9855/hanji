@@ -218,12 +218,6 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
         return if (previousInterval == 1) 2 else (previousInterval * eFactor).toInt()
     }
 
-    private fun randomKanjiChar(): Char {
-        val start = 0x4E00
-        val end = 0x9FAF
-        return (start..end).random().toChar()
-    }
-
 
     private fun formatTimestamp(timestamp: Long): String {
         val formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")

@@ -125,4 +125,4 @@ object UserAttemptsKanji : HanjiDestination {
 val hanjiScreens = listOf(Home, Packs, User, KanjiAll, About, Settings)
 val userScreens = listOf(UserStats, UserProgress, UserAttemptsKanji)
 val packScreens = listOf(AllPacks, MyPacks)
-val arrowScreens = listOf(CreatePack, PackDetail, EditPack)
+val arrowBackScreens = listOf(CreatePack, PackDetail, EditPack, KanjiDetail, Draw)
