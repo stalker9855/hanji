@@ -40,9 +40,15 @@ data class AttemptWithColor(
     override val type: TypeAttempt
 ) : UserAttempt
 
+data class OnBoardUserState(
+    val username: String = "",
+     val avatar: String? = null
+)
+
 
 data class UserState (
     val userId: Int = 0,
+    val avatar: String? = null,
     val username: String = "",
     val email: String = "",
     val user: UserEntity? = null,
@@ -50,7 +56,6 @@ data class UserState (
 ): HasAttempts {
     override val total: Long
         get() = attempts?.sumOf { it.attempt ?: 0 } ?: 0
-
 
 }
 

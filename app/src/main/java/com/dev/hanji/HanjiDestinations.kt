@@ -21,11 +21,16 @@ interface HanjiDestination {
     val title: String
 }
 
+object OnBoard : HanjiDestination {
+    override val icon: ImageVector = Icons.Filled.Home
+    override val route: String = "onboard"
+    override val title: String = "On Board"
+}
+
 object Home : HanjiDestination {
     override val icon: ImageVector = Icons.Filled.Home
     override val route: String = "home"
     override val title: String = "Home"
-
 }
 object Packs : HanjiDestination {
     override val icon: ImageVector = Icons.Filled.Favorite
@@ -120,6 +125,12 @@ object UserAttemptsKanji : HanjiDestination {
     override val route: String = "user_kanji_attempts"
     override val icon: ImageVector = Icons.Filled.Info
     override val title: String = "Attempts"
+}
+
+object Splash : HanjiDestination {
+    override val route: String = "splash"
+    override val icon: ImageVector = Icons.Filled.Info
+    override val title: String = "Splash Screen"
 }
 
 val hanjiScreens = listOf(Home, Packs, User, KanjiAll, About, Settings)

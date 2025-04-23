@@ -1,5 +1,6 @@
 package com.dev.hanji.ui.screens.packs
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -39,6 +41,9 @@ fun EditKanjiPackScreen(modifier: Modifier = Modifier,
                         pagedKanjiList: LazyPagingItems<KanjiEntity>,
                         navController: NavController
 ) {
+
+    var name by remember { mutableStateOf(state.name) }
+
 
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -75,11 +80,21 @@ fun EditKanjiPackScreen(modifier: Modifier = Modifier,
             )
             OutlinedTextField(
                 label = {
+                    Text("Title (1 Character)")
+                },
+                value = state.title,
+                onValueChange = {
+                    newValue -> onEvent(KanjiPackEvent.SetTitle(newValue))
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                label = {
                     Text("Description")
                 },
                 value = state.description,
                 onValueChange = {
-                    onEvent(KanjiPackEvent.SetKanjiDescription(it))
+                    newValue -> onEvent(KanjiPackEvent.SetKanjiDescription(newValue))
                 },
                 modifier = Modifier.fillMaxWidth()
             )

@@ -52,11 +52,16 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.room.paging)
     implementation(libs.androidx.paging.runtime.ktx)
+    implementation(libs.foundation.pager)
+    implementation(libs.androidx.datastore)
+    implementation(libs.androidx.datastore.preferences)
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     implementation ("com.google.code.gson:gson:2.8.7")
     ksp("androidx.room:room-compiler:$room_version")
+
+    implementation("io.coil-kt.coil3:coil-compose:3.1.0")
 
 
 

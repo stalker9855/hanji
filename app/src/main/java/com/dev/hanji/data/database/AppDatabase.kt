@@ -3,6 +3,7 @@ package com.dev.hanji.data.database
 import android.content.Context
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteColumn
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -21,14 +22,15 @@ import com.dev.hanji.data.model.UserEntity
 
 @TypeConverters(value = [KanjiConverters::class])
 @Database(entities = [
+
     UserEntity::class,
     AchievementEntity::class,
     KanjiEntity::class,
     KanjiPackEntity::class,
     KanjiPackCrossRef::class,
     KanjiAttemptEntity::class,
-    ], version = 3,
-    autoMigrations = [AutoMigration(from = 2, to = 3)]
+    ], version = 4,
+    autoMigrations = [AutoMigration(from = 3, to = 4)]
     )
 abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao
@@ -51,6 +53,8 @@ abstract class AppDatabase : RoomDatabase() {
                        AppDatabase::class.java,
                        "hanji_database"
                    )
+                       .createFromAsset("databases/hanji_database.db")
+                       .fallbackToDestructiveMigrationOnDowngrade()
                        .build()
                    INSTANCE = instance
                }

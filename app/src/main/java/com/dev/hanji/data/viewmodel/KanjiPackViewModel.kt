@@ -80,16 +80,24 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
 
     val createKanjiPackState = _createEditKanjiPackState.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateEditKanjiPackState())
 
-    val editKanjiPackState = combine(_createEditKanjiPackState, _kanjiPackWithKanjiListById!!) {
-        state, kanjiListById ->
-        Log.d("ViewModel", "Combining states. Current name: ${state.name}, New name: ${kanjiListById.pack.name}")
-        state.copy(
-            packId = packId,
-            selectedKanjiList =  kanjiListById.kanjiList ,
-            name = kanjiListById.pack.name ,
-            description = kanjiListById.pack.description
-        )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateEditKanjiPackState())
+//    val editKanjiPackState = combine(_createEditKanjiPackState, _kanjiPackWithKanjiListById!!) {
+//        state, kanjiListById ->
+////        Log.d("ViewModel", "Combining states. Current name: ${state.name}, New name: ${kanjiListById.pack.name}")
+//        state.copy(
+//            packId = packId,
+//            selectedKanjiList =  kanjiListById.kanjiList,
+//            name = kanjiListById.pack.name ,
+//            description = kanjiListById.pack.description
+//        )
+//    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateEditKanjiPackState())
+
+    val editKanjiPackState = _createEditKanjiPackState.
+        stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), CreateEditKanjiPackState())
+//        it.copy(
+//            packId = packId,
+//            name = packData.pack.name,
+//            description = packData.pack.description,
+//            selectedKanjiList = packData.kanjiList
 
 
 
@@ -220,9 +228,9 @@ class KanjiPackViewModel(private val dao: KanjiPackDao, packId: Long? = 0) : Vie
                ) }
            }
            is KanjiPackEvent.SetKanjiPackName -> {
-               Log.d("ViewModel", "Event received: ${event.name}")
-               _createEditKanjiPackState.update {
-                   it.copy(
+               Log.d("ViewModel", "Event received: ${_createEditKanjiPackState.value}")
+               _createEditKanjiPackState.update { state ->
+                   state.copy(
                        name = event.name
                    )
                }

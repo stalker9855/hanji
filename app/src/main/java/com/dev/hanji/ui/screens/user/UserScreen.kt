@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -18,6 +19,7 @@ import com.dev.hanji.UserStats
 import com.dev.hanji.data.viewmodel.ProgressViewModel
 import com.dev.hanji.data.factory.ProgressFactory
 import com.dev.hanji.components.ScreenTabRow
+import com.dev.hanji.data.DataStoreRepository
 import com.dev.hanji.data.database.AppDatabase
 import com.dev.hanji.data.factory.KanjiAttemptFactory
 import com.dev.hanji.data.factory.UserFactory
@@ -28,7 +30,8 @@ import com.dev.hanji.userScreens
 
 @Composable
 fun UserScreen(modifier: Modifier = Modifier,
-               navController: NavController
+               navController: NavController,
+               repository: DataStoreRepository
                ) {
 
     val context = LocalContext.current
@@ -61,8 +64,9 @@ fun UserScreen(modifier: Modifier = Modifier,
         ) {
             composable(UserStats.route) {
                 val userDao = AppDatabase.getInstance(context).userDao
-                val userViewModel: UserViewModel = viewModel(factory = UserFactory(userDao))
-                UserInfoScreen(viewModel = userViewModel)
+                val userViewModel: UserViewModel = viewModel(factory = UserFactory(userDao, repository = repository))
+                val state by userViewModel.state.collectAsStateWithLifecycle()
+                UserInfoScreen(state = state, onEvent = userViewModel::onEvent)
             }
             composable(UserProgress.route) {
                 val progressDao = AppDatabase.getInstance(context).progressDao

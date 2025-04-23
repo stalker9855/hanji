@@ -2,8 +2,10 @@
 
 package com.dev.hanji
 
+import android.util.Log
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -22,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.dev.hanji.data.DataStoreRepository
 import com.dev.hanji.data.database.AppDatabase
 import com.dev.hanji.data.dao.KanjiAttemptDao
 import com.dev.hanji.data.dao.KanjiDao
@@ -30,6 +33,7 @@ import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
 import com.dev.hanji.data.dao.KanjiPackDao
 import com.dev.hanji.data.factory.KanjiFactory
 import com.dev.hanji.data.factory.KanjiPackFactory
+import com.dev.hanji.data.factory.UserFactory
 import com.dev.hanji.data.viewmodel.KanjiPackViewModel
 import com.dev.hanji.ui.screens.about.AboutScreen
 import com.dev.hanji.ui.screens.draw.DrawScreen
@@ -38,8 +42,11 @@ import com.dev.hanji.ui.screens.packs.PacksScreen
 import com.dev.hanji.ui.screens.settings.SettingsScreen
 import com.dev.hanji.data.viewmodel.DrawingViewModel
 import com.dev.hanji.data.viewmodel.KanjiViewModel
+import com.dev.hanji.data.viewmodel.OnBoardViewModel
+import com.dev.hanji.data.viewmodel.UserViewModel
 import com.dev.hanji.ui.screens.kanji.KanjiAllScreen
 import com.dev.hanji.ui.screens.kanji.KanjiDetailScreen
+import com.dev.hanji.ui.screens.onboard.OnboardingScreen
 import com.dev.hanji.ui.screens.packs.CreateKanjiPackScreen
 import com.dev.hanji.ui.screens.packs.EditKanjiPackScreen
 import com.dev.hanji.ui.screens.packs.KanjiPackDetailScreen
@@ -48,16 +55,36 @@ import com.dev.hanji.ui.screens.user.UserScreen
 const val FAB_EXPLODE_BOUNDS_KEY = "FAB_EXPLODE_BOUNDS_KEY"
 
 @Composable
-fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier) {
+fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier, onBoardViewModel: OnBoardViewModel) {
     val kanjiPackDao: KanjiPackDao = AppDatabase.getInstance(context = LocalContext.current).kanjiPackDao
     val kanjiAttemptDao: KanjiAttemptDao = AppDatabase.getInstance(context = LocalContext.current).kanjiAttemptDao
     val kanjiDao: KanjiDao = AppDatabase.getInstance(context = LocalContext.current).kanjiDao
+    val userDao = AppDatabase.getInstance(context = LocalContext.current).userDao
+    val repo = DataStoreRepository(LocalContext.current)
     SharedTransitionLayout {
         NavHost(
             navController = navController,
-            startDestination = User.route,
+            startDestination = Splash.route,
             modifier = modifier
         )  {
+            composable(route = Splash.route) {
+                Box {
+                    // Nothing
+                }
+            }
+            composable(route = OnBoard.route) {
+                val viewModel: UserViewModel = viewModel(factory = UserFactory(userDao, repository = repo))
+                val state by viewModel.onBoardUserState.collectAsStateWithLifecycle()
+
+                OnboardingScreen(navController = navController, state = state, onEvent = viewModel::onEvent,
+                    onFinish = {
+                       onBoardViewModel.setOnBoardingCompleted()
+                        navController.navigate(Home.route) {
+                            popUpTo(OnBoard.route) {inclusive = true}
+                        }
+                    }
+                )
+            }
             composable(route = Home.route) {
                 HomeScreen()
             }
@@ -68,7 +95,9 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
             }
             composable(route = User.route) {
                 UserScreen(
-                    navController = navController
+                    navController = navController,
+                    repository = repo
+
                 )
             }
             composable(route = Settings.route) {
@@ -107,8 +136,8 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                         animatedVisibilityScope = this
                     ))
             }
-            composable(route = "${EditPack.route}/{state}",
-                arguments = listOf(navArgument("state") {type = NavType.LongType})
+            composable(route = "${EditPack.route}/{packId}",
+                arguments = listOf(navArgument("packId") {type = NavType.LongType})
             ) { navBackStackEntry ->
                 val packId =  navBackStackEntry.arguments?.getLong("packId") ?: return@composable
                 val viewModel = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId))
@@ -119,6 +148,7 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
 //                    )[KanjiPackViewModel::class.java]
 //                }
                 val state by viewModel.editKanjiPackState.collectAsStateWithLifecycle()
+                Log.d("state", "$state")
                 val pagedKanjiList = viewModel.pagedKanjiList.collectAsLazyPagingItems()
                 EditKanjiPackScreen(state = state, onEvent = viewModel::onEvent, pagedKanjiList = pagedKanjiList, navController = navController)
             }

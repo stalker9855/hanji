@@ -17,15 +17,15 @@ data class UserEntity (
     val email: String,
 
     @ColumnInfo(name = "great_attempts")
-    val greatAttempts: Int,
+    val greatAttempts: Int = 0,
 
     @ColumnInfo(name = "good_attempts")
-    val goodAttempts: Int,
+    val goodAttempts: Int = 0,
 
     @ColumnInfo(name = "normal_attempts")
-    val normalAttempts: Int,
+    val normalAttempts: Int = 0,
 
     @ColumnInfo(name = "failed_attempts")
-    val failedAttempts: Int,
+    val failedAttempts: Int = 0,
 
     )
