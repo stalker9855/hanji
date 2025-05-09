@@ -38,6 +38,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev.hanji.KanjiDetail
 import com.dev.hanji.UserProgress
+import com.dev.hanji.components.KanjiProgressSlider
 import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.dao.KanjiWithAttemptStatus
 import com.dev.hanji.data.viewmodel.ProgressViewModel
@@ -47,71 +48,62 @@ import com.dev.hanji.data.viewmodel.ProgressViewModel
 fun UserAchievementsScreen(modifier: Modifier = Modifier, viewModel: ProgressViewModel, navController: NavController) {
     val kanjiProgress: LazyPagingItems<KanjiWithAttemptStatus> = viewModel.progress.collectAsLazyPagingItems()
     val attempts by viewModel.progressState.collectAsStateWithLifecycle()
-    val sliderPosition by remember { mutableFloatStateOf(kanjiProgress.itemCount.toFloat()) }
 
-
-        Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-            Column(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(16.dp)
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
+        KanjiProgressSlider(kanjiProgress = kanjiProgress, attempts = attempts)
+        Column(
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .padding(16.dp)
+        ) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = SIZE_BOX),
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = UserProgress.title + " · 実績",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = "${attempts.kanjiProgressState?.attempted} / ${attempts.kanjiProgressState?.total}",
-                    fontSize = 20.sp,
-                )
-                Slider(
-                    value = sliderPosition,
-                    onValueChange = {  },
-                    enabled = false,
-                    colors = SliderDefaults.colors(
-                        disabledThumbColor = Color.Transparent,
-                        disabledActiveTrackColor = MaterialTheme.colorScheme.secondary,
-                        disabledInactiveTickColor = Color.Transparent
-                    ),
-                    steps = kanjiProgress.itemCount,
-                    valueRange = 0f..kanjiProgress.itemCount.toFloat()
-                )
-
-            }
-
-
-            Column(
-                modifier = Modifier
-                    .padding(vertical = 4.dp)
-                    .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(16.dp)
-            ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = SIZE_BOX),
-                    modifier = modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(kanjiProgress.itemCount) { index ->
-                        val progress = kanjiProgress[index]
-                        progress?.let { AchieveBox(progress = it, navController = navController) }
-                    }
+                items(kanjiProgress.itemCount) { index ->
+                    val progress = kanjiProgress[index]
+                    progress?.let { AchieveBox(progress = it, navController = navController) }
                 }
-
             }
+
         }
 
+
+        Column(
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .padding(16.dp)
+        ) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = SIZE_BOX),
+                modifier = modifier.fillMaxSize(),
+                contentPadding = PaddingValues(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(kanjiProgress.itemCount) { index ->
+                    val progress = kanjiProgress[index]
+                    progress?.let { AchieveBox(progress = it, navController = navController) }
+                }
+            }
+
+        }
+
+
     }
+
+
+}
+
 
 @Composable
 private  fun AchieveBox(

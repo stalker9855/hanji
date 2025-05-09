@@ -54,23 +54,32 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
 
             is KanjiAttemptEvent.SetCharacter -> {
                 viewModelScope.launch {
-                    val existingAttempt =
-                        _practiceState.value.attemptsList.find { it.character == event.character }
-                    if (existingAttempt == null) {
-                        val newAttempt = KanjiAttemptEntity(
-                            character = event.character,
-                            userId = _practiceState.value.userId,
-                            attempts = 0,
-                            errors = 0,
+                    val existingAttempt = dao.getKanjiByCharacter(event.character)
+
+                    val updatedAttempt = existingAttempt?.copy(
+                        character = event.character
+                    ) ?: KanjiAttemptEntity(
+                        character = event.character,
+                        userId = 1,
+                        attempts = 0,
+                        errors = 0
+                    )
+
+                    if (existingAttempt != null) {
+                        dao.update(updatedAttempt)
+                    } else {
+                        dao.insert(updatedAttempt)
+                    }
+
+                    _practiceState.update {
+                        it.copy(
+                            attemptsList = it.attemptsList + updatedAttempt
                         )
-                        _practiceState.update {
-                            it.copy(
-                                attemptsList = it.attemptsList + newAttempt
-                            )
-                        }
                     }
                 }
             }
+
+
 
             is KanjiAttemptEvent.SetCurrentIndex -> {
                 _practiceState.update {
@@ -198,13 +207,13 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
         }
 
 
-        val nextReview = System.currentTimeMillis() + newInterval * 24 * 60 * 60 * 1000
+        val nextReview = now + newInterval * 24 * 60 * 60 * 1000
 
         return attempt.copy(
             errors = newErrors,
             eFactor = newEFactor,
             interval = newInterval,
-            lastReview = System.currentTimeMillis(),
+            lastReview = now,
             nextReviewDate = nextReview
         )
     }
@@ -215,7 +224,11 @@ class KanjiAttemptViewModel(private val dao: KanjiAttemptDao) : ViewModel() {
     }
 
     private fun calculateInterval(previousInterval: Int, eFactor: Double): Int {
-        return if (previousInterval == 1) 2 else (previousInterval * eFactor).toInt()
+        return when (previousInterval) {
+            0 -> 1
+            1 -> 6
+            else -> (previousInterval * eFactor).toInt()
+        }
     }
 
 

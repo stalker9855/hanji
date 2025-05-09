@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -73,7 +74,8 @@ private fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) 
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 4.dp)
-            .cardStyle()
+            .cardStyle(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
@@ -94,30 +96,32 @@ private fun PackItem(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity) 
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(kanjiPack.name,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                HorizontalDivider(modifier = Modifier.padding(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Column {
-                        Text(kanjiPack.description)
-                    }
-                    IconToggleButton(
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
-                        checked = checked.value,
-                        onCheckedChange = { checked.value = it }
-                        ) {
-                        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "")
-
-                    }
-                }
-            }
+            Text(kanjiPack.name,
+                fontSize = 28.sp,
+                maxLines = 1,
+                fontWeight = FontWeight.SemiBold,
+                overflow = TextOverflow.Ellipsis,
+            )
+//            Column(
+//                horizontalAlignment = Alignment.CenterHorizontally
+//            ) {
+//                HorizontalDivider(modifier = Modifier.padding(8.dp))
+//                Row(
+//                    horizontalArrangement = Arrangement.SpaceAround
+//                ) {
+//                    Column {
+//                        Text(kanjiPack.description)
+//                    }
+//                    IconToggleButton(
+//                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
+//                        checked = checked.value,
+//                        onCheckedChange = { checked.value = it }
+//                        ) {
+//                        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "")
+//
+//                    }
+//                }
+//            }
         }
     }
 }

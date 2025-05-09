@@ -63,6 +63,8 @@ dependencies {
 
     implementation("io.coil-kt.coil3:coil-compose:3.1.0")
 
+    implementation("io.github.dautovicharis:charts:2.0.0")
+
 
 
     implementation(libs.androidx.core.ktx)

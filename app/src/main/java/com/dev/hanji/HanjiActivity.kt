@@ -18,6 +18,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dev.hanji.components.NavigationDrawer
@@ -27,19 +29,19 @@ import com.dev.hanji.ui.theme.HanjiTheme
 import com.dev.hanji.components.TopAppBarHanji
 import com.dev.hanji.data.DataStoreRepository
 import com.dev.hanji.data.database.AppDatabase
-import com.dev.hanji.data.dao.insertKanjiFromJson
-import com.dev.hanji.data.model.UserEntity
+import com.dev.hanji.data.events.DailyEvent
+import com.dev.hanji.data.factory.DailyAttemptFactory
+import com.dev.hanji.data.viewmodel.DailyAttemptViewModel
 import com.dev.hanji.data.viewmodel.OnBoardViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class HanjiActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val repo = DataStoreRepository(applicationContext)
         val onBoardViewModel = OnBoardViewModel(repo)
+
         enableEdgeToEdge()
         setContent {
             HanjiTheme {
@@ -48,6 +50,9 @@ class HanjiActivity : ComponentActivity() {
         }
 
 //        deleteDatabase("hanji_database")
+
+
+
 //        runBlocking(Dispatchers.IO) {
 //            val db = AppDatabase.getInstance(this@HanjiActivity)
 //            val kanjiDao = db.kanjiDao
@@ -65,6 +70,11 @@ private fun HanjiApp(modifier: Modifier = Modifier, onBoardViewModel: OnBoardVie
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
+
+    val dailyDao = AppDatabase.getInstance(LocalContext.current).dailyAttemptDao
+    val dailyViewModel =  viewModel<DailyAttemptViewModel>(factory = DailyAttemptFactory(dailyDao))
+
+
     LaunchedEffect(Unit) {
         onBoardViewModel.readOnBoardingState.first { completed ->
             Log.d("COMPLETED? ", "$completed")
@@ -78,6 +88,7 @@ private fun HanjiApp(modifier: Modifier = Modifier, onBoardViewModel: OnBoardVie
                     popUpTo(Splash.route) { inclusive = true }
                 }
             }
+            dailyViewModel.onEvent(DailyEvent.GetDate)
             true
         }
     }

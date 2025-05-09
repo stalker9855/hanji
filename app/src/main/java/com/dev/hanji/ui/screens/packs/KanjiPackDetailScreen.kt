@@ -1,11 +1,14 @@
 package com.dev.hanji.ui.screens.packs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,16 +41,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.dev.hanji.Draw
 import com.dev.hanji.EditPack
+import com.dev.hanji.KanjiDetail
 import com.dev.hanji.components.KanjiItem
 import com.dev.hanji.components.SnackbarController
 import com.dev.hanji.components.SnackbarEvent
+import com.dev.hanji.components.cardStyle
 import com.dev.hanji.data.model.KanjiEntity
 import com.dev.hanji.data.model.KanjiPackEntity
 import com.dev.hanji.data.events.KanjiPackEvent
@@ -101,7 +109,9 @@ fun KanjiPackDetailScreen(
                         PackDetail(kanjiPack = kanjiPackWithKanji.pack, count = kanjiPackWithKanji.kanjiCount)
                     }
                     items(kanjiPackWithKanji.kanjiList) { kanji ->
-                        KanjiItem(kanji = kanji)
+                        KanjiItem(kanji = kanji, modifier = Modifier.clickable {
+                            navController.navigate("${KanjiDetail.route}/${kanji.character}")
+                        })
                     }
                 }
             }
@@ -175,58 +185,87 @@ fun KanjiPackDetailScreen(
 @Composable
 fun PackDetail(modifier: Modifier = Modifier, kanjiPack: KanjiPackEntity, count: Int) {
     val checked = remember { mutableStateOf(false) } // temporary value
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(16.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .size(96.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(kanjiPack.title,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 48.sp
-            )
-        }
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+
         Row(
             modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceAround
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .size(96.dp)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
             ) {
-                Text(kanjiPack.name,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                Text(kanjiPack.title,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 48.sp
                 )
-                HorizontalDivider(modifier = Modifier.padding(8.dp))
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround
+            }
+            Row(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround
+            ) {
+                Column(
                 ) {
-                    Column {
-                        Text(kanjiPack.description)
-                        Text("Kanji Count: $count")
-                    }
-                    IconToggleButton(
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer),
-                        checked = checked.value,
-                        onCheckedChange = { checked.value = it }
-                    ) {
-                        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "")
-
-                    }
+                    Text(kanjiPack.name,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text("Kanji: $count")
                 }
+//            Row(
+//                horizontalArrangement = Arrangement.SpaceAround
+//            ) {
+//                }
             }
         }
+        Box(
+            modifier = Modifier.cardStyle().padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 16.dp)) {
+                Box(modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer).padding(4.dp)
+                ) {
+
+                    Text(textAlign = TextAlign.Center, text = "Description", fontSize = 24.sp, fontWeight = FontWeight.Normal)
+                }
+                ExpandableText(text = kanjiPack.description)
+            }
+        }
+        HorizontalDivider(modifier = Modifier.padding(vertical =  8.dp))
+
     }
+
+}
+
+@Composable
+fun ExpandableText(modifier: Modifier = Modifier, text: String) {
+    var expanded by remember { mutableStateOf(false) }
+        Column {
+            Text(
+                text = text,
+                maxLines = if (expanded) Int.MAX_VALUE else 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        Spacer(modifier = Modifier.height(4.dp))
+
+        TextButton(
+            onClick = {expanded = !expanded}
+        ) {
+            Text(if(!expanded) "expand" else "hide")
+        }
+
+        }
+
 }

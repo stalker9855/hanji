@@ -25,15 +25,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.dev.hanji.data.DataStoreRepository
+import com.dev.hanji.data.dao.DailyAttemptDao
 import com.dev.hanji.data.database.AppDatabase
 import com.dev.hanji.data.dao.KanjiAttemptDao
 import com.dev.hanji.data.dao.KanjiDao
 import com.dev.hanji.data.factory.KanjiAttemptFactory
 import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
 import com.dev.hanji.data.dao.KanjiPackDao
+import com.dev.hanji.data.factory.DailyAttemptFactory
 import com.dev.hanji.data.factory.KanjiFactory
 import com.dev.hanji.data.factory.KanjiPackFactory
+import com.dev.hanji.data.factory.ProgressFactory
 import com.dev.hanji.data.factory.UserFactory
+import com.dev.hanji.data.viewmodel.DailyAttemptViewModel
 import com.dev.hanji.data.viewmodel.KanjiPackViewModel
 import com.dev.hanji.ui.screens.about.AboutScreen
 import com.dev.hanji.ui.screens.draw.DrawScreen
@@ -43,6 +47,7 @@ import com.dev.hanji.ui.screens.settings.SettingsScreen
 import com.dev.hanji.data.viewmodel.DrawingViewModel
 import com.dev.hanji.data.viewmodel.KanjiViewModel
 import com.dev.hanji.data.viewmodel.OnBoardViewModel
+import com.dev.hanji.data.viewmodel.ProgressViewModel
 import com.dev.hanji.data.viewmodel.UserViewModel
 import com.dev.hanji.ui.screens.kanji.KanjiAllScreen
 import com.dev.hanji.ui.screens.kanji.KanjiDetailScreen
@@ -60,6 +65,8 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
     val kanjiAttemptDao: KanjiAttemptDao = AppDatabase.getInstance(context = LocalContext.current).kanjiAttemptDao
     val kanjiDao: KanjiDao = AppDatabase.getInstance(context = LocalContext.current).kanjiDao
     val userDao = AppDatabase.getInstance(context = LocalContext.current).userDao
+    val dailyDao: DailyAttemptDao = AppDatabase.getInstance(context = LocalContext.current).dailyAttemptDao
+    val progressDao = AppDatabase.getInstance(context = LocalContext.current).progressDao
     val repo = DataStoreRepository(LocalContext.current)
     SharedTransitionLayout {
         NavHost(
@@ -86,7 +93,15 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                 )
             }
             composable(route = Home.route) {
-                HomeScreen()
+
+                val progressViewModel: ProgressViewModel = viewModel(factory = ProgressFactory(progressDao))
+                val dailyViewModel = viewModel<DailyAttemptViewModel>(factory = DailyAttemptFactory(dailyDao))
+                val dailyState by dailyViewModel.dailyState.collectAsStateWithLifecycle()
+                HomeScreen(
+                    progressViewModel = progressViewModel,
+                    dailyState = dailyState,
+                    navController = navController
+                )
             }
             composable(route = Packs.route) {
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))
@@ -112,11 +127,19 @@ fun HanjiNavHost(navController: NavHostController, modifier: Modifier = Modifier
                 val packId = navBackStackEntry.arguments?.getLong("packId")
                 val drawingViewModel = viewModel<DrawingViewModel>()
                 val kanjiPackViewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, packId!!))
+                val dailyViewModel = viewModel<DailyAttemptViewModel>(factory = DailyAttemptFactory(dailyDao))
                 val kanjiAttemptViewModel  = viewModel<KanjiAttemptViewModel>(factory = KanjiAttemptFactory(kanjiAttemptDao))
 
                 val packState by kanjiPackViewModel.packDetailState.collectAsStateWithLifecycle()
 
-               DrawScreen(drawingViewModel = drawingViewModel, kanjiAttemptViewModel = kanjiAttemptViewModel, packState = packState, onEvent = kanjiAttemptViewModel::onEvent, navController =  navController)
+               DrawScreen(
+                   drawingViewModel = drawingViewModel,
+                   kanjiAttemptViewModel = kanjiAttemptViewModel,
+                   packState = packState,
+                   onEvent = kanjiAttemptViewModel::onEvent,
+                   onEventDaily = dailyViewModel::onEvent,
+                   navController =  navController
+               )
             }
             composable(route = CreatePack.route) {
                 val viewModel  = viewModel<KanjiPackViewModel>(factory = KanjiPackFactory(kanjiPackDao, 0))

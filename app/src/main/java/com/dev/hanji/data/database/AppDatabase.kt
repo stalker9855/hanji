@@ -7,6 +7,7 @@ import androidx.room.DeleteColumn
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.dev.hanji.data.dao.DailyAttemptDao
 import com.dev.hanji.data.dao.ProgressDao
 import com.dev.hanji.data.model.AchievementEntity
 import com.dev.hanji.data.dao.KanjiAttemptDao
@@ -18,6 +19,7 @@ import com.dev.hanji.data.model.KanjiPackCrossRef
 import com.dev.hanji.data.dao.KanjiPackDao
 import com.dev.hanji.data.model.KanjiPackEntity
 import com.dev.hanji.data.dao.UserDao
+import com.dev.hanji.data.model.DailyAttempt
 import com.dev.hanji.data.model.UserEntity
 
 @TypeConverters(value = [KanjiConverters::class])
@@ -29,8 +31,9 @@ import com.dev.hanji.data.model.UserEntity
     KanjiPackEntity::class,
     KanjiPackCrossRef::class,
     KanjiAttemptEntity::class,
-    ], version = 4,
-    autoMigrations = [AutoMigration(from = 3, to = 4)]
+    DailyAttempt::class,
+    ], version = 5,
+    autoMigrations = [AutoMigration(from = 4, to = 5)]
     )
 abstract class AppDatabase : RoomDatabase() {
     abstract val userDao: UserDao
@@ -38,6 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract val kanjiDao: KanjiDao
     abstract val kanjiPackDao: KanjiPackDao
     abstract val kanjiAttemptDao: KanjiAttemptDao
+    abstract val dailyAttemptDao: DailyAttemptDao
 
     companion object {
 

@@ -3,7 +3,10 @@ package com.dev.hanji.ui.screens.kanji
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -97,7 +100,8 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
                 progressList.forEach { progress ->
                     progress.animateTo(
                         targetValue = 1f,
-                        animationSpec = tween(durationMillis = 850, easing = LinearEasing)
+                        animationSpec = tween(durationMillis = 850, easing = FastOutSlowInEasing)
+//                        animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessVeryLow)
                     )
                 }
             }
@@ -123,29 +127,44 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
 
                 val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
 
-                val horizontalLine = Path().apply {
-                    moveTo(0f, centerY)
-                    lineTo(canvasWidth, centerY)
-                }
-
-                val verticalLine = Path().apply {
-                    moveTo(centerX, 0f)
-                    lineTo(centerX, canvasHeight)
-                }
-
-                drawPath(
-                    path = horizontalLine,
-                    color = Color.Black,
-                    style = Stroke(width = 5f, pathEffect = dashEffect),
-                    alpha = 0.15f
+  val horizontalLines = listOf(
+                    centerY to 0.4f,
+                    centerY / 2 to 0.15f,
+                    centerY * 1.5f to 0.15f
                 )
 
-                drawPath(
-                    path = verticalLine,
-                    color = Color.Black,
-                    style = Stroke(width = 5f, pathEffect = dashEffect),
-                    alpha = 0.15f
+                val verticalLines = listOf(
+                    centerX to 0.35f,
+                    centerX / 2 to 0.15f,
+                    centerX * 1.5f to 0.15f
                 )
+
+                horizontalLines.forEach { (y, alpha) ->
+                    val path = Path().apply {
+                        moveTo(0f, y)
+                        lineTo(canvasWidth, y)
+                    }
+                    drawPath(
+                        path = path,
+                        color = Color.Black,
+                        style = Stroke(width = 5f, pathEffect = dashEffect),
+                        alpha = alpha
+                    )
+                }
+
+                verticalLines.forEach { (x, alpha) ->
+                    val path = Path().apply {
+                        moveTo(x, 0f)
+                        lineTo(x, canvasHeight)
+                    }
+                    drawPath(
+                        path = path,
+                        color = Color.Black,
+                        style = Stroke(width = 5f, pathEffect = dashEffect),
+                        alpha = alpha
+                    )
+                }
+
 
                 originalPath.forEachIndexed { index, pathOffsets ->
                     if(index < progressList.size) {
@@ -183,7 +202,7 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
                     progressList.forEach { progress ->
                         progress.animateTo(
                             targetValue = 1f,
-                            animationSpec = tween(durationMillis = 850, easing = LinearEasing)
+                            animationSpec = tween(durationMillis = 850, easing = FastOutSlowInEasing)
                         )
                     }
                 }

@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -25,7 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -69,10 +70,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.PathParser
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.dev.hanji.components.DrawTextBox
+import com.dev.hanji.data.events.DailyEvent
 import com.dev.hanji.data.events.KanjiAttemptEvent
 import com.dev.hanji.data.viewmodel.KanjiAttemptViewModel
 import com.dev.hanji.data.model.KanjiEntity
 import com.dev.hanji.data.state.KanjiPackStateById
+import com.dev.hanji.data.viewmodel.DailyAttemptViewModel
 import com.dev.hanji.data.viewmodel.DrawingAction
 import com.dev.hanji.data.viewmodel.DrawingViewModel
 import kotlinx.coroutines.Job
@@ -85,12 +89,15 @@ import kotlin.math.min
 
 @SuppressLint("DiscouragedApi")
 @Composable
-fun DrawScreen(modifier: Modifier = Modifier,
-               drawingViewModel: DrawingViewModel,
-               kanjiAttemptViewModel: KanjiAttemptViewModel,
-               packState: KanjiPackStateById?,
-               navController: NavController,
-               onEvent: (KanjiAttemptEvent) -> Unit) {
+fun DrawScreen(
+    modifier: Modifier = Modifier,
+    drawingViewModel: DrawingViewModel,
+    kanjiAttemptViewModel: KanjiAttemptViewModel,
+    packState: KanjiPackStateById?,
+    navController: NavController,
+    onEvent: (KanjiAttemptEvent) -> Unit,
+    onEventDaily: (DailyEvent) -> Unit,
+) {
     if (packState?.kanjiPackWithKanjiList == null) {
         Text("Loading . . .")
         return
@@ -157,15 +164,19 @@ fun DrawScreen(modifier: Modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Text("Draw kanji")
-                Text("Meaning: ${currentKanji?.meanings!!.joinToString(", ")}")
-                Text(text =
+                DrawTextBox(text = "Draw kanji", color = MaterialTheme.colorScheme.primaryContainer)
+                Spacer(modifier = Modifier.height(4.dp))
+                DrawTextBox(text = "Meaning: ${currentKanji?.meanings!!.joinToString(", ")}", color = MaterialTheme.colorScheme.secondaryContainer)
+                Spacer(modifier = Modifier.height(4.dp))
+                DrawTextBox(text =
                 if(attemptState.attemptsList.isNotEmpty()) {
                     "Errors: $currentErrors"
-                } else "Errors: 0"
+                } else "Errors: 0",
+                    color = MaterialTheme.colorScheme.tertiaryContainer
                 )
             }
 
@@ -213,9 +224,9 @@ fun DrawScreen(modifier: Modifier = Modifier,
                             progressList.forEach {it.snapTo(0f)}
                             progressList.forEach { progress ->
                                 progress.animateTo(
-                                targetValue = 1f,
-                                animationSpec = tween(durationMillis = 850, easing = LinearEasing)
-                            )
+                                    targetValue = 1f,
+                                    animationSpec = tween(durationMillis = 850, easing = FastOutSlowInEasing)
+                                )
                             }
                         }
                     }
@@ -263,10 +274,12 @@ fun DrawScreen(modifier: Modifier = Modifier,
 
                                     if (isCorrect && currentOriginalPath[indexOriginalPath] !in matchedPath) {
                                         onEvent(KanjiAttemptEvent.IncrementAttempt)
+                                        onEventDaily(DailyEvent.IncrenemtAttemptLine)
                                         matchedPath.add(currentOriginalPath[indexOriginalPath])
                                         indexOriginalPath++
                                     } else {
                                         currentErrors++
+                                        onEventDaily(DailyEvent.IncrenemtAttemptLine)
                                         onEvent(KanjiAttemptEvent.IncrementError)
                                         onEvent(KanjiAttemptEvent.IncrementAttempt)
                                     }
@@ -274,6 +287,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
                                         indexOriginalPath = 0
                                         isKanjiCompleted = true
                                         onEvent(KanjiAttemptEvent.IncrementAttemptOnTheEnd(currentErrors))
+                                        onEventDaily(DailyEvent.IncrenemtAttempt)
                                     }
                                 }
                             },
@@ -295,29 +309,43 @@ fun DrawScreen(modifier: Modifier = Modifier,
 
                 val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
 
-                val horizontalLine = Path().apply {
-                    moveTo(0f, centerY)
-                    lineTo(canvasWidth, centerY)
-                }
-
-                val verticalLine = Path().apply {
-                    moveTo(centerX, 0f)
-                    lineTo(centerX, canvasHeight)
-                }
-
-                drawPath(
-                    path = horizontalLine,
-                    color = Color.Black,
-                    style = Stroke(width = 5f, pathEffect = dashEffect),
-                    alpha = 0.15f
+                val horizontalLines = listOf(
+                    centerY to 0.4f,
+                    centerY / 2 to 0.15f,
+                    centerY * 1.5f to 0.15f
                 )
 
-                drawPath(
-                    path = verticalLine,
-                    color = Color.Black,
-                    style = Stroke(width = 5f, pathEffect = dashEffect),
-                    alpha = 0.15f
+                val verticalLines = listOf(
+                    centerX to 0.35f,
+                    centerX / 2 to 0.15f,
+                    centerX * 1.5f to 0.15f
                 )
+
+                horizontalLines.forEach { (y, alpha) ->
+                    val path = Path().apply {
+                        moveTo(0f, y)
+                        lineTo(canvasWidth, y)
+                    }
+                    drawPath(
+                        path = path,
+                        color = Color.Black,
+                        style = Stroke(width = 5f, pathEffect = dashEffect),
+                        alpha = alpha
+                    )
+                }
+
+                verticalLines.forEach { (x, alpha) ->
+                    val path = Path().apply {
+                        moveTo(x, 0f)
+                        lineTo(x, canvasHeight)
+                    }
+                    drawPath(
+                        path = path,
+                        color = Color.Black,
+                        style = Stroke(width = 5f, pathEffect = dashEffect),
+                        alpha = alpha
+                    )
+                }
 
 
                 state.currentPath?.let {
@@ -348,7 +376,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
                             path = animatedPath,
                             color = Color.Black,
                             style = Stroke(width = 25f),
-                            alpha = 0.2f
+                            alpha = 0.2f,
 
                         )
                     }
@@ -389,7 +417,7 @@ fun DrawScreen(modifier: Modifier = Modifier,
             confirmButton = {
                 Button(onClick = {
                     showEndDialog = false
-                     onEvent(KanjiAttemptEvent.SaveAttemptKanji)
+//                     onEvent(KanjiAttemptEvent.SaveAttemptKanji)
                     navController.popBackStack()
                 }) {
                     Text("Ok")
@@ -437,15 +465,15 @@ fun ModalBottomSheetSample(kanji: KanjiEntity?) {
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Button(
-            onClick = { openBottomSheet = !openBottomSheet },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Info,
-                contentDescription = "Show info"
-            )
-        }
+//        Button(
+//            onClick = { openBottomSheet = !openBottomSheet },
+//            modifier = Modifier.align(Alignment.CenterHorizontally)
+//        ) {
+//            Icon(
+//                imageVector = Icons.Filled.Info,
+//                contentDescription = "Show info"
+//            )
+//        }
     }
     if (openBottomSheet) {
 
@@ -569,7 +597,7 @@ fun extractPathData(context: Context, resId: Int, scale: Float = 7.2f): List<Lis
     return parsePathData(pathDataList = pathDataList, scale = scale)
 }
 
-private fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 20, scale: Float): List<List<Offset>> {
+private fun parsePathData(pathDataList: MutableList<String>, numPoints: Int = 300, scale: Float): List<List<Offset>> {
     val paths = mutableListOf<List<Offset>>()
 
     for (pathData in pathDataList) {
@@ -623,9 +651,10 @@ private fun compareWithDTW(originalPath: List<Offset>, currentPath: List<Offset>
 
     }
 
-    val value = (matrix[originalPath.count()][currentPath.count()] / 100)
+    val value = (matrix[originalPath.count()][currentPath.count()] / 300)
     Log.d("value", "$value")
-    return  value < 18.33
+//    return  value < 18.33
+    return value < 86.33
 }
 
 private fun cost(p1: Offset, p2: Offset): Float {
