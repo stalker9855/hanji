@@ -22,6 +22,8 @@ import com.dev.hanji.data.dao.UserDao
 import com.dev.hanji.data.model.DailyAttempt
 import com.dev.hanji.data.model.UserEntity
 
+
+
 @TypeConverters(value = [KanjiConverters::class])
 @Database(entities = [
 
@@ -58,7 +60,8 @@ abstract class AppDatabase : RoomDatabase() {
                        "hanji_database"
                    )
                        .createFromAsset("databases/hanji_database.db")
-                       .fallbackToDestructiveMigrationOnDowngrade()
+                       .fallbackToDestructiveMigration()
+//                       .fallbackToDestructiveMigrationOnDowngrade()
                        .build()
                    INSTANCE = instance
                }

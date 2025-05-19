@@ -65,7 +65,9 @@ fun HomeScreen(modifier: Modifier = Modifier,
        }
 
 
-       AddDefaultBarChart(dailyAttempts =  dailyState.dailyAttempts)
+       if(dailyState.dailyAttempts.size > 2) {
+           AddDefaultBarChart(dailyAttempts =  dailyState.dailyAttempts)
+       }
    }
 }
 

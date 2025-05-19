@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -65,6 +62,18 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
         Text("Loading . . .")
         return
     }
+
+    val entries = state.jisho?.data?.flatMap { entry ->
+        val readings = entry.japanese.mapNotNull { j ->
+            j.word?.let { word ->
+                val reading = j.reading
+                val definition = entry.senses.firstOrNull()?.englishDefinitions?.joinToString(", ") ?: ""
+                "Words: $word\nReading: $reading\nDefinition: $definition"
+            }
+        }
+        readings
+    }?.drop(2) ?: listOf("")
+
 
 
 
@@ -228,6 +237,22 @@ fun KanjiDetailScreen(modifier: Modifier = Modifier, state: KanjiState) {
                         }
                     }
                     CircleStats(state = state, modifier = Modifier.padding(horizontal = 12.dp))
+                }
+
+
+                Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(text = "Words", textAlign = TextAlign.Center, fontSize = 36.sp, fontWeight = FontWeight.SemiBold)
+                    entries
+                        .filter { word -> word.isNotBlank() }
+                        .forEach { word ->
+                            Box(modifier = Modifier.padding(vertical = 4.dp)) {
+
+                                Box(modifier = Modifier.cardStyle().padding(16.dp)) {
+                                    Text(text = word)
+                                }
+                            }
+                        }
+
                 }
 
             }

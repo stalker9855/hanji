@@ -1,11 +1,13 @@
 package com.dev.hanji.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -34,47 +36,38 @@ import com.dev.hanji.data.state.KanjiProgressState
 
 
 @Composable
-fun KanjiProgressSlider(modifier: Modifier = Modifier,
-                        kanjiProgress: LazyPagingItems<KanjiWithAttemptStatus>,
-                        attempts: KanjiProgressState
-                        ) {
+fun KanjiProgressSlider(
+    modifier: Modifier = Modifier,
+    kanjiProgress: LazyPagingItems<KanjiWithAttemptStatus>,
+    attempts: KanjiProgressState
+) {
+    val attempted = (attempts.kanjiProgressState?.attempted ?: 0)
+        .coerceIn(0, kanjiProgress.itemCount)
 
-    val sliderPosition by remember { mutableFloatStateOf(kanjiProgress.itemCount.toFloat()) }
-        Column(
-            modifier = Modifier
-                .padding(vertical = 4.dp)
-                .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .padding(16.dp)
-        ) {
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = UserProgress.title + " · 実績",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = "${attempts.kanjiProgressState?.attempted} / ${attempts.kanjiProgressState?.total}",
-                fontSize = 20.sp,
-            )
-            Slider(
-                value = sliderPosition,
-                onValueChange = {  },
-                enabled = false,
-                colors = SliderDefaults.colors(
-                    disabledThumbColor = Color.Transparent,
-                    disabledActiveTrackColor = MaterialTheme.colorScheme.secondary,
-                    disabledInactiveTickColor = Color.Transparent
-                ),
-                steps = kanjiProgress.itemCount,
-                valueRange = 0f..kanjiProgress.itemCount.toFloat()
-            )
+    val total = (attempts.kanjiProgressState?.total ?: kanjiProgress.itemCount)
+        .coerceAtLeast(1)
 
-        }
-
-
-
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(16.dp)
+    ) {
+        Text(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            text = UserProgress.title + " · 実績",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            text = "$attempted / $total",
+            fontSize = 20.sp,
+        )
     }
+}
+

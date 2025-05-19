@@ -151,9 +151,7 @@ fun DrawScreen(
         onEvent(KanjiAttemptEvent.SetCharacter(it.character))
         onEvent(KanjiAttemptEvent.SetCurrentIndex(currentIndex.intValue))
     }
-    if(attemptState.attemptsList.isNotEmpty()) {
-        Log.d("current attempt kanji", "${attemptState.attemptsList[currentIndex.intValue]}")
-    }
+
 
 
     Column(
@@ -257,7 +255,7 @@ fun DrawScreen(
                                 drawingViewModel.onAction(DrawingAction.OnNewPathStart)
                             },
                             onDragEnd = {
-                                val epsilon = 5f
+                                val epsilon = 10f
                                 val simplifiedPath: List<Offset> =
                                     if (state.currentPath?.path!!.isNotEmpty()) {
                                         ramerDouglasPeucker(state.currentPath?.path!!, epsilon)

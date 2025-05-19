@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
+import com.dev.hanji.data.api.JishoInstance
+import com.dev.hanji.data.api.JishoResponse
 import com.dev.hanji.data.dao.KanjiDao
 import com.dev.hanji.data.events.KanjiEvent
 import com.dev.hanji.data.state.AttemptWithColor
@@ -21,7 +23,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -34,6 +38,21 @@ class KanjiViewModel(private val dao : KanjiDao, character: String?) : ViewModel
 
     private val _kanjiAttempt = dao.getAttemptKanjiByCharacter(character!!)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _jisho: Flow<JishoResponse?> = _kanjiCharacter
+        .filterNotNull()
+        .flatMapLatest { kanji ->
+            flow {
+                try {
+                    val response = JishoInstance.api.getJisho(kanji.character)
+                    emit(response)
+                } catch (e: Exception) {
+                    emit(null)
+                }
+
+            }
+        }
 
     private val _kanjiState = MutableStateFlow(KanjiState())
 
@@ -60,11 +79,12 @@ class KanjiViewModel(private val dao : KanjiDao, character: String?) : ViewModel
             )
         }
 
-    val kanjiState = combine(_kanjiState, _kanjiCharacter, _attemptsWithColor) {
-        state, character, attempt ->
+    val kanjiState = combine(_kanjiState, _kanjiCharacter, _attemptsWithColor, _jisho) {
+        state, character, attempt, jisho ->
             state.copy(
                 character = character,
-                attempts = attempt
+                attempts = attempt,
+                jisho = jisho
             )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), KanjiState())
 
